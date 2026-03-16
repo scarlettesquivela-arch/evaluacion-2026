@@ -132,4 +132,50 @@
             }
 
             const urlPowerAutomate = "TU_URL_AQUI"; 
-            fetch(urlPowerAutomate, {
+            fetch(urlPowerAutomate, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) }).catch(() => {});
+
+            // 2. GENERACIÓN DE PDF SECCIONADO
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('l', 'mm', 'a4');
+            doc.setFillColor(0, 156, 166); doc.rect(0, 0, 297, 20, 'F');
+            doc.setTextColor(255); doc.setFontSize(14); doc.text("INSPECCIÓN DE SERVICIOS - CLÍNICA ALEMANA", 15, 13);
+            
+            doc.setTextColor(0); doc.setFontSize(9);
+            doc.text(`Evaluador: ${eval}`, 15, 28); doc.text(`Instalación: ${inst}`, 110, 28);
+            doc.text(`Unidad: ${serv} | Piso: ${piso}`, 15, 33); doc.text(`Fecha: ${fech}`, 110, 33);
+
+            const rowsTable = [];
+            let c = 1;
+            secciones.forEach(sec => {
+                rowsTable.push([{ content: sec.t, colSpan: 7, styles: { fillColor: [240, 240, 240], fontStyle: 'bold' } }]);
+                sec.q.forEach(qText => {
+                    const i = c++;
+                    rowsTable.push([i, qText, document.getElementById(`v_${i}`).value, document.getElementById(`h_${i}`).value, document.getElementById(`m_${i}`).value, document.getElementById(`f_${i}`).value, document.getElementById(`r_${i}`).value]);
+                });
+            });
+
+            doc.autoTable({
+                startY: 40,
+                head: [['N°', 'Criterio Evaluado', 'Estado', 'Hallazgo', 'Medida de Control', 'Fecha', 'Resp.']],
+                body: rowsTable,
+                theme: 'grid',
+                headStyles: { fillColor: [0, 51, 102] },
+                styles: { fontSize: 6.5, cellPadding: 2 },
+                columnStyles: { 0: { cellWidth: 8 }, 1: { cellWidth: 65 }, 3: { cellWidth: 40 }, 4: { cellWidth: 40 } }
+            });
+
+            if(imagenesArr.length > 0) {
+                doc.addPage('l'); doc.text("REGISTRO FOTOGRÁFICO", 15, 15);
+                imagenesArr.forEach((img, i) => {
+                    let y = 20 + (Math.floor(i/3) * 55);
+                    let x = 15 + ((i % 3) * 90);
+                    if(y > 150) { doc.addPage('l'); y = 20; }
+                    doc.addImage(img, 'JPEG', x, y, 80, 45);
+                });
+            }
+            doc.save(`Inspección_${serv}_${fech}.pdf`);
+        }
+        window.onload = init;
+    </script>
+</body>
+</html>
