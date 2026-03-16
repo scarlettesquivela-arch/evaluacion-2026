@@ -17,15 +17,15 @@
 </head>
 <body class="bg-slate-50 min-h-screen pb-12">
 
-    <div class="max-w-4xl mx-auto p-4">
+    <div class="max-w-5xl mx-auto p-4">
         <div class="bg-white rounded-xl shadow-lg p-6 mb-6 flex flex-col items-center border-b-8 border-[#009ca6]">
             <img src="https://www.clinicaalemana.cl/images/default-source/logos/logo-clinica-alemana-svg.svg" alt="Logo" class="h-14 mb-4">
             <h1 class="text-2xl font-black text-[#003366] uppercase">Inspección de Servicios</h1>
-            <p class="text-xs font-bold text-gray-400">EVALUACIÓN SISTEMÁTICA 2026</p>
+            <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Evaluación Sistemática 2026</p>
         </div>
 
         <div class="bg-white rounded-xl shadow p-6 mb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div class="col-span-full font-bold text-[#003366] border-b pb-2 text-xs uppercase">Datos Generales</div>
+            <div class="col-span-full font-bold text-[#003366] border-b pb-2 text-xs uppercase">Datos del Informe</div>
             <div><span class="label-min">Evaluador</span><input type="text" id="evaluador"></div>
             <div><span class="label-min">Instalación</span>
                 <select id="instalacion">
@@ -50,30 +50,55 @@
             <input type="file" id="fotos" accept="image/*" multiple class="text-xs mb-4">
             <div id="preview" class="grid grid-cols-2 md:grid-cols-5 gap-2 mb-6"></div>
             
-            <span class="label-min">Observaciones de Cierre</span>
-            <textarea id="obs_finales" class="h-20" placeholder="Comentarios generales finales..."></textarea>
+            <span class="label-min">Observaciones Generales de Cierre</span>
+            <textarea id="obs_finales" class="h-20" placeholder="Comentarios finales del evaluador..."></textarea>
 
-            <button onclick="generarPDF()" class="w-full bg-[#003366] text-white font-bold py-4 rounded-lg mt-6 hover:bg-blue-900 transition-all uppercase tracking-widest shadow-lg">
-                Generar Informe Final
+            <button onclick="generarPDFHorizontal()" class="w-full bg-[#003366] text-white font-black py-4 rounded-lg mt-6 hover:bg-blue-900 transition-all uppercase tracking-widest shadow-lg">
+                Generar Informe PDF (Horizontal)
             </button>
         </div>
     </div>
 
     <script>
         const cuestionario = [
-            { id: "INFRA", t: "1. Infraestructura", q: ["Áreas libres de humedad/filtraciones", "¿Pisos en buen estado y no resbaladizos?", "¿Paredes/Cielos/Ventanas bien mantenidas?", "Pasillos libres de obstáculos", "Control de plagas efectivo", "Elementos estructurales seguros"] },
-            { id: "SSHH", t: "Servicios Higiénicos", q: ["Dispone de servicios higiénicos", "Separados por hombres y mujeres", "Artefactos suficientes por turno", "Distancia no superior a 75m", "Buen estado de limpieza", "Red sin filtraciones", "Control de plagas vigente"] },
-            { id: "VEST", t: "Vestidores", q: ["Existen vestidores", "Independientes por sexo", "Casilleros suficientes"] },
-            { id: "ESTAR", t: "Sala de Estar Personal", q: ["Dispone de sala de estar", "Dispensador de agua señalizado", "Sala libre de artículos domésticos", "Artículos con autorización"] },
-            { id: "INCEN", t: "2. Prevención Incendios - Extintores", q: ["Adecuados al riesgo", "Mantención anual", "Sitios fácil acceso/señalizados", "Certificación/Código interno", "Estado manómetro/manguera"] },
-            { id: "RHUM", t: "Red Húmeda", q: ["Operativa y buen estado", "Mantención anual", "Gabinete en buen estado", "Redes señalizadas"] },
-            { id: "NOTIF", t: "Teléfono Notifier", q: ["Instrucciones buenas condiciones", "Debidamente señalizados", "Comunicación directa central", "Mantención anual"] },
-            { id: "ROCI", t: "Rociadores y Detección", q: ["Rociadores despejados", "Sistema detección humo", "Detectores operativos", "Detectores limpios"] },
-            { id: "EVAC", t: "Vías de Evacuación", q: ["Libres de obstáculos", "Señalización visible", "Apertura fácil", "Puertas libres de obstáculos"] },
-            { id: "ELEC", t: "3. Suministro Eléctrico", q: ["Cableados contenidos", "Enchufes buen estado", "Sin sobrecarga alargadores"] }
+            { id: "INFRA", t: "1. Infraestructura", q: [
+                "Las áreas y superficies de trabajo están libres de humedad y/o filtraciones",
+                "¿Los pisos se encuentran en buenas condiciones, sólidos y no resbaladizos?",
+                "¿Las paredes, puertas, cielos rasos y ventanas bien mantenidas?",
+                "Pisos y pasillos libres de obstáculos",
+                "Medidas efectivas para evitar plagas",
+                "Elementos estructurales en buen estado"
+            ]},
+            { id: "SSHH", t: "Servicios Higiénicos", q: [
+                "Dispone de servicios higiénicos", "Separados por sexo", "Artefactos suficientes", "Distancia no superior a 75m", "Artefactos limpios", "Red sin filtraciones", "Control de plagas vigente"
+            ]},
+            { id: "VEST", t: "Vestidores", q: [
+                "Existen vestidores", "Independientes por sexo", "Casilleros suficientes"
+            ]},
+            { id: "ESTAR", t: "Sala de Estar Personal", q: [
+                "Dispone de sala de estar", "Dispensador de agua señalizado", "Sala libre de artículos domésticos", "Artículos con autorización"
+            ]},
+            { id: "INCEN", t: "2. Prevención Incendios - Extintores", q: [
+                "Adecuados al riesgo", "Mantención anual", "Fácil acceso/señalizados", "Certificación/Código interno", "Manómetro/Manguera ok"
+            ]},
+            { id: "RHUM", t: "Red Húmeda", q: [
+                "Operativa y buen estado", "Mantención anual", "Gabinete ok", "Redes señalizadas"
+            ]},
+            { id: "NOTIF", t: "Teléfono Notifier", q: [
+                "Instrucciones ok", "Señalizados", "Comunicación directa", "Mantención anual"
+            ]},
+            { id: "ROCI", t: "Rociadores y Detección", q: [
+                "Rociadores despejados", "Sistema detección humo", "Detectores operativos", "Detectores limpios"
+            ]},
+            { id: "EVAC", t: "Vías de Evacuación", q: [
+                "Libres de obstáculos", "Señalización visible", "Apertura fácil", "Puertas libres obstáculos"
+            ]},
+            { id: "ELEC", t: "3. Suministro Eléctrico", q: [
+                "Cableados contenidos", "Enchufes buen estado", "Sin sobrecarga alargadores"
+            ]}
         ];
 
-        function renderForm() {
+        function init() {
             const cont = document.getElementById('contenedor-inspeccion');
             let n = 1;
             cuestionario.forEach(sec => {
@@ -88,14 +113,14 @@
 
                     div.innerHTML = `
                         <p class="text-xs font-bold text-gray-700 mb-2">${n}. ${txt}</p>
-                        <div class="grid grid-cols-1 md:grid-cols-4 gap-2 mb-3">
-                            <div><span class="label-min">Estado</span><select id="v_${n}" ${logic} class="font-bold"><option>CUMPLE</option><option>NO CUMPLE</option><option>N/A</option></select></div>
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-2 mb-2">
+                            <div><span class="label-min">Cumplimiento</span><select id="v_${n}" ${logic} class="font-bold"><option>CUMPLE</option><option>NO CUMPLE</option><option>N/A</option></select></div>
                             <div><span class="label-min">Medida Control</span><input type="text" id="m_${n}"></div>
-                            <div><span class="label-min">Fecha Ejec.</span><input type="date" id="f_${n}"></div>
+                            <div><span class="label-min">Fecha Ejecución</span><input type="date" id="f_${n}"></div>
                             <div><span class="label-min">Responsable</span><input type="text" id="r_${n}"></div>
                         </div>
-                        <span class="label-min">Hallazgo Pregunta ${n}</span>
-                        <textarea id="h_${n}" class="h-12" placeholder="Describa el hallazgo específico aquí..."></textarea>
+                        <span class="label-min">Hallazgo (Específico para punto ${n})</span>
+                        <textarea id="h_${n}" class="h-10 text-xs" placeholder="Describa el hallazgo aquí..."></textarea>
                     `;
                     cont.appendChild(div); n++;
                 });
@@ -108,56 +133,76 @@
             items.forEach((c, i) => { if(i > 0) c.style.display = (val === 'N/A') ? 'none' : 'block'; });
         }
 
-        const imgData = [];
+        const imagenesArr = [];
         document.getElementById('fotos').onchange = (e) => {
-            const p = document.getElementById('preview'); p.innerHTML = ''; imgData.length = 0;
+            const p = document.getElementById('preview'); p.innerHTML = ''; imagenesArr.length = 0;
             Array.from(e.target.files).slice(0, 10).forEach(f => {
                 const r = new FileReader();
-                r.onload = (ev) => { imgData.push(ev.target.result); p.innerHTML += `<img src="${ev.target.result}" class="h-16 w-full object-cover rounded shadow">`; };
+                r.onload = (ev) => { imagenesArr.push(ev.target.result); p.innerHTML += `<img src="${ev.target.result}" class="h-16 w-full object-cover rounded shadow">`; };
                 r.readAsDataURL(f);
             });
         };
 
-        async function generarPDF() {
+        async function generarPDFHorizontal() {
             const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
+            // 'l' para landscape (horizontal)
+            const doc = new jsPDF('l', 'mm', 'a4');
             
-            doc.setFillColor(0, 156, 166); doc.rect(0, 0, 210, 25, 'F');
-            doc.setTextColor(255); doc.setFontSize(14); doc.text("INSPECCIÓN DE SERVICIOS - CLÍNICA ALEMANA", 15, 16);
+            // Header Corporativo
+            doc.setFillColor(0, 156, 166); doc.rect(0, 0, 297, 20, 'F');
+            doc.setTextColor(255); doc.setFontSize(14); 
+            doc.text("INSPECCIÓN DE SERVICIOS - CLÍNICA ALEMANA", 15, 13);
             
-            doc.setTextColor(0); doc.setFontSize(8);
-            doc.text(`Evaluador: ${document.getElementById('evaluador').value}`, 15, 32);
-            doc.text(`Sede: ${document.getElementById('instalacion').value}`, 110, 32);
-            doc.text(`Servicio: ${document.getElementById('servicio').value} | Piso: ${document.getElementById('piso').value}`, 15, 38);
-            doc.text(`Fecha: ${document.getElementById('fecha').value}`, 110, 38);
+            // Datos generales
+            doc.setTextColor(0); doc.setFontSize(9);
+            doc.text(`Evaluador: ${document.getElementById('evaluador').value}`, 15, 28);
+            doc.text(`Instalación: ${document.getElementById('instalacion').value}`, 110, 28);
+            doc.text(`Unidad: ${document.getElementById('servicio').value} | Piso: ${document.getElementById('piso').value}`, 15, 33);
+            doc.text(`Fecha: ${document.getElementById('fecha').value}`, 110, 33);
 
             const rows = [];
             let allQ = cuestionario.flatMap(s => s.q);
             for(let i=1; i<=allQ.length; i++) {
-                rows.push([i, allQ[i-1], document.getElementById(`v_${i}`).value, document.getElementById(`h_${i}`).value]);
+                rows.push([
+                    i, 
+                    allQ[i-1], 
+                    document.getElementById(`v_${i}`).value, 
+                    document.getElementById(`h_${i}`).value,
+                    document.getElementById(`m_${i}`).value,
+                    document.getElementById(`f_${i}`).value,
+                    document.getElementById(`r_${i}`).value
+                ]);
             }
 
             doc.autoTable({ 
-                startY: 45, 
-                head: [['N°', 'Ítem Evaluado', 'Estado', 'Hallazgo Específico']], 
+                startY: 40, 
+                head: [['N°', 'Pregunta / Ítem', 'Cumple', 'Hallazgo', 'Medida de Control', 'Fecha', 'Responsable']], 
                 body: rows, 
                 headStyles: { fillColor: [0, 51, 102] }, 
-                styles: { fontSize: 6 },
-                columnStyles: { 1: { cellWidth: 50 }, 3: { cellWidth: 70 } }
+                styles: { fontSize: 6.5, cellPadding: 2 },
+                columnStyles: { 
+                    0: { cellWidth: 8 },
+                    1: { cellWidth: 60 },
+                    2: { cellWidth: 20 },
+                    3: { cellWidth: 50 },
+                    4: { cellWidth: 50 },
+                    5: { cellWidth: 25 },
+                    6: { cellWidth: 35 }
+                }
             });
 
-            if(imgData.length > 0) {
-                doc.addPage(); doc.text("REGISTRO FOTOGRÁFICO", 15, 20);
-                imgData.forEach((img, i) => {
-                    let y = 25 + (Math.floor(i/2) * 55);
-                    let x = (i % 2 === 0) ? 15 : 110;
-                    if(y > 250) { doc.addPage(); y = 25; }
-                    doc.addImage(img, 'JPEG', x, y, 85, 45);
+            if(imagenesArr.length > 0) {
+                doc.addPage('l'); doc.text("REGISTRO FOTOGRÁFICO DE HALLAZGOS", 15, 20);
+                imagenesArr.forEach((img, i) => {
+                    let y = 30 + (Math.floor(i/3) * 60);
+                    let x = 15 + ((i % 3) * 90);
+                    if(y > 150) { doc.addPage('l'); y = 20; }
+                    doc.addImage(img, 'JPEG', x, y, 80, 50);
                 });
             }
-            doc.save(`Inspeccion_${document.getElementById('instalacion').value || 'CA'}.pdf`);
+            doc.save(`Informe_CA_${document.getElementById('instalacion').value || 'Inspeccion'}.pdf`);
         }
-        window.onload = renderForm;
+        window.onload = init;
     </script>
 </body>
 </html>
