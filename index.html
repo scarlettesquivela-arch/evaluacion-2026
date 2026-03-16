@@ -3,90 +3,130 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inspección de Servicios 2026</title>
+    <title>Inspección de Servicios - Clínica Alemana</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
     <style>
         :root { --clinica-verde: #009ca6; --clinica-azul: #003366; }
-        .section-header { background-color: var(--clinica-azul); color: white; padding: 12px; border-radius: 6px; margin-top: 25px; font-weight: bold; text-transform: uppercase; font-size: 0.85rem; }
-        .card-pregunta { background: white; border-left: 5px solid var(--clinica-verde); padding: 15px; margin-bottom: 12px; border-radius: 0 10px 10px 0; box-shadow: 0 2px 5px rgba(0,0,0,0.08); }
+        .section-header { background-color: var(--clinica-azul); color: white; padding: 10px; border-radius: 4px; margin-top: 20px; font-weight: bold; text-transform: uppercase; font-size: 0.8rem; }
+        .card-pregunta { background: white; border-left: 4px solid var(--clinica-verde); padding: 12px; margin-bottom: 8px; border-radius: 0 8px 8px 0; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        select, input { border: 1px solid #d1d5db; border-radius: 4px; padding: 6px; font-size: 0.8rem; }
     </style>
 </head>
 <body class="bg-slate-50 min-h-screen pb-12">
 
     <div class="max-w-4xl mx-auto p-4">
-        <div class="bg-white rounded-2xl shadow-xl p-8 mb-8 flex flex-col items-center border-b-8 border-[#009ca6]">
-            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAKAAAAB4CAYAAAB1ovlvAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAJTSURBVHgB7d0xbhNREIDh90ZIS8mSkgYVpWAnpLUCUiChp6YkJ6YkJ6alRkNFRUlLQUlLSYshKUlLSYshKSkpWbKzZInP7G78ZscBf0uR8XvS7Hqz82u9v9vVAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA8K8S693T9S7HInEksY5FYuV3InEmsfK9i0TiWCLjMvPueXv5+0UisU6sXCIidX6e7D6Yv49Xn59Vn89X77/W789Wf9uIid/L7OnvRzLrvv6+N+v91/V+/365v6+T32eJR0S8SuRTIreJV0S8Tfxa4tfiP0v8UeLx7311rM/3InEqEWciL8u49O5p3L869u5p3NuI+1vHve0u7m0W93az+L3M8vtefV87v5/Z8/M72X1v1vu9v9+/X+7v6/T3WeIREa8S+ZTITeIVEX8WvxP5pfivEn+WeLzE61if70XiVCLORN6XfXfX76777q77bq67m9tuf9vtbu7mZvfzZrP7erPZfb3Z7L7e7H7ebHZfbza7r826u5m7mbu57u6u3/nu5u7m9tvdbrfb7e7m9tvdbrfb7W5ut93tbrvd7W5ut93tdrvd7u52u93u7na73e7mZrvZze7mZrvZze5mN7ub3exut9vN7na7u93ubndzt7vtzW57s9ve7La7ue1ubrvb7m63293ubrvb7W5ut93tdrvd7uZ2u93udrvd7m5ut5vd7G5ut5vd7G52s7vZzW52u93sbne7u93N7na3u93tbnv779+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOD/7B+S3L5M9zKxXQAAAABJRU5ErkJggg==" alt="Logo Clínica Alemana" class="h-20 mb-4">
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-6 flex flex-col items-center border-b-8 border-[#009ca6]">
+            <img src="https://www.clinicaalemana.cl/images/default-source/logos/logo-clinica-alemana-svg.svg" alt="Logo" class="h-14 mb-4">
+            <h1 class="text-2xl font-black text-[#003366] uppercase">Inspección de Servicios</h1>
+            <p class="text-xs font-bold text-gray-400">EVALUACIÓN SISTEMÁTICA 2026</p>
+        </div>
+
+        <div class="bg-blue-50 p-4 rounded-lg mb-6 border-l-4 border-blue-400 text-sm text-blue-800">
+            <strong>Información:</strong> Complete los datos de identificación y evalúe cada punto. Puede adjuntar hasta 10 fotografías al final.
+        </div>
+
+        <div class="bg-white rounded-xl shadow p-6 mb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="col-span-full font-bold text-[#003366] border-b pb-2 text-xs uppercase">Identificación</div>
             
-            <h1 class="text-3xl font-black text-[#003366] text-center uppercase tracking-tight">Inspección de Servicios</h1>
-            <p class="text-teal-600 font-bold tracking-widest text-xs mt-1 uppercase">Evaluación Sistemática 2026</p>
+            <div class="flex flex-col">
+                <label class="text-[10px] font-bold text-gray-500 uppercase">Evaluador</label>
+                <input type="text" id="evaluador" placeholder="Nombre completo">
+            </div>
+
+            <div class="flex flex-col">
+                <label class="text-[10px] font-bold text-gray-500 uppercase">Instalación</label>
+                <select id="instalacion">
+                    <option value="">Seleccione una instalación...</option>
+                    <option>Clínica Alemana Vitacura</option>
+                    <option>Clínica Alemana La Dehesa</option>
+                    <option>Clínica Manquehue Oriente (EMO)</option>
+                    <option>Centro Médico Plaza Egaña</option>
+                    <option>Centro Médico Chicureo</option>
+                    <option>Centro Médico San Carlos de Apoquindo</option>
+                    <option>Centro Médico Rafael Maluenda</option>
+                    <option>Centro Médico Maitencillo</option>
+                    <option>Centro Médico La Parva</option>
+                    <option>TM Los Dominicos</option>
+                    <option>TM El Golf</option>
+                    <option>TM La Reina</option>
+                    <option>TM Ñuñoa</option>
+                    <option>TM Providencia</option>
+                    <option>TM Tobalaba</option>
+                    <option>TM Huechuraba</option>
+                    <option>Sala Cuna</option>
+                    <option>Lo Arcaya</option>
+                    <option>Cowork</option>
+                    <option>Concilio Vaticano</option>
+                </select>
+            </div>
+
+            <div class="flex flex-col">
+                <label class="text-[10px] font-bold text-gray-500 uppercase">Unidad / Servicio</label>
+                <input type="text" id="servicio">
+            </div>
+
+            <div class="flex flex-col">
+                <label class="text-[10px] font-bold text-gray-500 uppercase">Piso</label>
+                <input type="text" id="piso">
+            </div>
+
+            <div class="md:col-span-2 flex flex-col">
+                <label class="text-[10px] font-bold text-gray-500 uppercase">Fecha de Evaluación</label>
+                <input type="date" id="fecha" class="w-full">
+            </div>
         </div>
 
-        <div class="bg-teal-50 border-l-4 border-[#009ca6] p-6 mb-8 rounded-r-xl shadow-sm">
-            <h3 class="font-black text-[#003366] mb-2 uppercase text-sm italic">Instrucciones de Inspección</h3>
-            <p class="text-sm text-slate-700 leading-relaxed">
-                Esta herramienta permite el registro sistemático de las condiciones de seguridad en las instalaciones. Asegúrese de completar todos los campos, incluido el **Piso**, y adjuntar evidencia fotográfica para validar sus hallazgos.
-            </p>
-        </div>
+        <div id="preguntas-container"></div>
 
-        <div class="bg-white rounded-2xl shadow p-8 mb-8 grid grid-cols-1 md:grid-cols-2 gap-4 border border-slate-200">
-            <div class="col-span-full font-bold text-[#003366] border-b pb-2 mb-2 text-xs uppercase">Campos Generales</div>
-            <div><label class="block text-[10px] font-black text-slate-400 uppercase">Evaluador</label><input type="text" id="evaluador" class="w-full p-2 border rounded border-slate-300"></div>
-            <div><label class="block text-[10px] font-black text-slate-400 uppercase">Instalación</label><input type="text" id="instalacion" class="w-full p-2 border rounded border-slate-300"></div>
-            <div><label class="block text-[10px] font-black text-slate-400 uppercase">Unidad / Servicio</label><input type="text" id="servicio" class="w-full p-2 border rounded border-slate-300"></div>
-            <div><label class="block text-[10px] font-black text-slate-400 uppercase">Piso</label><input type="text" id="piso" class="w-full p-2 border rounded border-slate-300"></div>
-            <div class="md:col-span-2"><label class="block text-[10px] font-black text-slate-400 uppercase">Fecha</label><input type="date" id="fecha" class="w-full p-2 border rounded border-slate-300"></div>
-        </div>
-
-        <div id="contenedor-preguntas"></div>
-
-        <div class="bg-white rounded-2xl shadow-lg p-8 mt-10 border-t-8 border-[#009ca6]">
-            <h2 class="font-bold text-[#003366] mb-4 uppercase text-sm">Registro Fotográfico (Máx 4)</h2>
-            <input type="file" id="fotos" accept="image/*" multiple class="text-xs mb-6 block w-full">
-            <div id="preview" class="grid grid-cols-2 md:grid-cols-4 gap-2 mb-6"></div>
+        <div class="bg-white rounded-xl shadow p-6 mt-8 border-t-8 border-[#009ca6]">
+            <h2 class="font-bold text-[#003366] mb-4 text-sm uppercase">Registro Fotográfico (Máx 10)</h2>
+            <input type="file" id="fotos" accept="image/*" multiple class="text-xs mb-4">
+            <div id="preview" class="grid grid-cols-2 md:grid-cols-5 gap-2 mb-6"></div>
             
-            <textarea id="obs_finales" class="w-full p-4 border rounded mb-6 h-32 text-sm" placeholder="Observaciones adicionales..."></textarea>
+            <label class="text-[10px] font-bold text-gray-500 uppercase">Observaciones adicionales</label>
+            <textarea id="obs_finales" class="w-full p-2 border rounded h-20 text-sm"></textarea>
 
-            <button onclick="generarPDF()" class="w-full bg-[#003366] text-white font-black py-5 rounded-2xl shadow-xl hover:bg-[#002244] transition-all text-xl uppercase tracking-widest">
-                Descargar Informe de Inspección
+            <button onclick="generarPDF()" class="w-full bg-[#003366] text-white font-bold py-4 rounded-lg mt-6 hover:bg-blue-900 transition-all uppercase tracking-widest">
+                Generar Informe PDF
             </button>
         </div>
     </div>
 
     <script>
         const cuestionario = [
-            { t: "1. Infraestructura", q: ["Áreas libres de humedad/filtraciones [cite: 6]", "¿Pisos en buen estado y no resbaladizos? [cite: 6]", "Paredes/Cielos/Ventanas limpias y mantenidas [cite: 6]", "Pasillos libres de obstáculos [cite: 6]", "Control de plagas efectivo [cite: 6]", "Estructuras en buen estado [cite: 6]"] },
-            { t: "2. Servicios Higiénicos", q: ["Disponibilidad de excusado y lavatorio [cite: 6]", "Baños separados por sexo [cite: 6]", "Cantidad de artefactos suficiente [cite: 6]", "Distancia menor a 75m [cite: 6]", "Limpieza de artefactos [cite: 6]", "Red sin filtraciones [cite: 6]", "Control plagas vigente [cite: 6]"] },
-            { t: "3. Prevención contra Incendios", q: ["Extintores adecuados al riesgo [cite: 6]", "Mantención anual extintores [cite: 6]", "Vías evacuación libres [cite: 6]", "Puertas de emergencia despejadas [cite: 6]"] },
-            { t: "4. Suministro Eléctrico", q: ["Cableados contenidos [cite: 6]", "Enchufes en buen estado [cite: 6]", "Sin sobrecarga de alargadores [cite: 6]"] }
+            { t: "1. Infraestructura", q: ["Áreas libres de humedad/filtraciones", "¿Pisos en buen estado y no resbaladizos?", "Paredes/Cielos/Ventanas limpias", "Pasillos libres de obstáculos", "Control de plagas efectivo", "Estructuras en buen estado"] },
+            { t: "2. Servicios Higiénicos", q: ["Disponibilidad de excusado y lavatorio", "Baños separados por sexo", "Cantidad de artefactos suficiente", "Distancia menor a 75m", "Limpieza de artefactos", "Red sin filtraciones", "Control plagas vigente"] },
+            { t: "3. Prevención de Incendios", q: ["Extintores adecuados", "Mantención anual extintores", "Señalética visible", "Red húmeda operativa", "Vías evacuación despejadas", "Puertas emergencia fácil apertura"] },
+            { t: "4. Suministro Eléctrico", q: ["Cableados contenidos", "Enchufes en buen estado", "Sin sobrecarga de alargadores"] }
         ];
 
-        function init() {
-            const cont = document.getElementById('contenedor-preguntas');
+        function cargarForm() {
+            const c = document.getElementById('preguntas-container');
             let n = 1;
-            cuestionario.forEach(sec => {
-                const h = document.createElement('div'); h.className = 'section-header'; h.innerText = sec.t; cont.appendChild(h);
-                sec.q.forEach(p => {
-                    const d = document.createElement('div'); d.className = 'card-pregunta mt-3';
-                    d.innerHTML = `<p class="text-sm font-bold text-slate-700 mb-3">${n}. ${p}</p>
+            cuestionario.forEach(s => {
+                const h = document.createElement('div'); h.className = 'section-header'; h.innerText = s.t; c.appendChild(h);
+                s.q.forEach(p => {
+                    const div = document.createElement('div'); div.className = 'card-pregunta';
+                    div.innerHTML = `<p class="text-xs font-bold text-gray-700 mb-2">${n}. ${p}</p>
                         <div class="grid grid-cols-1 md:grid-cols-4 gap-2">
-                            <select id="c_${n}" class="p-2 border rounded text-xs font-bold"><option>CUMPLE</option><option>NO CUMPLE</option><option>N/A</option></select>
-                            <input type="text" id="m_${n}" placeholder="Medida" class="p-2 border rounded text-xs">
-                            <input type="date" id="f_${n}" class="p-2 border rounded text-xs">
-                            <input type="text" id="r_${n}" placeholder="Responsable" class="p-2 border rounded text-xs">
+                            <select id="est_${n}" class="font-bold"><option>CUMPLE</option><option>NO CUMPLE</option><option>N/A</option></select>
+                            <input type="text" id="med_${n}" placeholder="Medida">
+                            <input type="date" id="fec_${n}">
+                            <input type="text" id="res_${n}" placeholder="Resp.">
                         </div>`;
-                    cont.appendChild(d); n++;
+                    c.appendChild(div); n++;
                 });
             });
         }
 
-        const fotosArr = [];
+        const imagenes = [];
         document.getElementById('fotos').onchange = (e) => {
-            const p = document.getElementById('preview'); p.innerHTML = ''; fotosArr.length = 0;
-            Array.from(e.target.files).slice(0,4).forEach(f => {
+            const p = document.getElementById('preview'); p.innerHTML = ''; imagenes.length = 0;
+            Array.from(e.target.files).slice(0, 10).forEach(f => {
                 const r = new FileReader();
-                r.onload = (ev) => { fotosArr.push(ev.target.result); p.innerHTML += `<img src="${ev.target.result}" class="h-16 w-full object-cover rounded border-2 border-[#009ca6]">`; };
+                r.onload = (ev) => { imagenes.push(ev.target.result); p.innerHTML += `<img src="${ev.target.result}" class="h-16 w-full object-cover rounded">`; };
                 r.readAsDataURL(f);
             });
         };
@@ -94,32 +134,50 @@
         async function generarPDF() {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
-            doc.setFillColor(0, 156, 166); doc.rect(0, 0, 210, 20, 'F');
-            doc.setTextColor(255, 255, 255); doc.setFontSize(14); doc.text("INSPECCIÓN DE SERVICIOS - CLÍNICA ALEMANA", 10, 13);
             
-            doc.setTextColor(0, 0, 0); doc.setFontSize(10);
-            doc.text(`Evaluador: ${document.getElementById('evaluador').value}`, 15, 30);
-            doc.text(`Unidad: ${document.getElementById('servicio').value} | Piso: ${document.getElementById('piso').value}`, 15, 37);
-            doc.text(`Fecha: ${document.getElementById('fecha').value}`, 150, 30);
+            // Header
+            doc.setFillColor(0, 156, 166); doc.rect(0, 0, 210, 20, 'F');
+            doc.setTextColor(255); doc.setFontSize(14); doc.text("INSPECCIÓN DE SERVICIOS - CLÍNICA ALEMANA", 10, 13);
+            
+            // Datos
+            doc.setTextColor(0); doc.setFontSize(9);
+            doc.text(`Evaluador: ${document.getElementById('evaluador').value}`, 10, 30);
+            doc.text(`Instalación: ${document.getElementById('instalacion').value}`, 110, 30);
+            doc.text(`Servicio: ${document.getElementById('servicio').value} | Piso: ${document.getElementById('piso').value}`, 10, 37);
+            doc.text(`Fecha: ${document.getElementById('fecha').value}`, 110, 37);
 
-            const filas = [];
-            for(let i=1; i<=20; i++) { // Se ajusta según cantidad de preguntas cargadas
-                if(document.getElementById(`c_${i}`)) {
-                    filas.push([i, document.getElementById(`c_${i}`).value, document.getElementById(`m_${i}`).value, document.getElementById(`f_${i}`).value]);
+            // Tabla (Basada en las 23 preguntas de este ejemplo. Si son 45, el loop llega a 45)
+            const body = [];
+            for(let i=1; i<=23; i++) {
+                if(document.getElementById(`est_${i}`)) {
+                    body.push([i, cuestionario.flatMap(x=>x.q)[i-1], document.getElementById(`est_${i}`).value, document.getElementById(`med_${i}`).value, document.getElementById(`fec_${i}`).value]);
                 }
             }
 
-            doc.autoTable({ startY: 45, head: [['N°', 'Estado', 'Medida', 'Fecha']], body: filas, headStyles: { fillColor: [0, 51, 102] }, styles: { fontSize: 7 } });
+            doc.autoTable({
+                startY: 45,
+                head: [['N°', 'Pregunta', 'Estado', 'Medida', 'Fecha']],
+                body: body,
+                headStyles: { fillColor: [0, 51, 102] },
+                styles: { fontSize: 7 },
+                columnStyles: { 1: { cellWidth: 70 } }
+            });
 
-            if(fotosArr.length > 0) {
-                doc.addPage(); doc.text("REGISTRO FOTOGRÁFICO", 15, 20);
-                fotosArr.forEach((img, i) => { doc.addImage(img, 'JPEG', 15, 30 + (i*60), 90, 50); });
+            // Fotos (Máximo 10)
+            if(imagenes.length > 0) {
+                doc.addPage();
+                doc.text("REGISTRO FOTOGRÁFICO", 10, 15);
+                imagenes.forEach((img, i) => {
+                    let y = 20 + (Math.floor(i/2) * 55);
+                    let x = (i % 2 === 0) ? 10 : 110;
+                    if(y > 250) { doc.addPage(); y = 20; }
+                    doc.addImage(img, 'JPEG', x, y, 90, 50);
+                });
             }
 
-            doc.save("Inspeccion_Servicios_CA.pdf");
+            doc.save(`Inspeccion_${document.getElementById('instalacion').value}.pdf`);
         }
-
-        window.onload = init;
+        window.onload = cargarForm;
     </script>
 </body>
 </html>
