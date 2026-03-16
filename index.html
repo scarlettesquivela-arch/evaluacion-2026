@@ -21,11 +21,10 @@
         <div class="bg-white rounded-xl shadow-lg p-6 mb-6 flex flex-col items-center border-b-8 border-[#009ca6]">
             <img src="https://www.clinicaalemana.cl/images/default-source/logos/logo-clinica-alemana-svg.svg" alt="Logo" class="h-14 mb-4">
             <h1 class="text-2xl font-black text-[#003366] uppercase">Inspección de Servicios</h1>
-            <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Evaluación Sistemática 2026</p>
+            <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Generación de Reporte con Secciones</p>
         </div>
 
         <div class="bg-white rounded-xl shadow p-6 mb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div class="col-span-full font-bold text-[#003366] border-b pb-2 text-xs uppercase">Datos del Informe</div>
             <div><span class="label-min">Evaluador</span><input type="text" id="evaluador"></div>
             <div><span class="label-min">Instalación</span>
                 <select id="instalacion">
@@ -49,56 +48,48 @@
             <h2 class="font-bold text-[#003366] mb-4 text-sm uppercase">Evidencia Fotográfica (Máx 10)</h2>
             <input type="file" id="fotos" accept="image/*" multiple class="text-xs mb-4">
             <div id="preview" class="grid grid-cols-2 md:grid-cols-5 gap-2 mb-6"></div>
-            
-            <button onclick="procesarTodoYEnviar()" class="w-full bg-[#003366] text-white font-black py-5 rounded-lg mt-6 hover:bg-blue-900 transition-all uppercase tracking-widest shadow-xl">
-                Enviar a OneDrive y Descargar PDF
+            <button onclick="enviarYDescargarReporte()" class="w-full bg-[#003366] text-white font-black py-5 rounded-lg mt-6 uppercase tracking-widest shadow-xl">
+                Enviar a OneDrive y Generar PDF Seccionado
             </button>
         </div>
     </div>
 
     <script>
-        const cuestionario = [
-            { id: "INFRA", t: "1. Infraestructura", q: ["Las áreas y superficies de trabajo están libres de humedad y/o filtraciones", "¿Los pisos se encuentran en buenas condiciones, sólidos y no resbaladizos?", "¿Las paredes, puertas, cielos rasos y ventanas bien mantenidas?", "Pisos y pasillos libres de obstáculos", "Medidas efectivas para evitar plagas", "Elementos estructurales en buen estado"] },
-            { id: "SSHH", t: "Servicios Higiénicos", q: ["Dispone de servicios higiénicos", "Separados por sexo", "Artefactos suficientes", "Distancia no superior a 75m", "Artefactos limpios", "Red sin filtraciones", "Control de plagas vigente"] },
-            { id: "VEST", t: "Vestidores", q: ["Existen vestidores", "Independientes por sexo", "Casilleros suficientes"] },
-            { id: "ESTAR", t: "Sala de Estar Personal", q: ["Dispone de sala de estar", "Dispensador de agua señalizado", "Sala libre de artículos domésticos", "Artículos con autorización"] },
-            { id: "INCEN", t: "2. Prevención Incendios - Extintores", q: ["Adecuados al riesgo", "Mantención anual", "Fácil acceso/señalizados", "Certificación/Código interno", "Manómetro/Manguera ok"] },
-            { id: "RHUM", t: "Red Húmeda", q: ["Operativa y buen estado", "Mantención anual", "Gabinete ok", "Redes señalizadas"] },
-            { id: "NOTIF", t: "Teléfono Notifier", q: ["Instrucciones ok", "Señalizados", "Comunicación directa", "Mantención anual"] },
-            { id: "ROCI", t: "Rociadores y Detección", q: ["Rociadores despejados", "Sistema detección humo", "Detectores operativos", "Detectores limpios"] },
-            { id: "EVAC", t: "Vías de Evacuación", q: ["Libres de obstáculos", "Señalización visible", "Apertura fácil", "Puertas libres obstáculos"] },
-            { id: "ELEC", t: "3. Suministro Eléctrico", q: ["Cableados contenidos", "Enchufes buen estado", "Sin sobrecarga alargadores"] }
+        const secciones = [
+            { id: "INFRA", t: "1. Infraestructura", q: ["Humedad/filtraciones", "Pisos buen estado", "Paredes/Cielos ok", "Pasillos libres", "Control plagas", "Estructuras seguras"] },
+            { id: "SSHH", t: "Servicios Higiénicos", q: ["Dispone de SSHH", "Separados sexo", "Artefactos suficientes", "Distancia < 75m", "Limpieza ok", "Red ok", "Plagas ok"] },
+            { id: "VEST", t: "Vestidores", q: ["Existen vestidores", "Independientes", "Casilleros ok"] },
+            { id: "ESTAR", t: "Sala de Estar", q: ["Dispone sala estar", "Agua señalizada", "Sin domésticos", "Autorización ok"] },
+            { id: "INCEN", t: "2. Extintores", q: ["Adecuados", "Mantención anual", "Fácil acceso", "Certificación", "Estado ok"] },
+            { id: "RHUM", t: "Red Húmeda", q: ["Operativa", "Mantención anual", "Gabinete ok", "Señalizada"] },
+            { id: "NOTIF", t: "Notifier", q: ["Instrucciones ok", "Señalizados", "Comunicación ok", "Mantención ok"] },
+            { id: "ROCI", t: "Rociadores", q: ["Despejados", "Detección humo", "Operativos", "Limpios"] },
+            { id: "EVAC", t: "Vías Evacuación", q: ["Libres obstáculos", "Señalización ok", "Apertura fácil", "Puertas ok"] },
+            { id: "ELEC", t: "3. Eléctrico", q: ["Cableados ok", "Enchufes ok", "Sin sobrecarga"] }
         ];
 
         function init() {
             const cont = document.getElementById('contenedor-inspeccion');
             let n = 1;
-            cuestionario.forEach(sec => {
-                const header = document.createElement('div'); header.className = 'section-header'; header.innerText = sec.t; cont.appendChild(header);
+            secciones.forEach(sec => {
+                const h = document.createElement('div'); h.className = 'section-header'; h.innerText = sec.t; cont.appendChild(h);
                 sec.q.forEach(txt => {
                     const div = document.createElement('div');
-                    div.className = `card-pregunta grp-${sec.id}`;
-                    let logic = (n === 7) ? "SSHH" : (n === 14) ? "VEST" : (n === 17) ? "ESTAR" : null;
+                    div.className = `card-pregunta`;
                     div.innerHTML = `
                         <p class="text-xs font-bold text-gray-700 mb-2">${n}. ${txt}</p>
                         <div class="grid grid-cols-1 md:grid-cols-4 gap-2 mb-2">
-                            <div><span class="label-min">Cumplimiento</span><select id="v_${n}" ${logic?`onchange="applyLogic(${n},'${logic}')"`:''} class="font-bold"><option>CUMPLE</option><option>NO CUMPLE</option><option>N/A</option></select></div>
-                            <div><span class="label-min">Medida Control</span><input type="text" id="m_${n}"></div>
-                            <div><span class="label-min">Fecha Ejecución</span><input type="date" id="f_${n}"></div>
-                            <div><span class="label-min">Responsable</span><input type="text" id="r_${n}"></div>
+                            <div><span class="label-min">Estado</span><select id="v_${n}"><option>CUMPLE</option><option>NO CUMPLE</option><option>N/A</option></select></div>
+                            <div><span class="label-min">Medida</span><input type="text" id="m_${n}"></div>
+                            <div><span class="label-min">Fecha Ejec.</span><input type="date" id="f_${n}"></div>
+                            <div><span class="label-min">Resp.</span><input type="text" id="r_${n}"></div>
                         </div>
                         <span class="label-min">Hallazgo</span>
-                        <textarea id="h_${n}" class="h-10 text-xs"></textarea>
+                        <textarea id="h_${n}" class="h-10 text-xs" placeholder="Escriba el hallazgo..."></textarea>
                     `;
                     cont.appendChild(div); n++;
                 });
             });
-        }
-
-        function applyLogic(num, id) {
-            const val = document.getElementById(`v_${num}`).value;
-            const items = document.querySelectorAll(`.grp-${id}`);
-            items.forEach((c, i) => { if(i > 0) c.style.display = (val === 'N/A') ? 'none' : 'block'; });
         }
 
         const imagenesArr = [];
@@ -111,87 +102,83 @@
             });
         };
 
-        async function procesarTodoYEnviar() {
-            const evaluador = document.getElementById('evaluador').value;
-            const instalacion = document.getElementById('instalacion').value;
-            const servicio = document.getElementById('servicio').value;
-            const fecha = document.getElementById('fecha').value;
-            const piso = document.getElementById('piso').value;
+        async function enviarYDescargarReporte() {
+            const eval = document.getElementById('evaluador').value;
+            const inst = document.getElementById('instalacion').value;
+            const serv = document.getElementById('servicio').value;
+            const fech = document.getElementById('fecha').value;
 
-            if(!servicio || !fecha || !instalacion) return alert("Complete Unidad, Fecha e Instalación.");
+            if(!serv || !fech) return alert("Por favor complete Unidad y Fecha.");
 
-            // 1. RECOLECTAR FILAS PARA EXCEL (Power Automate)
-            const listaPreguntasTextos = cuestionario.flatMap(s => s.q);
-            const filasParaExcel = [];
-            for(let i=1; i<=45; i++) {
-                if(document.getElementById(`v_${i}`)) {
-                    filasParaExcel.push({
-                        evaluador, instalacion, servicio, piso, fecha,
-                        pregunta: `${i}. ${listaPreguntasTextos[i-1]}`,
-                        estado: document.getElementById(`v_${i}`).value,
-                        hallazgo: document.getElementById(`h_${i}`).value,
-                        medida: document.getElementById(`m_${i}`).value,
-                        fechaEjecucion: document.getElementById(`f_${i}`).value,
-                        responsable: document.getElementById(`r_${i}`).value
-                    });
+            // 1. ENVÍO A POWER AUTOMATE (Estructura Plana)
+            const payload = { evaluador: eval, instalacion: inst, servicio: serv, piso: document.getElementById('piso').value, fecha: fech };
+            for(let i=1; i<=45; i++){
+                if(document.getElementById(`v_${i}`)){
+                    payload[`P${i}_Estado`] = document.getElementById(`v_${i}`).value;
+                    payload[`P${i}_Hallazgo`] = document.getElementById(`h_${i}`).value;
                 }
             }
+            const urlPowerAutomate = "TU_URL_AQUI"; 
+            fetch(urlPowerAutomate, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
 
-            // ENVIAR A ONEDRIVE
-            const urlPowerAutomate = "https://default9298dcf58f4f4ba9a3316f84f599a9.83.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/93a102a640f247bb8b9b62ca74bfdde8/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=RwcPwh4XnAEsgHcFU4UCv6BcnxbWiHDIdT7d-BzAT6M"; 
-            fetch(urlPowerAutomate, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ filas: filasParaExcel })
-            }).then(() => console.log("Datos enviados satisfactoriamente"));
-
-            // 2. GENERAR PDF (HORIZONTAL)
+            // 2. GENERACIÓN DE PDF SECCIONADO
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF('l', 'mm', 'a4');
             
+            // Header
             doc.setFillColor(0, 156, 166); doc.rect(0, 0, 297, 20, 'F');
             doc.setTextColor(255); doc.setFontSize(14); doc.text("INSPECCIÓN DE SERVICIOS - CLÍNICA ALEMANA", 15, 13);
             
             doc.setTextColor(0); doc.setFontSize(9);
-            doc.text(`Evaluador: ${evaluador}`, 15, 28);
-            doc.text(`Instalación: ${instalacion}`, 110, 28);
-            doc.text(`Unidad: ${servicio} | Piso: ${piso}`, 15, 33);
-            doc.text(`Fecha: ${fecha}`, 110, 33);
+            doc.text(`Evaluador: ${eval}`, 15, 28); doc.text(`Instalación: ${inst}`, 110, 28);
+            doc.text(`Unidad: ${serv} | Piso: ${document.getElementById('piso').value}`, 15, 33); doc.text(`Fecha: ${fech}`, 110, 33);
 
             const rowsTable = [];
-            for(let i=1; i<=45; i++) {
-                if(document.getElementById(`v_${i}`)) {
+            let globalCounter = 1;
+
+            secciones.forEach(sec => {
+                // Fila de Título de Sección
+                rowsTable.push([
+                    { content: sec.t, colSpan: 7, styles: { fillColor: [240, 240, 240], fontStyle: 'bold', textColor: [0, 51, 102] } }
+                ]);
+
+                // Filas de preguntas
+                sec.q.forEach(qText => {
+                    const i = globalCounter;
                     rowsTable.push([
-                        i, listaPreguntasTextos[i-1], 
+                        i, 
+                        qText, 
                         document.getElementById(`v_${i}`).value, 
-                        document.getElementById(`h_${i}`).value,
-                        document.getElementById(`m_${i}`).value,
-                        document.getElementById(`f_${i}`).value,
+                        document.getElementById(`h_${i}`).value, 
+                        document.getElementById(`m_${i}`).value, 
+                        document.getElementById(`f_${i}`).value, 
                         document.getElementById(`r_${i}`).value
                     ]);
-                }
-            }
+                    globalCounter++;
+                });
+            });
 
-            doc.autoTable({ 
-                startY: 40, 
-                head: [['N°', 'Ítem', 'Estado', 'Hallazgo', 'Medida', 'Fecha', 'Resp.']], 
-                body: rowsTable, 
-                headStyles: { fillColor: [0, 51, 102] }, styles: { fontSize: 6 }
+            doc.autoTable({
+                startY: 40,
+                head: [['N°', 'Ítem / Pregunta', 'Estado', 'Hallazgo', 'Medida de Control', 'Fecha Ejec.', 'Responsable']],
+                body: rowsTable,
+                theme: 'grid',
+                headStyles: { fillColor: [0, 51, 102] },
+                styles: { fontSize: 6.5, cellPadding: 2 },
+                columnStyles: { 0: { cellWidth: 8 }, 1: { cellWidth: 55 }, 2: { cellWidth: 18 }, 3: { cellWidth: 45 }, 4: { cellWidth: 45 }, 5: { cellWidth: 20 }, 6: { cellWidth: 25 } }
             });
 
             if(imagenesArr.length > 0) {
-                doc.addPage('l'); doc.text("REGISTRO FOTOGRÁFICO", 15, 20);
+                doc.addPage('l'); doc.text("REGISTRO FOTOGRÁFICO", 15, 15);
                 imagenesArr.forEach((img, i) => {
-                    let y = 30 + (Math.floor(i/3) * 60);
+                    let y = 20 + (Math.floor(i/3) * 55);
                     let x = 15 + ((i % 3) * 90);
                     if(y > 150) { doc.addPage('l'); y = 20; }
-                    doc.addImage(img, 'JPEG', x, y, 80, 50);
+                    doc.addImage(img, 'JPEG', x, y, 80, 45);
                 });
             }
 
-            // NOMBRE DINÁMICO
-            const nombreArchivo = `Inspección (${servicio})-${fecha}-${instalacion}.pdf`;
-            doc.save(nombreArchivo);
+            doc.save(`Inspección (${serv})-${fech}-${inst}.pdf`);
         }
         window.onload = init;
     </script>
