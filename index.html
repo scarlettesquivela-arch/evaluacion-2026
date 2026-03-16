@@ -11,8 +11,8 @@
         :root { --clinica-verde: #009ca6; --clinica-azul: #003366; }
         .section-header { background-color: var(--clinica-azul); color: white; padding: 10px; border-radius: 4px; margin-top: 20px; font-weight: bold; text-transform: uppercase; font-size: 0.8rem; }
         .card-pregunta { background: white; border-left: 4px solid var(--clinica-verde); padding: 12px; margin-bottom: 8px; border-radius: 0 8px 8px 0; box-shadow: 0 1px 3px rgba(0,0,0,0.1); transition: all 0.3s; }
-        .hidden-section { display: none; }
         select, input { border: 1px solid #d1d5db; border-radius: 4px; padding: 6px; font-size: 0.8rem; width: 100%; }
+        .bg-header-pdf { background-color: #009ca6; }
     </style>
 </head>
 <body class="bg-slate-50 min-h-screen pb-12">
@@ -20,16 +20,16 @@
     <div class="max-w-4xl mx-auto p-4">
         <div class="bg-white rounded-xl shadow-lg p-6 mb-6 flex flex-col items-center border-b-8 border-[#009ca6]">
             <img src="https://www.clinicaalemana.cl/images/default-source/logos/logo-clinica-alemana-svg.svg" alt="Logo" class="h-14 mb-4">
-            <h1 class="text-2xl font-black text-[#003366] uppercase">Inspección de Servicios</h1>
-            <p class="text-xs font-bold text-gray-400 tracking-widest">EVALUACIÓN SISTEMÁTICA 2026</p>
+            <h1 class="text-2xl font-black text-[#003366] uppercase tracking-tight">Inspección de Servicios</h1>
+            <p class="text-xs font-bold text-gray-400 tracking-widest uppercase">Evaluación Sistemática 2026</p>
         </div>
 
         <div class="bg-white rounded-xl shadow p-6 mb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div class="col-span-full font-bold text-[#003366] border-b pb-2 text-xs uppercase">Identificación</div>
+            <div class="col-span-full font-bold text-[#003366] border-b pb-2 text-xs uppercase">Datos de Identificación</div>
             <div><label class="text-[10px] font-bold text-gray-500 uppercase">Evaluador</label><input type="text" id="evaluador"></div>
             <div><label class="text-[10px] font-bold text-gray-500 uppercase">Instalación</label>
                 <select id="instalacion">
-                    <option value="">Seleccione...</option>
+                    <option value="">Seleccione sede...</option>
                     <option>Clínica Alemana Vitacura</option><option>Clínica Alemana La Dehesa</option><option>Clínica Manquehue Oriente (EMO)</option>
                     <option>Centro Médico Plaza Egaña</option><option>Centro Médico Chicureo</option><option>Centro Médico San Carlos de Apoquindo</option>
                     <option>Centro Médico Rafael Maluenda</option><option>Centro Médico Maitencillo</option><option>Centro Médico La Parva</option>
@@ -40,7 +40,7 @@
             </div>
             <div><label class="text-[10px] font-bold text-gray-500 uppercase">Unidad / Servicio</label><input type="text" id="servicio"></div>
             <div><label class="text-[10px] font-bold text-gray-500 uppercase">Piso</label><input type="text" id="piso"></div>
-            <div class="md:col-span-2"><label class="text-[10px] font-bold text-gray-500 uppercase">Fecha</label><input type="date" id="fecha"></div>
+            <div class="md:col-span-2"><label class="text-[10px] font-bold text-gray-500 uppercase">Fecha de Evaluación</label><input type="date" id="fecha"></div>
         </div>
 
         <div id="preguntas-container"></div>
@@ -51,26 +51,26 @@
             <div id="preview" class="grid grid-cols-2 md:grid-cols-5 gap-2 mb-6"></div>
             
             <label class="text-[10px] font-bold text-gray-500 uppercase">Observaciones adicionales</label>
-            <textarea id="obs_finales" class="w-full p-2 border rounded h-20 text-sm"></textarea>
+            <textarea id="obs_finales" class="w-full p-2 border rounded h-20 text-sm" placeholder="Escriba aquí..."></textarea>
 
-            <button onclick="generarPDF()" class="w-full bg-[#003366] text-white font-bold py-4 rounded-lg mt-6 hover:bg-blue-900 transition-all uppercase tracking-widest">
+            <button onclick="generarPDF()" class="w-full bg-[#003366] text-white font-bold py-4 rounded-lg mt-6 hover:bg-blue-900 transition-all uppercase tracking-widest shadow-lg">
                 Generar Informe Final (45 ítems)
             </button>
         </div>
     </div>
 
     <script>
-        const cuestionario = [
+        const secciones = [
             { id: "SEC1", t: "1. Infraestructura", q: [
                 "Las áreas y superficies de trabajo están libres de humedad y/o filtraciones",
                 "¿Los pisos se encuentran en buenas condiciones, sólidos y no resbaladizos?",
-                "¿Paredes, puertas, cielos rasos y ventanas mantenidas y limpias?",
+                "¿Las paredes, puertas, cielos rasos y ventanas se encuentran bien mantenidas?",
                 "Pisos y pasillos libres de obstáculos",
                 "Medidas efectivas para evitar insectos, roedores y plagas",
                 "Elementos estructurales en buen estado y condiciones seguras"
             ]},
             { id: "SEC2", t: "Servicios Higiénicos", q: [
-                "Dispone de servicios higiénicos (excusado y lavatorio)", // Pregunta 7 (Activador)
+                "Dispone de servicios higiénicos (excusado y lavatorio)", // Q7
                 "Servicios higiénicos separados para hombres y mujeres",
                 "Cantidad de artefactos sanitarios suficientes por turno",
                 "Distancia no superior a 75 mt del área de trabajo",
@@ -79,71 +79,51 @@
                 "Servicio de control de plagas vigente"
             ]},
             { id: "SEC3", t: "Vestidores", q: [
-                "Existen vestidores para cambio de vestimenta", // Pregunta 14 (Activador)
+                "Existen vestidores para cambio de vestimenta", // Q14
                 "Vestidores instalados de manera independiente y por sexo",
                 "Existen casilleros individuales en cantidad suficiente"
             ]},
             { id: "SEC4", t: "Sala de Estar Personal", q: [
-                "Dispone de sala de estar para consumir alimentos", // Pregunta 17 (Activador)
+                "Dispone de sala de estar para consumir alimentos", // Q17
                 "Sala de estar con dispensador de agua y señalizada",
                 "Sala libre de artículos domésticos (microondas, etc)",
                 "Artículos eléctricos cuentan con autorización para uso",
                 "Sala libre de alargadores o extensiones eléctricas"
             ]},
             { id: "SEC5", t: "2. Prevención contra Incendios - Extintores", q: [
-                "Mantención de extintores adecuados al riesgo",
-                "Extintores con mantención preventiva anual",
-                "Extintores en sitios de fácil acceso y señalizados",
-                "Extintores cuentan con Certificación y Código interno",
-                "Extintores con manómetro, manguera y cilindro en buen estado"
+                "Mantención de extintores adecuados al riesgo", "Extintores con mantención preventiva anual", "Extintores en sitios de fácil acceso", "Certificación y Código interno", "Manómetro y manguera en buen estado"
             ]},
             { id: "SEC6", t: "Red Húmeda", q: [
-                "Red de incendios operativa y en buenas condiciones",
-                "Red de incendios con mantención preventiva anual",
-                "Gabinete en buenas condiciones (puerta, vidrio, estructura)",
-                "Redes húmedas señalizadas"
+                "Red operativa y en buenas condiciones", "Mantención preventiva anual", "Gabinete en buenas condiciones", "Redes húmedas señalizadas"
             ]},
             { id: "SEC7", t: "Teléfono Notifier", q: [
-                "Teléfonos disponen de instrucciones en buenas condiciones",
-                "Teléfonos debidamente señalizados",
-                "Teléfonos operativos con comunicación directa a central",
-                "Mantención preventiva anual realizada"
+                "Instrucciones en buenas condiciones", "Debidamente señalizados", "Comunicación directa a central", "Mantención preventiva anual"
             ]},
             { id: "SEC8", t: "Rociadores y Detección", q: [
-                "Rociadores bien instalados y despejados",
-                "Existe sistema de detección de incendios (Detectores de humo)",
-                "Detectores operativos (luz intermitente)",
-                "Detectores libres de pinturas y suciedad"
+                "Rociadores despejados", "Sistema detección de humo existe", "Detectores operativos (luz)", "Detectores limpios"
             ]},
             { id: "SEC9", t: "Vías de Evacuación", q: [
-                "Vías de evacuación libres de obstáculos",
-                "Vías con señalización visible y permanente",
-                "Puertas de emergencia con apertura fácil y señalizadas",
-                "Puertas de emergencia libres de obstáculos"
+                "Libres de obstáculos", "Señalización visible", "Apertura fácil", "Libres de obstáculos (puertas)"
             ]},
             { id: "SEC10", t: "3. Suministro Eléctrico", q: [
-                "¿Están todos los cableados eléctricos adecuadamente contenidos?",
-                "¿Los enchufes eléctricos se encuentran en buen estado?",
-                "¿Se evita sobrecargar los enchufes con alargadores?"
+                "Cableados contenidos", "Enchufes en buen estado", "Sin sobrecarga"
             ]}
         ];
 
         function cargarForm() {
             const container = document.getElementById('preguntas-container');
             let globalN = 1;
-            cuestionario.forEach(sec => {
+            secciones.forEach(sec => {
                 const header = document.createElement('div');
                 header.className = 'section-header';
-                header.id = `header-${sec.id}`;
                 header.innerText = sec.t;
                 container.appendChild(header);
 
-                sec.q.forEach((pregunta, index) => {
+                sec.q.forEach((pregunta) => {
                     const div = document.createElement('div');
                     div.className = `card-pregunta q-item-${sec.id}`;
                     div.id = `div-q-${globalN}`;
                     
-                    // Lógica de saltos: identificar preguntas "madre" (7, 14, 17)
                     let onchangeAttr = "";
                     if (globalN === 7) onchangeAttr = `onchange="checkJump(7, 'SEC2')"`;
                     if (globalN === 14) onchangeAttr = `onchange="checkJump(14, 'SEC3')"`;
@@ -170,10 +150,10 @@
         function checkJump(num, secId) {
             const val = document.getElementById(`est_${num}`).value;
             const subPreguntas = document.querySelectorAll(`.q-item-${secId}`);
-            // Si es NO CUMPLE, ocultamos las que siguen en esa misma sección
+            // Si es N/A, ocultamos el resto de las preguntas de esa sección
             subPreguntas.forEach((el, index) => {
-                if (index > 0) { // No ocultamos la pregunta madre
-                    el.style.display = (val === "NO CUMPLE") ? "none" : "block";
+                if (index > 0) {
+                    el.style.display = (val === "N/A") ? "none" : "block";
                 }
             });
         }
@@ -191,36 +171,35 @@
         async function generarPDF() {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
+            
+            // Estilo Encabezado PDF
             doc.setFillColor(0, 156, 166); doc.rect(0, 0, 210, 20, 'F');
             doc.setTextColor(255); doc.setFontSize(14); doc.text("INSPECCIÓN DE SERVICIOS - CLÍNICA ALEMANA", 10, 13);
             
             doc.setTextColor(0); doc.setFontSize(9);
             doc.text(`Evaluador: ${document.getElementById('evaluador').value}`, 10, 30);
             doc.text(`Instalación: ${document.getElementById('instalacion').value}`, 110, 30);
-            doc.text(`Servicio: ${document.getElementById('servicio').value} | Piso: ${document.getElementById('piso').value}`, 10, 37);
+            doc.text(`Unidad: ${document.getElementById('servicio').value} | Piso: ${document.getElementById('piso').value}`, 10, 37);
             doc.text(`Fecha: ${document.getElementById('fecha').value}`, 110, 37);
 
             const body = [];
-            let itemTextos = cuestionario.flatMap(s => s.q);
+            let itemTextos = secciones.flatMap(s => s.q);
             for(let i=1; i<=45; i++) {
-                const row = [
-                    i, 
-                    itemTextos[i-1], 
-                    document.getElementById(`est_${i}`).value, 
-                    document.getElementById(`med_${i}`).value, 
-                    document.getElementById(`fec_${i}`).value,
-                    document.getElementById(`res_${i}`).value
-                ];
-                body.push(row);
+                if(document.getElementById(`est_${i}`)) {
+                    body.push([
+                        i, itemTextos[i-1], document.getElementById(`est_${i}`).value, 
+                        document.getElementById(`med_${i}`).value, document.getElementById(`fec_${i}`).value, document.getElementById(`res_${i}`).value
+                    ]);
+                }
             }
 
             doc.autoTable({
                 startY: 45,
-                head: [['N°', 'Ítem Evaluado', 'Cumple', 'Medida', 'Fecha', 'Resp.']],
+                head: [['N°', 'Ítem Evaluado', 'Cumplimiento', 'Medida', 'Fecha', 'Resp.']],
                 body: body,
                 headStyles: { fillColor: [0, 51, 102] },
                 styles: { fontSize: 6 },
-                columnStyles: { 1: { cellWidth: 60 } }
+                columnStyles: { 1: { cellWidth: 70 } }
             });
 
             if(imagenes.length > 0) {
@@ -233,7 +212,7 @@
                     doc.addImage(img, 'JPEG', x, y, 90, 50);
                 });
             }
-            doc.save(`Inspeccion_${document.getElementById('instalacion').value}.pdf`);
+            doc.save(`Inspeccion_CA_${document.getElementById('instalacion').value || 'Final'}.pdf`);
         }
         window.onload = cargarForm;
     </script>
