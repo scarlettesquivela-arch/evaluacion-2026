@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evaluación Entornos Seguros 2026</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
+</head>
+<body class="bg-gray-100 font-sans antialiased text-gray-900">
+
+    <div class="max-w-5xl mx-auto my-10 bg-white shadow-xl rounded-lg overflow-hidden">
+        <header class="bg-blue-800 text-white p-6">
+            <h1 class="text-2xl font-bold uppercase">Evaluación Sistemática de Entornos Seguros - 2026</h1>
+            <p class="text-sm opacity-80 mt-1 text-red-200 font-bold">PRIORIDAD ALTA</p>
+        </header>
+
+        <div class="p-6 md:p-10">
+            <section class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-10 p-4 bg-blue-50 rounded-lg">
+                <div class="col-span-full font-bold text-blue-800 border-b border-blue-200 pb-2 mb-2 uppercase text-sm">Información del Evaluador e Instalación</div>
+                <div><label class="block text-xs font-bold text-gray-500 uppercase">Nombre del evaluador</label><input type="text" id="evaluador" class="w-full p-2 border rounded"></div>
+                <div><label class="block text-xs font-bold text-gray-500 uppercase">Instalación</label><input type="text" id="instalacion" class="w-full p-2 border rounded"></div>
+                <div><label class="block text-xs font-bold text-gray-500 uppercase">Tipo de Servicio</label><input type="text" id="servicio" class="w-full p-2 border rounded"></div>
+                <div><label class="block text-xs font-bold text-gray-500 uppercase">Unidad / Piso</label><input type="text" id="piso" class="w-full p-2 border rounded"></div>
+                <div><label class="block text-xs font-bold text-gray-500 uppercase">Fecha de Evaluación</label><input type="date" id="fecha" class="w-full p-2 border rounded"></div>
+            </section>
+
+            <div id="contenedor-preguntas"></div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-10">
+                <div class="p-4 bg-gray-50 rounded-lg border">
+                    <h3 class="font-bold text-gray-700 mb-2 uppercase text-sm">6. Observaciones Adicionales</h3>
+                    <textarea id="obs_finales" class="w-full h-32 p-2 border rounded text-sm" placeholder="Escriba notas relevantes aquí..."></textarea>
+                </div>
+                <div class="p-4 bg-gray-50 rounded-lg border">
+                    <h3 class="font-bold text-gray-700 mb-2 uppercase text-sm">Registro Fotográfico (4 Máx)</h3>
+                    <input type="file" id="fotos" accept="image/*" multiple class="text-xs mb-4">
+                    <div id="preview" class="grid grid-cols-2 gap-2"></div>
+                </div>
+            </div>
+
+            <button onclick="generarDocumentoPDF()" class="mt-8 w-full bg-green-600 hover:bg-green-700 text-white font-black py-4 rounded shadow-lg transition-all uppercase tracking-widest">
+                Finalizar y Descargar Informe PDF
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Base de datos de preguntas extraídas del documento original
+        const cuestionario = [
+            { cat: "1. CONDICIONES DE SEGURIDAD - INFRAESTRUCTURA", q: [
+                "Las áreas y superficies de trabajo están libres de humedad y/o filtraciones",
+                "¿Los pisos se encuentran en buenas condiciones, sólidos y no resbaladizos?",
+                "¿Las paredes, puertas, cielos rasos y ventanas se encuentran bien mantenidas?",
+                "Pasillos libres de obstáculos para el desplazamiento de personas",
+                "Medidas efectivas para entrada o eliminación de insectos y plagas",
+                "Elementos estructurales en buen estado y condiciones seguras"
+            ]},
+            { cat: "SERVICIOS HIGIÉNICOS", q: [
+                "¿Se dispone de servicios higiénicos, con excusado y lavatorio?",
+                "Servicios higiénicos en buen estado para hombres y mujeres por separado",
+                "Cantidad de artefactos sanitarios necesarios por turno",
+                "Distancia no superior a 75 mt del área de trabajo",
+                "Servicios higiénicos y artefactos sanitarios en buen estado de limpieza",
+                "Red sin Filtraciones",
+                "Cuenta con el Servicio de control de plagas vigente"
+            ]},
+            { cat: "VESTIDORES", q: [
+                "Existen vestidores para cambio de vestimenta",
+                "Vestidores instalados de manera independiente y por sexo",
+                "Existen casilleros individuales en cantidad suficiente"
+            ]},
+            { cat: "SALA DE ESTAR PERSONAL", q: [
+                "Dispone de sala de estar para consumir alimentos",
+                "Sala de estar con dispensador de agua y señalizada",
+                "Sala libre de artículos domésticos (microondas, tostadoras, etc.)",
+                "Artículos eléctricos cuentan con autorización para uso",
+                "Sala libre de alargadores o extensiones eléctricas"
+            ]},
+            { cat: "2. PREVENCIÓN Y PROTECCIÓN CONTRA INCENDIOS - EXTINTORES", q: [
+                "Mantención de extintores adecuados al riesgo",
+                "Extintores con mantención preventiva anual",
+                "Extintores en sitios de fácil acceso y señalizados",
+                "Extintores cuentan con Certificación y Código interno",
+                "Extintores con manómetro, manguera y cilindro en buen estado"
+            ]},
+            { cat: "RED HÚMEDA", q: [
+                "Red de incendios operativa y en buenas condiciones",
+                "Red de incendios con mantención preventiva anual",
+                "Gabinete en buenas condiciones (puerta, vidrio, estructura)",
+                "Redes húmedas señalizadas"
+            ]},
+            { cat: "TELÉFONO NOTIFIER", q: [
+                "Teléfonos disponen de instrucciones en buenas condiciones",
+                "Teléfonos debidamente señalizados",
+                "Teléfonos operativos con comunicación directa a central",
+                "Mantención preventiva anual realizada"
+            ]},
+            { cat: "ROCIADORES (SPRINKLER) Y DETECCIÓN", q: [
+                "Rociadores bien instalados y despejados",
+                "Existe sistema de detección de incendios (Detectores de humo)",
+                "Detectores operativos (luz intermitente)",
+                "Detectores libres de pinturas y suciedad"
+            ]},
+            { cat: "VÍAS DE EVACUACIÓN", q: [
+                "Vías de evacuación libres de obstáculos",
+                "Vías con señalización visible y permanente (Aérea y piso)",
+                "Puertas de emergencia con apertura fácil y señalizadas",
+                "Puertas de emergencia libres de obstáculos"
+            ]},
+            { cat: "3. SUMINISTRO ELÉCTRICO", q: [
+                "Cableados eléctricos adecuadamente contenidos",
+                "Enchufes eléctricos en buen estado",
+                "Se evita sobrecargar enchufes con alargadores"
+            ]}
+        ];
+
+        function inicializarApp() {
+            const container = document.getElementById('contenedor-preguntas');
+            let counter = 1;
+            cuestionario.forEach(seccion => {
+                let sectionHTML = `<div class="mb-8"><h2 class="bg-blue-900 text-white px-4 py-2 rounded text-sm font-bold mb-4">${seccion.cat}</h2>`;
+                seccion.q.forEach(pregunta => {
+                    sectionHTML += `
+                        <div class="bg-white border rounded-lg p-4 mb-4 shadow-sm">
+                            <p class="text-sm font-semibold text-gray-800 mb-3">${counter}. ${pregunta}</p>
+                            <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                                <select id="c_${counter}" class="p-2 border rounded text-xs bg-gray-50">
+                                    <option value="CUMPLE">CUMPLE</option>
+                                    <option value="NO CUMPLE">NO CUMPLE</option>
+                                    <option value="N/A">N/A</option>
+                                </select>
+                                <input type="text" id="m_${counter}" placeholder="Medida de control" class="sm:col-span-1 p-2 border rounded text-xs">
+                                <input type="date" id="f_${counter}" class="p-2 border rounded text-xs">
+                                <input type="text" id="r_${counter}" placeholder="Responsable" class="p-2 border rounded text-xs">
+                            </div>
+                        </div>`;
+                    counter++;
+                });
+                sectionHTML += `</div>`;
+                container.innerHTML += sectionHTML;
+            });
+        }
+
+        const imagenesArray = [];
+        document.getElementById('fotos').addEventListener('change', function(e) {
+            const preview = document.getElementById('preview');
+            preview.innerHTML = '';
+            imagenesArray.length = 0;
+            Array.from(e.target.files).slice(0, 4).forEach(file => {
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                    imagenesArray.push(ev.target.result);
+                    preview.innerHTML += `<img src="${ev.target.result}" class="h-24 w-full object-cover rounded border">`;
+                };
+                reader.readAsDataURL(file);
+            });
+        });
+
+        async function generarDocumentoPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            // Título
+            doc.setFontSize(16);
+            doc.text("LV-EVALUACIÓN SISTEMÁTICA DE ENTORNOS SEGUROS 2026", 10, 15);
+            
+            // Datos encabezado
+            doc.setFontSize(10);
+            doc.text(`Evaluador: ${document.getElementById('evaluador').value}`, 10, 25);
+            doc.text(`Instalación: ${document.getElementById('instalacion').value}`, 10, 30);
+            doc.text(`Servicio: ${document.getElementById('servicio').value} - Piso: ${document.getElementById('piso').value}`, 10, 35);
+            doc.text(`Fecha: ${document.getElementById('fecha').value}`, 10, 40);
+
+            // Tabla de datos
+            const body = [];
+            for(let i=1; i<=45; i++) {
+                body.push([
+                    i,
+                    document.getElementById(`c_${i}`).value,
+                    document.getElementById(`m_${i}`).value,
+                    document.getElementById(`f_${i}`).value,
+                    document.getElementById(`r_${i}`).value
+                ]);
+            }
+
+            doc.autoTable({
+                startY: 45,
+                head: [['N°', 'Cumplimiento', 'Medidas', 'Fecha', 'Responsable']],
+                body: body,
+                styles: { fontSize: 7 },
+                margin: { top: 45 }
+            });
+
+            // Fotos
+            let finalY = doc.lastAutoTable.finalY + 10;
+            if (imagenesArray.length > 0) {
+                doc.addPage();
+                doc.text("REGISTRO FOTOGRÁFICO", 10, 20);
+                imagenesArray.forEach((img, idx) => {
+                    let y = 30 + (idx * 60);
+                    if(y > 240) { doc.addPage(); y = 20; }
+                    doc.addImage(img, 'JPEG', 10, y, 90, 50);
+                });
+            }
+
+            doc.save("Evaluacion_Seguridad_2026.pdf");
+        }
+
+        window.onload = inicializarApp;
+    </script>
+</body>
+</html>
