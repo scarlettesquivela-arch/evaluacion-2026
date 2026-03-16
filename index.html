@@ -18,207 +18,104 @@
 <body class="bg-slate-100 min-h-screen pb-10">
 
     <div class="max-w-4xl mx-auto p-4">
-        <div class="bg-white rounded-xl shadow-lg p-6 mb-6 flex flex-col items-center border-b-4 border-clinica">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/Logo_Cl%C3%ADnica_Alemana.svg/1200px-Logo_Cl%C3%ADnica_Alemana.svg.png" alt="Logo Clínica Alemana" class="h-20 mb-4 object-contain">
-            <h1 class="text-2xl font-black text-clinica text-center uppercase tracking-tighter">Inspección de Servicios</h1>
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-6 flex flex-col items-center border-b-4 border-[#009ca6]">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/Logo_Cl%C3%ADnica_Alemana.svg/1200px-Logo_Cl%C3%ADnica_Alemana.svg.png" alt="Logo" class="h-16 mb-4">
+            <h1 class="text-2xl font-black text-[#003366] text-center uppercase tracking-tighter">Inspección de Servicios</h1>
             <p class="text-gray-500 text-sm font-medium">Ciclo de Evaluación Sistemática 2026</p>
         </div>
 
         <div class="bg-blue-50 border-l-4 border-blue-500 p-5 mb-6 rounded-r-lg shadow-sm">
-            <h3 class="font-bold text-blue-800 mb-2 flex items-center">
-                <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20"><path d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"></path></svg>
-                Información Importante
+            <h3 class="font-bold text-blue-800 mb-1 flex items-center italic">
+                Información de la Inspección
             </h3>
             <p class="text-sm text-blue-900 leading-relaxed">
-                Esta inspección tiene como objetivo verificar los estándares de seguridad y mantenimiento en las instalaciones. Asegúrese de completar todos los campos de identificación y adjuntar el registro fotográfico solicitado (máximo 4 fotografías) para validar los hallazgos.
+                Este formulario reemplaza la evaluación anterior. Por favor, verifique el estado de las instalaciones y adjunte evidencia fotográfica si es necesario.
             </p>
         </div>
 
         <div class="bg-white rounded-xl shadow p-6 mb-6 grid grid-cols-1 md:grid-cols-2 gap-4 border border-gray-200">
-            <div class="col-span-full font-bold text-clinica border-b pb-2 mb-2 text-xs uppercase tracking-wider">Datos de la Inspección</div>
-            <div><label class="block text-xs font-bold text-gray-500 uppercase mb-1">Nombre del evaluador</label><input type="text" id="evaluador" class="w-full p-2 border rounded focus:ring-2 focus:ring-teal-500 outline-none"></div>
-            <div><label class="block text-xs font-bold text-gray-500 uppercase mb-1">Instalación</label><input type="text" id="instalacion" class="w-full p-2 border rounded focus:ring-2 focus:ring-teal-500 outline-none"></div>
-            <div><label class="block text-xs font-bold text-gray-500 uppercase mb-1">Unidad o Servicio</label><input type="text" id="servicio" class="w-full p-2 border rounded focus:ring-2 focus:ring-teal-500 outline-none"></div>
-            <div><label class="block text-xs font-bold text-gray-500 uppercase mb-1">Piso donde se ubica</label><input type="text" id="piso" class="w-full p-2 border rounded focus:ring-2 focus:ring-teal-500 outline-none"></div>
-            <div class="md:col-span-2"><label class="block text-xs font-bold text-gray-500 uppercase mb-1">Fecha de Evaluación</label><input type="date" id="fecha" class="w-full p-2 border rounded focus:ring-2 focus:ring-teal-500 outline-none"></div>
+            <div class="col-span-full font-bold text-[#003366] border-b pb-2 mb-2 text-xs uppercase">Datos Generales</div>
+            <div><label class="block text-xs font-bold text-gray-400 uppercase">Evaluador</label><input type="text" id="evaluador" class="w-full p-2 border rounded outline-none focus:border-[#009ca6]"></div>
+            <div><label class="block text-xs font-bold text-gray-400 uppercase">Instalación</label><input type="text" id="instalacion" class="w-full p-2 border rounded outline-none focus:border-[#009ca6]"></div>
+            <div><label class="block text-xs font-bold text-gray-400 uppercase">Unidad / Servicio</label><input type="text" id="servicio" class="w-full p-2 border rounded outline-none focus:border-[#009ca6]"></div>
+            <div><label class="block text-xs font-bold text-gray-400 uppercase">Piso</label><input type="text" id="piso" class="w-full p-2 border rounded outline-none focus:border-[#009ca6]"></div>
+            <div class="md:col-span-2"><label class="block text-xs font-bold text-gray-400 uppercase">Fecha</label><input type="date" id="fecha" class="w-full p-2 border rounded outline-none focus:border-[#009ca6]"></div>
         </div>
 
         <div id="formulario-contenido"></div>
 
-        <div class="bg-white rounded-xl shadow p-6 mt-8 border-t-4 border-clinica">
-            <h2 class="font-bold text-clinica mb-4 uppercase text-sm">Registro Fotográfico y Observaciones</h2>
-            <textarea id="obs_finales" class="w-full p-3 border rounded mb-4 h-24 text-sm" placeholder="Detalle observaciones adicionales aquí..."></textarea>
+        <div class="bg-white rounded-xl shadow p-6 mt-8 border-t-4 border-[#009ca6]">
+            <h2 class="font-bold text-[#003366] mb-4 uppercase text-sm">Registro Fotográfico</h2>
+            <input type="file" id="fotos" accept="image/*" multiple class="text-xs mb-4 block w-full">
+            <div id="preview" class="flex gap-2 mb-6"></div>
             
-            <div class="flex flex-col md:flex-row items-center justify-between gap-4">
-                <div class="w-full">
-                    <label class="block font-bold text-xs text-gray-500 mb-2 uppercase">Adjuntar Evidencia (Máx 4)</label>
-                    <input type="file" id="fotos" accept="image/*" multiple class="text-xs file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-teal-50 file:text-teal-700 hover:file:bg-teal-100 cursor-pointer">
-                </div>
-                <div id="preview" class="flex gap-2"></div>
-            </div>
+            <textarea id="obs_finales" class="w-full p-3 border rounded mb-4 h-24 text-sm" placeholder="Observaciones adicionales..."></textarea>
 
-            <button onclick="generarPDF()" class="w-full bg-clinica text-white font-black py-4 rounded-xl mt-8 shadow-lg hover:brightness-110 transition-all text-lg uppercase tracking-widest">
-                Generar Informe Inspección
+            <button onclick="generarPDF()" class="w-full bg-[#009ca6] text-white font-black py-4 rounded-xl shadow-lg hover:brightness-110 transition-all text-lg uppercase">
+                Descargar Informe de Inspección
             </button>
         </div>
     </div>
 
     <script>
-        // Cuestionario completo basado en el documento proporcionado 
-        const datosCuestionario = [
-            { titulo: "1. Infraestructura", items: [
-                "Las áreas y superficies de trabajo están libres de humedad y/o filtraciones",
-                "¿Los pisos se encuentran en buenas condiciones, sólidos y no resbaladizos?",
-                "Paredes, puertas, cielos rasos y ventanas mantenidas y limpias",
-                "Pisos y pasillos libres de obstáculos para el desplazamiento",
-                "Medidas efectivas para evitar plagas (insectos/roedores)",
-                "Elementos estructurales en buen estado y condiciones seguras"
-            ]},
-            { titulo: "2. Servicios Higiénicos", items: [
-                "Dispone de servicios higiénicos (excusado y lavatorio)",
-                "Servicios higiénicos separados por sexo y en buen estado",
-                "Cantidad de artefactos suficientes según trabajadores por turno",
-                "Distancia no superior a 75 metros del área de trabajo",
-                "Artefactos sanitarios en buen estado de limpieza",
-                "Red de agua sin filtraciones",
-                "Servicio de control de plagas vigente"
-            ]},
-            { titulo: "3. Vestidores y Estar", items: [
-                "Existen vestidores para cambio de vestimenta",
-                "Vestidores independientes por sexo",
-                "Casilleros individuales en cantidad suficiente",
-                "Dispone de salas de estar para consumo de alimentos",
-                "Sala con dispensador de agua y señalizada",
-                "Libre de artículos eléctricos domésticos no autorizados",
-                "Artículos eléctricos con autorización de uso",
-                "Libre de alargadores o extensiones eléctricas"
-            ]},
-            { titulo: "4. Protección contra Incendios", items: [
-                "Extintores adecuados al riesgo",
-                "Mantención preventiva anual de extintores",
-                "Ubicación en sitios de fácil acceso y señalizados",
-                "Certificación y Código interno de extintores",
-                "Buen estado de manómetro, manguera y cilindro",
-                "Red húmeda operativa (manguera, pitón, carrete)",
-                "Mantención preventiva anual de red húmeda",
-                "Gabinete en buenas condiciones",
-                "Redes húmedas debidamente señalizadas",
-                "Teléfonos Notifier con instrucciones claras",
-                "Teléfonos Notifier señalizados",
-                "Operatividad y comunicación directa a central",
-                "Mantención anual de teléfonos Notifier",
-                "Rociadores (Sprinkler) bien instalados y despejados",
-                "Sistema de detección de incendios operativo",
-                "Detectores de humo con luz intermitente activa",
-                "Detectores libres de pinturas y suciedad",
-                "Vías de evacuación libres de obstáculos",
-                "Señalización visible y permanente (Aérea y piso)",
-                "Puertas de emergencia con apertura fácil hacia exterior",
-                "Puertas de emergencia libres de obstáculos"
-            ]},
-            { titulo: "5. Suministro Eléctrico", items: [
-                "Cableados eléctricos adecuadamente contenidos",
-                "Enchufes eléctricos en buen estado",
-                "Se evita sobrecargar enchufes con alargadores"
-            ]}
+        const cuestionario = [
+            { t: "1. Infraestructura", q: ["Áreas libres de humedad/filtraciones", "¿Pisos en buen estado y no resbaladizos?", "Paredes/Cielos/Ventanas limpias y mantenidas", "Pasillos libres de obstáculos", "Control de plagas efectivo", "Estructuras en buen estado"] },
+            { t: "2. Servicios Higiénicos", q: ["Disponibilidad de excusado y lavatorio", "Baños separados por sexo", "Cantidad de artefactos suficiente", "Distancia menor a 75m", "Limpieza de artefactos", "Red sin filtraciones", "Control plagas vigente"] },
+            { t: "3. Vestidores y Estar", q: ["Existen vestidores", "Vestidores independientes por sexo", "Casilleros suficientes", "Salas de estar disponibles", "Dispensador agua señalizado", "Sin artículos domésticos prohibidos", "Artículos eléctricos autorizados", "Sin alargadores"] },
+            { t: "4. Protección contra Incendios", q: ["Extintores adecuados", "Mantención anual extintores", "Fácil acceso y señalizados", "Certificación/Código interno", "Estado manómetro/cilindro", "Red húmeda operativa", "Mantención anual red húmeda", "Gabinete en buen estado", "Redes señalizadas", "Notifier con instrucciones", "Notifier señalizado", "Notifier operativo", "Mantención anual Notifier", "Rociadores despejados", "Sistema detección humo", "Detectores con luz activa", "Detectores limpios", "Vías evacuación libres", "Señalización visible", "Puertas emergencia fácil apertura", "Puertas emergencia despejadas"] },
+            { t: "5. Suministro Eléctrico", q: ["Cableados contenidos", "Enchufes en buen estado", "Sin sobrecarga"] }
         ];
 
-        function renderizar() {
-            const container = document.getElementById('formulario-contenido');
-            container.innerHTML = '';
+        function init() {
+            const cont = document.getElementById('formulario-contenido');
             let n = 1;
-            datosCuestionario.forEach(sec => {
-                const header = document.createElement('div');
-                header.className = 'section-header';
-                header.innerText = sec.titulo;
-                container.appendChild(header);
-
-                sec.items.forEach(pregunta => {
-                    const div = document.createElement('div');
-                    div.className = 'card-pregunta mt-3';
-                    div.innerHTML = `
-                        <p class="text-sm font-bold text-slate-700 mb-3">${n}. ${pregunta}</p>
+            cuestionario.forEach(sec => {
+                const h = document.createElement('div'); h.className = 'section-header'; h.innerText = sec.t; cont.appendChild(h);
+                sec.q.forEach(p => {
+                    const d = document.createElement('div'); d.className = 'card-pregunta shadow-sm mt-3';
+                    d.innerHTML = `<p class="text-sm font-bold text-slate-700 mb-3">${n}. ${p}</p>
                         <div class="grid grid-cols-1 md:grid-cols-4 gap-2">
-                            <select id="c_${n}" class="p-2 border rounded text-xs bg-slate-50 font-bold"><option>CUMPLE</option><option>NO CUMPLE</option><option>N/A</option></select>
-                            <input type="text" id="m_${n}" placeholder="Medida de Control" class="p-2 border rounded text-xs">
+                            <select id="c_${n}" class="p-2 border rounded text-xs font-bold"><option>CUMPLE</option><option>NO CUMPLE</option><option>N/A</option></select>
+                            <input type="text" id="m_${n}" placeholder="Medida" class="p-2 border rounded text-xs">
                             <input type="date" id="f_${n}" class="p-2 border rounded text-xs">
                             <input type="text" id="r_${n}" placeholder="Responsable" class="p-2 border rounded text-xs">
-                        </div>
-                    `;
-                    container.appendChild(div);
-                    n++;
+                        </div>`;
+                    cont.appendChild(d); n++;
                 });
             });
         }
 
-        const fotosBase64 = [];
-        document.getElementById('fotos').onchange = function(e) {
-            const prev = document.getElementById('preview');
-            prev.innerHTML = ''; fotosBase64.length = 0;
-            Array.from(e.target.files).slice(0,4).forEach(file => {
-                const reader = new FileReader();
-                reader.onload = (ev) => {
-                    fotosBase64.push(ev.target.result);
-                    prev.innerHTML += `<img src="${ev.target.result}" class="h-12 w-12 object-cover rounded-full border-2 border-clinica">`;
-                };
-                reader.readAsDataURL(file);
+        const fotos = [];
+        document.getElementById('fotos').onchange = (e) => {
+            const p = document.getElementById('preview'); p.innerHTML = ''; fotos.length = 0;
+            Array.from(e.target.files).slice(0,4).forEach(f => {
+                const r = new FileReader();
+                r.onload = (ev) => { fotos.push(ev.target.result); p.innerHTML += `<img src="${ev.target.result}" class="h-12 w-12 object-cover rounded border-2 border-[#009ca6]">`; };
+                r.readAsDataURL(f);
             });
         };
 
         async function generarPDF() {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
-            
-            // Estilo de encabezado PDF
-            doc.setFillColor(0, 156, 166);
-            doc.rect(0, 0, 210, 20, 'F');
-            doc.setTextColor(255, 255, 255);
-            doc.setFontSize(14);
-            doc.text("INSPECCIÓN DE SERVICIOS - CLÍNICA ALEMANA", 10, 13);
-            
-            doc.setTextColor(0, 0, 0);
-            doc.setFontSize(9);
-            const yStart = 30;
-            doc.text(`Evaluador: ${document.getElementById('evaluador').value}`, 10, yStart);
-            doc.text(`Instalación: ${document.getElementById('instalacion').value}`, 110, yStart);
-            doc.text(`Servicio: ${document.getElementById('servicio').value} - Piso: ${document.getElementById('piso').value}`, 10, yStart + 5);
-            doc.text(`Fecha: ${document.getElementById('fecha').value}`, 110, yStart + 5);
-
-            const filas = [];
-            for(let i=1; i<=45; i++) {
-                filas.push([
-                    i, 
-                    document.getElementById(`c_${i}`).value, 
-                    document.getElementById(`m_${i}`).value, 
-                    document.getElementById(`f_${i}`).value, 
-                    document.getElementById(`r_${i}`).value
-                ]);
+            doc.setFillColor(0, 156, 166); doc.rect(0, 0, 210, 20, 'F');
+            doc.setTextColor(255, 255, 255); doc.setFontSize(14); doc.text("INSPECCIÓN DE SERVICIOS - CLÍNICA ALEMANA", 10, 13);
+            doc.setTextColor(0, 0, 0); doc.setFontSize(9);
+            doc.text(`Evaluador: ${document.getElementById('evaluador').value}`, 10, 30);
+            doc.text(`Instalación: ${document.getElementById('instalacion').value}`, 110, 30);
+            doc.text(`Servicio: ${document.getElementById('servicio').value} | Piso: ${document.getElementById('piso').value}`, 10, 35);
+            doc.text(`Fecha: ${document.getElementById('fecha').value}`, 110, 35);
+            const filas = []; for(let i=1; i<=45; i++) {
+                filas.push([i, document.getElementById(`c_${i}`).value, document.getElementById(`m_${i}`).value, document.getElementById(`f_${i}`).value, document.getElementById(`r_${i}`).value]);
             }
-
-            doc.autoTable({
-                startY: yStart + 12,
-                head: [['N°', 'Estado', 'Medida de Control', 'Fecha Ejec.', 'Responsable']],
-                body: filas,
-                headStyles: { fillStyle: [0, 51, 102] },
-                styles: { fontSize: 6 },
-                theme: 'grid'
-            });
-
-            if(fotosBase64.length > 0) {
-                doc.addPage();
-                doc.setFontSize(12);
-                doc.text("REGISTRO FOTOGRÁFICO DE HALLAZGOS", 10, 15);
-                fotosBase64.forEach((img, idx) => {
-                    let y = 25 + (idx * 60);
-                    if(y > 250) { doc.addPage(); y = 20; }
-                    doc.addImage(img, 'JPEG', 10, y, 90, 50);
-                });
+            doc.autoTable({ startY: 42, head: [['N°', 'Estado', 'Medida', 'Fecha', 'Responsable']], body: filas, headStyles: { fillColor: [0, 51, 102] }, styles: { fontSize: 6 } });
+            if(fotos.length > 0) {
+                doc.addPage(); doc.text("REGISTRO FOTOGRÁFICO", 10, 15);
+                fotos.forEach((img, i) => { doc.addImage(img, 'JPEG', 10, 20 + (i*60), 90, 50); });
             }
-
-            doc.save(`Inspeccion_${document.getElementById('servicio').value}_Piso${document.getElementById('piso').value}.pdf`);
+            doc.save(`Inspeccion_${document.getElementById('servicio').value}.pdf`);
         }
-
-        window.onload = renderizar;
+        window.onload = init;
     </script>
 </body>
 </html>
