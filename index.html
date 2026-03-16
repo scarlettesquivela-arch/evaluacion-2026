@@ -9,26 +9,28 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
     <style>
         :root { --clinica-verde: #009ca6; --clinica-azul: #003366; }
-        .section-header { background-color: var(--clinica-azul); color: white; padding: 10px; border-radius: 4px; margin-top: 20px; font-weight: bold; text-transform: uppercase; font-size: 0.8rem; }
-        .card-pregunta { background: white; border-left: 4px solid var(--clinica-verde); padding: 15px; margin-bottom: 12px; border-radius: 0 8px 8px 0; box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
-        select, input, textarea { border: 1px solid #d1d5db; border-radius: 4px; padding: 6px; font-size: 0.8rem; width: 100%; }
-        .label-min { text-transform: uppercase; font-weight: bold; font-size: 10px; color: #6b7280; margin-bottom: 2px; display: block; }
+        .section-header { background-color: var(--clinica-azul); color: white; padding: 12px; border-radius: 4px; margin-top: 25px; font-weight: bold; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 0.5px; }
+        .card-pregunta { background: white; border-left: 5px solid var(--clinica-verde); padding: 18px; margin-bottom: 15px; border-radius: 0 8px 8px 0; box-shadow: 0 2px 5px rgba(0,0,0,0.08); }
+        select, input, textarea { border: 1px solid #d1d5db; border-radius: 4px; padding: 8px; font-size: 0.85rem; width: 100%; }
+        .label-min { text-transform: uppercase; font-weight: bold; font-size: 10px; color: #4b5563; margin-bottom: 4px; display: block; }
+        .pregunta-texto { font-size: 0.95rem; color: #1f2937; line-height: 1.4; font-weight: 600; }
     </style>
 </head>
-<body class="bg-slate-50 min-h-screen pb-12">
+<body class="bg-slate-100 min-h-screen pb-12">
 
     <div class="max-w-5xl mx-auto p-4">
         <div class="bg-white rounded-xl shadow-lg p-6 mb-6 flex flex-col items-center border-b-8 border-[#009ca6]">
             <img src="https://www.clinicaalemana.cl/images/default-source/logos/logo-clinica-alemana-svg.svg" alt="Logo" class="h-14 mb-4">
-            <h1 class="text-2xl font-black text-[#003366] uppercase">Inspección de Servicios</h1>
-            <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Generación de Reporte con Secciones</p>
+            <h1 class="text-2xl font-black text-[#003366] uppercase text-center">Formulario de Inspección de Servicios</h1>
+            <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">Clínica Alemana de Santiago</p>
         </div>
 
-        <div class="bg-white rounded-xl shadow p-6 mb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div><span class="label-min">Evaluador</span><input type="text" id="evaluador"></div>
-            <div><span class="label-min">Instalación</span>
+        <div class="bg-white rounded-xl shadow p-6 mb-6 grid grid-cols-1 md:grid-cols-2 gap-4 border-t-4 border-[#003366]">
+            <div class="col-span-full font-bold text-[#003366] border-b pb-2 text-sm uppercase">Información General de la Evaluación</div>
+            <div><span class="label-min">Nombre del Evaluador</span><input type="text" id="evaluador" placeholder="Nombre completo"></div>
+            <div><span class="label-min">Instalación / Sede</span>
                 <select id="instalacion">
-                    <option value="">Seleccione sede...</option>
+                    <option value="">Seleccione una opción...</option>
                     <option>Clínica Alemana Vitacura</option><option>Clínica Alemana La Dehesa</option><option>Clínica Manquehue Oriente (EMO)</option>
                     <option>Centro Médico Plaza Egaña</option><option>Centro Médico Chicureo</option><option>Centro Médico San Carlos de Apoquindo</option>
                     <option>Centro Médico Rafael Maluenda</option><option>Centro Médico Maitencillo</option><option>Centro Médico La Parva</option>
@@ -37,35 +39,90 @@
                     <option>Lo Arcaya</option><option>Cowork</option><option>Concilio Vaticano</option>
                 </select>
             </div>
-            <div><span class="label-min">Unidad / Servicio</span><input type="text" id="servicio"></div>
-            <div><span class="label-min">Piso</span><input type="text" id="piso"></div>
-            <div class="md:col-span-2"><span class="label-min">Fecha</span><input type="date" id="fecha"></div>
+            <div><span class="label-min">Unidad / Servicio Evaluado</span><input type="text" id="servicio" placeholder="Ej: Urgencia, Piso 3, etc."></div>
+            <div><span class="label-min">Piso / Nivel</span><input type="text" id="piso" placeholder="Ej: 4to Piso"></div>
+            <div class="md:col-span-2"><span class="label-min">Fecha de la Inspección</span><input type="date" id="fecha"></div>
         </div>
 
         <div id="contenedor-inspeccion"></div>
 
         <div class="bg-white rounded-xl shadow p-6 mt-8 border-t-8 border-[#009ca6]">
-            <h2 class="font-bold text-[#003366] mb-4 text-sm uppercase">Evidencia Fotográfica (Máx 10)</h2>
-            <input type="file" id="fotos" accept="image/*" multiple class="text-xs mb-4">
-            <div id="preview" class="grid grid-cols-2 md:grid-cols-5 gap-2 mb-6"></div>
-            <button onclick="enviarYDescargarReporte()" class="w-full bg-[#003366] text-white font-black py-5 rounded-lg mt-6 uppercase tracking-widest shadow-xl">
-                Enviar a OneDrive y Generar PDF Seccionado
+            <h2 class="font-bold text-[#003366] mb-4 text-sm uppercase">Registro Fotográfico de Hallazgos (Máximo 10 fotos)</h2>
+            <input type="file" id="fotos" accept="image/*" multiple class="text-sm mb-4">
+            <div id="preview" class="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6"></div>
+            
+            <button onclick="enviarReporteFinal()" class="w-full bg-[#003366] text-white font-black py-5 rounded-lg mt-4 uppercase tracking-widest shadow-xl hover:bg-blue-900 transition-all">
+                Finalizar Inspección y Descargar Reporte
             </button>
         </div>
     </div>
 
     <script>
         const secciones = [
-            { id: "INFRA", t: "1. Infraestructura", q: ["Humedad/filtraciones", "Pisos buen estado", "Paredes/Cielos ok", "Pasillos libres", "Control plagas", "Estructuras seguras"] },
-            { id: "SSHH", t: "Servicios Higiénicos", q: ["Dispone de SSHH", "Separados sexo", "Artefactos suficientes", "Distancia < 75m", "Limpieza ok", "Red ok", "Plagas ok"] },
-            { id: "VEST", t: "Vestidores", q: ["Existen vestidores", "Independientes", "Casilleros ok"] },
-            { id: "ESTAR", t: "Sala de Estar", q: ["Dispone sala estar", "Agua señalizada", "Sin domésticos", "Autorización ok"] },
-            { id: "INCEN", t: "2. Extintores", q: ["Adecuados", "Mantención anual", "Fácil acceso", "Certificación", "Estado ok"] },
-            { id: "RHUM", t: "Red Húmeda", q: ["Operativa", "Mantención anual", "Gabinete ok", "Señalizada"] },
-            { id: "NOTIF", t: "Notifier", q: ["Instrucciones ok", "Señalizados", "Comunicación ok", "Mantención ok"] },
-            { id: "ROCI", t: "Rociadores", q: ["Despejados", "Detección humo", "Operativos", "Limpios"] },
-            { id: "EVAC", t: "Vías Evacuación", q: ["Libres obstáculos", "Señalización ok", "Apertura fácil", "Puertas ok"] },
-            { id: "ELEC", t: "3. Eléctrico", q: ["Cableados ok", "Enchufes ok", "Sin sobrecarga"] }
+            { id: "INFRA", t: "1. Infraestructura", q: [
+                "¿Las áreas y superficies de trabajo se encuentran libres de humedad y/o filtraciones?",
+                "¿Los pisos se encuentran en buenas condiciones, sólidos y no resbaladizos?",
+                "¿Las paredes, puertas, cielos rasos y ventanas se encuentran bien mantenidas y limpias?",
+                "¿Los pisos y pasillos se encuentran libres de obstáculos para el libre tránsito?",
+                "¿Se han tomado medidas efectivas para evitar la entrada de insectos, roedores y otras plagas?",
+                "¿Los elementos estructurales se encuentran en buen estado de conservación y condiciones seguras?"
+            ]},
+            { id: "SSHH", t: "Servicios Higiénicos", q: [
+                "¿Dispone de servicios higiénicos (excusado y lavatorio)?",
+                "¿Los servicios higiénicos se encuentran separados para hombres y mujeres?",
+                "¿La cantidad de artefactos sanitarios es suficiente para el personal por turno?",
+                "¿La distancia de los servicios higiénicos no es superior a 75 metros del área de trabajo?",
+                "¿Se observa un buen estado de limpieza y funcionamiento de los artefactos sanitarios?",
+                "¿La red de agua y desagüe se encuentra sin filtraciones visibles?",
+                "¿Existe un servicio de control de plagas vigente en el área de baños?"
+            ]},
+            { id: "VEST", t: "Vestidores", q: [
+                "¿Existen vestidores destinados al cambio de vestimenta del personal?",
+                "¿Los vestidores están instalados de manera independiente y separados por sexo?",
+                "¿Existen casilleros individuales en cantidad suficiente para el personal?"
+            ]},
+            { id: "ESTAR", t: "Sala de Estar Personal", q: [
+                "¿Dispone de sala de estar habilitada para el consumo de alimentos del personal?",
+                "¿La sala de estar cuenta con dispensador de agua y se encuentra debidamente señalizada?",
+                "¿La sala se encuentra libre de artículos domésticos no autorizados (microondas, hervidores, etc)?",
+                "¿Los artículos eléctricos cuentan con la debida autorización para su uso en la unidad?"
+            ]},
+            { id: "EXTIN", t: "2. Prevención contra Incendios - Extintores", q: [
+                "¿Los extintores disponibles son adecuados al tipo de riesgo del área?",
+                "¿Los extintores cuentan con su mantención preventiva anual vigente?",
+                "¿Los extintores se ubican en sitios de fácil acceso y se encuentran debidamente señalizados?",
+                "¿Los extintores cuentan con su Certificación y Código interno visible?",
+                "¿El extintor cuenta con manómetro, manguera y cilindro en buen estado físico?"
+            ]},
+            { id: "RHUM", t: "Red Húmeda", q: [
+                "¿La red de incendio (mangueras) se encuentra operativa y en buenas condiciones?",
+                "¿La red de incendio cuenta con su mantención preventiva anual realizada?",
+                "¿El gabinete se encuentra en buenas condiciones (puerta, vidrio y estructura)?",
+                "¿Las redes húmedas se encuentran debidamente señalizadas?"
+            ]},
+            { id: "NOTIF", t: "Teléfono Notifier", q: [
+                "¿Los teléfonos disponen de sus instrucciones de uso en buenas condiciones?",
+                "¿Los teléfonos se encuentran debidamente señalizados?",
+                "¿Los teléfonos están operativos con comunicación directa a la central?",
+                "¿Cuentan con su mantención preventiva anual debidamente realizada?"
+            ]},
+            { id: "ROCI", t: "Rociadores y Detección", q: [
+                "¿Los rociadores se encuentran bien instalados y con su área despejada?",
+                "¿Existe un sistema de detección de incendios (Detectores de humo)?",
+                "¿Los detectores se encuentran operativos (luz intermitente de funcionamiento)?",
+                "¿Los detectores se encuentran libres de restos de pintura y suciedad?"
+            ]},
+            { id: "EVAC", t: "Vías de Evacuación", q: [
+                "¿Las vías de evacuación se encuentran libres de obstáculos para el tránsito?",
+                "¿Las vías cuentan con señalización de emergencia visible y permanente?",
+                "¿Las puertas de emergencia son de apertura fácil y están señalizadas?",
+                "¿Las puertas de emergencia se encuentran libres de obstáculos externos e internos?"
+            ]},
+            { id: "ELEC", t: "3. Suministro Eléctrico", q: [
+                "¿Están todos los cableados eléctricos adecuadamente contenidos y canalizados?",
+                "¿Los enchufes eléctricos se encuentran en buen estado de conservación?",
+                "¿Se evita la sobrecarga de los enchufes mediante el uso de alargadores no autorizados?"
+            ]}
         ];
 
         function init() {
@@ -75,21 +132,28 @@
                 const h = document.createElement('div'); h.className = 'section-header'; h.innerText = sec.t; cont.appendChild(h);
                 sec.q.forEach(txt => {
                     const div = document.createElement('div');
-                    div.className = `card-pregunta`;
+                    div.className = `card-pregunta grp-${sec.id}`;
+                    let logic = (n === 7) ? "SSHH" : (n === 14) ? "VEST" : (n === 17) ? "ESTAR" : null;
                     div.innerHTML = `
-                        <p class="text-xs font-bold text-gray-700 mb-2">${n}. ${txt}</p>
-                        <div class="grid grid-cols-1 md:grid-cols-4 gap-2 mb-2">
-                            <div><span class="label-min">Estado</span><select id="v_${n}"><option>CUMPLE</option><option>NO CUMPLE</option><option>N/A</option></select></div>
-                            <div><span class="label-min">Medida</span><input type="text" id="m_${n}"></div>
-                            <div><span class="label-min">Fecha Ejec.</span><input type="date" id="f_${n}"></div>
-                            <div><span class="label-min">Resp.</span><input type="text" id="r_${n}"></div>
+                        <p class="pregunta-texto mb-3">${n}. ${txt}</p>
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-3 mb-4">
+                            <div><span class="label-min">Estado de Cumplimiento</span><select id="v_${n}" ${logic?`onchange="applyLogic(${n},'${logic}')"`:''} class="font-bold"><option>CUMPLE</option><option>NO CUMPLE</option><option>N/A</option></select></div>
+                            <div><span class="label-min">Medida de Control</span><input type="text" id="m_${n}" placeholder="Acción correctiva"></div>
+                            <div><span class="label-min">Fecha Ejecución</span><input type="date" id="f_${n}"></div>
+                            <div><span class="label-min">Responsable</span><input type="text" id="r_${n}" placeholder="Nombre"></div>
                         </div>
-                        <span class="label-min">Hallazgo</span>
-                        <textarea id="h_${n}" class="h-10 text-xs" placeholder="Escriba el hallazgo..."></textarea>
+                        <span class="label-min">Descripción del Hallazgo</span>
+                        <textarea id="h_${n}" class="h-14 text-xs" placeholder="Detalle lo observado en este punto específico..."></textarea>
                     `;
                     cont.appendChild(div); n++;
                 });
             });
+        }
+
+        function applyLogic(num, id) {
+            const val = document.getElementById(`v_${num}`).value;
+            const items = document.querySelectorAll(`.grp-${id}`);
+            items.forEach((c, i) => { if(i > 0) c.style.display = (val === 'N/A') ? 'none' : 'block'; });
         }
 
         const imagenesArr = [];
@@ -97,79 +161,64 @@
             const p = document.getElementById('preview'); p.innerHTML = ''; imagenesArr.length = 0;
             Array.from(e.target.files).slice(0, 10).forEach(f => {
                 const r = new FileReader();
-                r.onload = (ev) => { imagenesArr.push(ev.target.result); p.innerHTML += `<img src="${ev.target.result}" class="h-16 w-full object-cover rounded shadow">`; };
+                r.onload = (ev) => { imagenesArr.push(ev.target.result); p.innerHTML += `<img src="${ev.target.result}" class="h-16 w-full object-cover rounded shadow border">`; };
                 r.readAsDataURL(f);
             });
         };
 
-        async function enviarYDescargarReporte() {
+        async function enviarReporteFinal() {
             const eval = document.getElementById('evaluador').value;
             const inst = document.getElementById('instalacion').value;
             const serv = document.getElementById('servicio').value;
             const fech = document.getElementById('fecha').value;
+            const piso = document.getElementById('piso').value;
 
-            if(!serv || !fech) return alert("Por favor complete Unidad y Fecha.");
+            if(!serv || !fech || !inst) return alert("Por favor, complete los datos de Instalación, Unidad y Fecha.");
 
-            // 1. ENVÍO A POWER AUTOMATE (Estructura Plana)
-            const payload = { evaluador: eval, instalacion: inst, servicio: serv, piso: document.getElementById('piso').value, fecha: fech };
-            for(let i=1; i<=45; i++){
-                if(document.getElementById(`v_${i}`)){
+            // ENVÍO A POWER AUTOMATE
+            const payload = { evaluador: eval, instalacion: inst, servicio: serv, piso: piso, fecha: fech };
+            for(let i=1; i<=45; i++) {
+                if(document.getElementById(`v_${i}`)) {
                     payload[`P${i}_Estado`] = document.getElementById(`v_${i}`).value;
                     payload[`P${i}_Hallazgo`] = document.getElementById(`h_${i}`).value;
                 }
             }
             const urlPowerAutomate = "TU_URL_AQUI"; 
-            fetch(urlPowerAutomate, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+            fetch(urlPowerAutomate, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) }).catch(() => {});
 
-            // 2. GENERACIÓN DE PDF SECCIONADO
+            // PDF HORIZONTAL CON SECCIONES
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF('l', 'mm', 'a4');
-            
-            // Header
             doc.setFillColor(0, 156, 166); doc.rect(0, 0, 297, 20, 'F');
             doc.setTextColor(255); doc.setFontSize(14); doc.text("INSPECCIÓN DE SERVICIOS - CLÍNICA ALEMANA", 15, 13);
             
             doc.setTextColor(0); doc.setFontSize(9);
             doc.text(`Evaluador: ${eval}`, 15, 28); doc.text(`Instalación: ${inst}`, 110, 28);
-            doc.text(`Unidad: ${serv} | Piso: ${document.getElementById('piso').value}`, 15, 33); doc.text(`Fecha: ${fech}`, 110, 33);
+            doc.text(`Unidad: ${serv} | Piso: ${piso}`, 15, 33); doc.text(`Fecha: ${fech}`, 110, 33);
 
             const rowsTable = [];
             let globalCounter = 1;
-
             secciones.forEach(sec => {
-                // Fila de Título de Sección
-                rowsTable.push([
-                    { content: sec.t, colSpan: 7, styles: { fillColor: [240, 240, 240], fontStyle: 'bold', textColor: [0, 51, 102] } }
-                ]);
-
-                // Filas de preguntas
+                rowsTable.push([{ content: sec.t, colSpan: 7, styles: { fillColor: [240, 240, 240], fontStyle: 'bold' } }]);
                 sec.q.forEach(qText => {
                     const i = globalCounter;
-                    rowsTable.push([
-                        i, 
-                        qText, 
-                        document.getElementById(`v_${i}`).value, 
-                        document.getElementById(`h_${i}`).value, 
-                        document.getElementById(`m_${i}`).value, 
-                        document.getElementById(`f_${i}`).value, 
-                        document.getElementById(`r_${i}`).value
-                    ]);
+                    rowsTable.push([i, qText, document.getElementById(`v_${i}`).value, document.getElementById(`h_${i}`).value, document.getElementById(`m_${i}`).value, document.getElementById(`f_${i}`).value, document.getElementById(`r_${i}`).value]);
                     globalCounter++;
                 });
             });
 
             doc.autoTable({
                 startY: 40,
-                head: [['N°', 'Ítem / Pregunta', 'Estado', 'Hallazgo', 'Medida de Control', 'Fecha Ejec.', 'Responsable']],
+                head: [['N°', 'Criterio / Pregunta Evaluada', 'Estado', 'Hallazgo Detectado', 'Medida de Control', 'Fecha', 'Resp.']],
                 body: rowsTable,
                 theme: 'grid',
                 headStyles: { fillColor: [0, 51, 102] },
                 styles: { fontSize: 6.5, cellPadding: 2 },
-                columnStyles: { 0: { cellWidth: 8 }, 1: { cellWidth: 55 }, 2: { cellWidth: 18 }, 3: { cellWidth: 45 }, 4: { cellWidth: 45 }, 5: { cellWidth: 20 }, 6: { cellWidth: 25 } }
+                columnStyles: { 0: { cellWidth: 8 }, 1: { cellWidth: 65 }, 2: { cellWidth: 18 }, 3: { cellWidth: 40 }, 4: { cellWidth: 40 }, 5: { cellWidth: 18 }, 6: { cellWidth: 22 } }
             });
 
             if(imagenesArr.length > 0) {
-                doc.addPage('l'); doc.text("REGISTRO FOTOGRÁFICO", 15, 15);
+                doc.addPage('l'); doc.setFontSize(10); doc.text("REGISTRO FOTOGRÁFICO DE LA INSPECCIÓN", 15, 15);
                 imagenesArr.forEach((img, i) => {
                     let y = 20 + (Math.floor(i/3) * 55);
                     let x = 15 + ((i % 3) * 90);
@@ -177,8 +226,7 @@
                     doc.addImage(img, 'JPEG', x, y, 80, 45);
                 });
             }
-
-            doc.save(`Inspección (${serv})-${fech}-${inst}.pdf`);
+            doc.save(`Inspección_Servicios_${serv}_${fech}.pdf`);
         }
         window.onload = init;
     </script>
