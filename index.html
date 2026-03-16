@@ -1,1 +1,144 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evaluación Entornos Seguros 2026</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
+    <style>
+        .section-header { background-color: #1e3a8a; color: white; padding: 10px; border-radius: 5px; margin-top: 20px; font-weight: bold; text-transform: uppercase; font-size: 0.9rem; }
+        .card-pregunta { background: white; border-left: 4px solid #3b82f6; padding: 15px; margin-bottom: 10px; border-radius: 0 8px 8px 0; shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen pb-10">
 
+    <div class="max-w-4xl mx-auto p-4">
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-6 border-t-8 border-blue-800">
+            <h1 class="text-2xl font-bold text-blue-900 text-center">LV-EVALUACIÓN SISTEMÁTICA DE ENTORNOS SEGUROS 2026</h1>
+            <p class="text-center text-red-600 font-bold text-sm mt-2">PRIORIDAD ALTA</p>
+        </div>
+
+        <div class="bg-white rounded-xl shadow p-6 mb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div><label class="block text-xs font-bold text-gray-500 uppercase">Evaluador</label><input type="text" id="evaluador" class="w-full p-2 border rounded border-gray-300"></div>
+            <div><label class="block text-xs font-bold text-gray-500 uppercase">Instalación</label><input type="text" id="instalacion" class="w-full p-2 border rounded border-gray-300"></div>
+            <div><label class="block text-xs font-bold text-gray-500 uppercase">Servicio / Unidad</label><input type="text" id="servicio" class="w-full p-2 border rounded border-gray-300"></div>
+            <div><label class="block text-xs font-bold text-gray-500 uppercase">Fecha</label><input type="date" id="fecha" class="w-full p-2 border rounded border-gray-300"></div>
+        </div>
+
+        <div id="formulario-contenido">
+            <p class="text-center p-10">Cargando formulario...</p>
+        </div>
+
+        <div class="bg-white rounded-xl shadow p-6 mt-6">
+            <h2 class="font-bold text-blue-900 mb-4 uppercase">Observaciones Finales y Fotos</h2>
+            <textarea id="obs_finales" class="w-full p-3 border rounded mb-4 h-24" placeholder="Notas adicionales..."></textarea>
+            
+            <label class="block font-bold text-sm mb-2">Subir Fotografías (Máximo 4):</label>
+            <input type="file" id="fotos" accept="image/*" multiple class="mb-4 block w-full text-sm">
+            <div id="preview" class="grid grid-cols-2 md:grid-cols-4 gap-2"></div>
+        </div>
+
+        <button onclick="generarPDF()" class="w-full bg-green-600 text-white font-bold py-4 rounded-xl mt-8 shadow-lg hover:bg-green-700 transition-all text-xl">
+            FINALIZAR Y DESCARGAR PDF
+        </button>
+    </div>
+
+    <script>
+        const datosCuestionario = [
+            { titulo: "1. Infraestructura", items: ["Áreas libres de humedad/filtraciones", "¿Pisos en buen estado y no resbaladizos?", "¿Paredes, puertas y ventanas bien mantenidas?", "Pasillos libres de obstáculos", "Control de plagas efectivo", "Estructuras en buen estado"] },
+            { titulo: "2. Servicios Higiénicos", items: ["Disponibilidad de excusado y lavatorio", "Baños separados por sexo", "Cantidad suficiente de artefactos", "Distancia menor a 75m", "Limpieza de artefactos", "Red sin filtraciones", "Control de plagas vigente"] },
+            { titulo: "3. Vestidores y Sala Estar", items: ["Existen vestidores", "Vestidores independientes por sexo", "Casilleros suficientes", "Sala de estar disponible", "Dispensador de agua y señalética", "Sin artículos domésticos prohibidos", "Artículos eléctricos autorizados", "Sin alargadores/extensiones"] },
+            { titulo: "4. Protección contra Incendios", items: ["Extintores adecuados al riesgo", "Mantención anual de extintores", "Fácil acceso y señalizados", "Certificación y código interno", "Estado de manómetro y manguera", "Red húmeda operativa", "Mantención anual red húmeda", "Gabinete en buen estado", "Redes húmedas señalizadas", "Teléfono Notifier con instrucciones", "Señalización Notifier", "Notifier operativo (central)", "Mantención anual Notifier", "Rociadores despejados", "Sistema detección de humo", "Detectores operativos (luz)", "Detectores limpios", "Vías de evacuación libres", "Señalización visible (piso/aérea)", "Puertas de emergencia fácil apertura", "Puertas de emergencia despejadas"] },
+            { titulo: "5. Suministro Eléctrico", items: ["Cableados contenidos", "Enchufes en buen estado", "Sin sobrecarga de alargadores"] }
+        ];
+
+        function renderizar() {
+            const container = document.getElementById('formulario-contenido');
+            container.innerHTML = '';
+            let n = 1;
+            datosCuestionario.forEach(sec => {
+                const header = document.createElement('div');
+                header.className = 'section-header';
+                header.innerText = sec.titulo;
+                container.appendChild(header);
+
+                sec.items.forEach(pregunta => {
+                    const div = document.createElement('div');
+                    div.className = 'card-pregunta shadow-sm mt-2';
+                    div.innerHTML = `
+                        <p class="text-sm font-bold text-gray-700 mb-2">${n}. ${pregunta}</p>
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-2">
+                            <select id="c_${n}" class="p-1 border rounded text-xs bg-gray-50"><option>CUMPLE</option><option>NO CUMPLE</option><option>N/A</option></select>
+                            <input type="text" id="m_${n}" placeholder="Medida" class="p-1 border rounded text-xs md:col-span-1">
+                            <input type="date" id="f_${n}" class="p-1 border rounded text-xs">
+                            <input type="text" id="r_${n}" placeholder="Resp." class="p-1 border rounded text-xs">
+                        </div>
+                    `;
+                    container.appendChild(div);
+                    n++;
+                });
+            });
+        }
+
+        const fotosBase64 = [];
+        document.getElementById('fotos').onchange = function(e) {
+            const prev = document.getElementById('preview');
+            prev.innerHTML = ''; fotosBase64.length = 0;
+            Array.from(e.target.files).slice(0,4).forEach(file => {
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                    fotosBase64.push(ev.target.result);
+                    prev.innerHTML += `<img src="${ev.target.result}" class="h-20 w-full object-cover rounded shadow">`;
+                };
+                reader.readAsDataURL(file);
+            });
+        };
+
+        async function generarPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            doc.setFontSize(14);
+            doc.text("INFORME DE EVALUACIÓN DE ENTORNOS SEGUROS 2026", 10, 15);
+            
+            doc.setFontSize(9);
+            doc.text(`Evaluador: ${document.getElementById('evaluador').value} | Fecha: ${document.getElementById('fecha').value}`, 10, 25);
+            doc.text(`Instalación: ${document.getElementById('instalacion').value} | Servicio: ${document.getElementById('servicio').value}`, 10, 30);
+
+            const filas = [];
+            for(let i=1; i<=45; i++) {
+                filas.push([
+                    i, 
+                    document.getElementById(`c_${i}`).value, 
+                    document.getElementById(`m_${i}`).value, 
+                    document.getElementById(`f_${i}`).value, 
+                    document.getElementById(`r_${i}`).value
+                ]);
+            }
+
+            doc.autoTable({
+                startY: 35,
+                head: [['N°', 'Estado', 'Medida de Control', 'Fecha', 'Resp.']],
+                body: filas,
+                styles: { fontSize: 7 },
+                theme: 'grid'
+            });
+
+            if(fotosBase64.length > 0) {
+                doc.addPage();
+                doc.text("REGISTRO FOTOGRÁFICO", 10, 15);
+                fotosBase64.forEach((img, idx) => {
+                    let y = 20 + (idx * 65);
+                    if(y > 250) { doc.addPage(); y = 20; }
+                    doc.addImage(img, 'JPEG', 10, y, 100, 60);
+                });
+            }
+
+            doc.save("Evaluacion_Seguridad.pdf");
+        }
+
+        window.onload = renderizar;
+    </script>
+</body>
+</html>
