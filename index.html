@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inspección de Servicios v2 - Clínica Alemana</title>
+    <title>Inspección de Servicios - Clínica Alemana</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
@@ -18,7 +18,7 @@
 
     <div class="max-w-4xl mx-auto p-4">
         <div class="bg-white rounded-xl shadow-lg p-6 mb-6 flex flex-col items-center border-b-8 border-[#009ca6]">
-            <img src="https://www.clinicaalemana.cl/images/default-source/logos/logo-clinica-alemana-svg.svg" alt="Logo" class="h-14 mb-4">
+            <img id="logoApp" src="https://www.clinicaalemana.cl/images/default-source/logos/logo-clinica-alemana-svg.svg" alt="Logo" class="h-14 mb-4">
             <h1 class="text-2xl font-black text-[#003366] uppercase">Inspección de Servicios</h1>
             <p class="text-xs font-bold text-gray-400">EVALUACIÓN SISTEMÁTICA 2026</p>
         </div>
@@ -42,131 +42,148 @@
             <div class="md:col-span-2"><label class="text-[10px] font-bold text-gray-500 uppercase">Fecha</label><input type="date" id="fecha"></div>
         </div>
 
-        <div id="form-inspeccion"></div>
+        <div id="form-container"></div>
 
         <div class="bg-white rounded-xl shadow p-6 mt-8 border-t-8 border-[#009ca6]">
             <h2 class="font-bold text-[#003366] mb-4 text-sm uppercase">Fotos (Máx 10)</h2>
             <input type="file" id="fotos" accept="image/*" multiple class="text-xs mb-4">
             <div id="preview" class="grid grid-cols-2 md:grid-cols-5 gap-2 mb-6"></div>
-            
             <textarea id="obs_finales" class="w-full p-2 border rounded h-20 text-sm" placeholder="Observaciones adicionales..."></textarea>
 
-            <button onclick="descargarInformeFinal()" class="w-full bg-[#003366] text-white font-bold py-4 rounded-lg mt-6 hover:bg-blue-900 transition-all uppercase tracking-widest">
-                Generar Informe Final (45 ítems)
+            <button onclick="generarInformeFinal()" class="w-full bg-[#003366] text-white font-bold py-4 rounded-lg mt-6 hover:bg-blue-900 transition-all uppercase tracking-widest">
+                Descargar Informe PDF
             </button>
         </div>
     </div>
 
     <script>
         const database = [
-            { id: "INFRA", t: "1. Infraestructura", q: ["Las áreas y superficies de trabajo están libres de humedad y/o filtraciones", "¿Los pisos se encuentran en buenas condiciones, sólidos y no resbaladizos?", "¿Las paredes, puertas, cielos rasos y ventanas se encuentran bien mantenidas?", "Pisos y pasillos libres de obstáculos", "Medidas efectivas para evitar insectos, roedores y plagas", "Elementos estructurales en buen estado y condiciones seguras"] },
-            { id: "SSHH", t: "Servicios Higiénicos", q: ["Dispone de servicios higiénicos (excusado y lavatorio)", "Servicios higiénicos separados para hombres y mujeres", "Cantidad de artefactos sanitarios suficientes por turno", "Distancia no superior a 75 mt del área de trabajo", "Buen estado de limpieza en artefactos", "Red sin filtraciones", "Servicio de control de plagas vigente"] },
-            { id: "VEST", t: "Vestidores", q: ["Existen vestidores para cambio de vestimenta", "Vestidores instalados de manera independiente y por sexo", "Existen casilleros individuales en cantidad suficiente"] },
-            { id: "ESTAR", t: "Sala de Estar Personal", q: ["Dispone de sala de estar para consumir alimentos", "Sala de estar con dispensador de agua y señalizada", "Sala libre de artículos domésticos (microondas, etc)", "Artículos eléctricos cuentan con autorización para uso", "Sala libre de alargadores o extensiones eléctricas"] },
-            { id: "INCEN", t: "2. Prevención contra Incendios - Extintores", q: ["Adecuados al riesgo", "Mantención preventiva anual", "Sitios de fácil acceso y señalizados", "Certificación y Código interno", "Manómetro, manguera y cilindro en buen estado"] },
-            { id: "RHUM", t: "Red Húmeda", q: ["Operativa y en buenas condiciones", "Mantención preventiva anual", "Gabinete en buenas condiciones", "Redes húmedas señalizadas"] },
-            { id: "NOTIF", t: "Teléfono Notifier", q: ["Instrucciones en buenas condiciones", "Debidamente señalizados", "Operativos con comunicación directa", "Mantención preventiva anual"] },
-            { id: "ROCI", t: "Rociadores y Detección", q: ["Rociadores bien instalados", "Sistema de detección de humo", "Detectores operativos (luz)", "Detectores libres de pinturas"] },
-            { id: "EVAC", t: "Vías de Evacuación", q: ["Libres de obstáculos", "Señalización visible", "Puertas apertura fácil", "Puertas libres de obstáculos"] },
-            { id: "ELEC", t: "3. Suministro Eléctrico", q: ["Cableados contenidos", "Enchufes en buen estado", "Sin sobrecarga de alargadores"] }
+            { id: "INFRA", t: "1. Infraestructura", q: [
+                "Las áreas y superficies de trabajo están libres de humedad y/o filtraciones",
+                "¿Los pisos se encuentran en buenas condiciones, sólidos y no resbaladizos?",
+                "¿Las paredes, puertas, cielos rasos y ventanas se encuentran bien mantenidas?",
+                "Pisos y pasillos libres de obstáculos",
+                "Medidas efectivas para evitar insectos, roedores y plagas",
+                "Elementos estructurales en buen estado y condiciones seguras"
+            ]},
+            { id: "SSHH", t: "Servicios Higiénicos", q: [
+                "Dispone de servicios higiénicos (excusado y lavatorio)", // Q7
+                "Servicios higiénicos separados para hombres y mujeres",
+                "Cantidad de artefactos sanitarios suficientes por turno",
+                "Distancia no superior a 75 mt del área de trabajo",
+                "Buen estado de limpieza en artefactos",
+                "Red sin filtraciones",
+                "Servicio de control de plagas vigente"
+            ]},
+            { id: "VEST", t: "Vestidores", q: [
+                "Existen vestidores para cambio de vestimenta", // Q14
+                "Vestidores instalados de manera independiente y por sexo",
+                "Existen casilleros individuales en cantidad suficiente"
+            ]},
+            { id: "ESTAR", t: "Sala de Estar Personal", q: [
+                "Dispone de sala de estar para consumir alimentos", // Q17
+                "Sala de estar con dispensador de agua y señalizada",
+                "Sala libre de artículos domésticos (microondas, etc)",
+                "Artículos eléctricos cuentan con autorización para uso"
+                // PREGUNTA 21 ELIMINADA: "Sala libre de alargadores o extensiones eléctricas"
+            ]},
+            { id: "INCEN", t: "2. Prevención contra Incendios - Extintores", q: [
+                "Adecuados al riesgo", "Mantención preventiva anual", "Sitios de fácil acceso y señalizados", "Certificación y Código interno", "Manómetro, manguera y cilindro en buen estado"
+            ]},
+            { id: "RHUM", t: "Red Húmeda", q: [
+                "Operativa y en buenas condiciones", "Mantención preventiva anual", "Gabinete en buenas condiciones", "Redes húmedas señalizadas"
+            ]},
+            { id: "NOTIF", t: "Teléfono Notifier", q: [
+                "Instrucciones en buenas condiciones", "Debidamente señalizados", "Operativos con comunicación directa", "Mantención preventiva anual"
+            ]},
+            { id: "ROCI", t: "Rociadores y Detección", q: [
+                "Rociadores bien instalados", "Sistema de detección de humo", "Detectores operativos (luz)", "Detectores libres de pinturas"
+            ]},
+            { id: "EVAC", t: "Vías de Evacuación", q: [
+                "Libres de obstáculos", "Señalización visible", "Puertas apertura fácil", "Puertas libres de obstáculos"
+            ]},
+            { id: "ELEC", t: "3. Suministro Eléctrico", q: [
+                "Cableados contenidos", "Enchufes en buen estado", "Sin sobrecarga de alargadores"
+            ]}
         ];
 
-        function startApp() {
-            const container = document.getElementById('form-inspeccion');
-            let counter = 1;
+        function render() {
+            const container = document.getElementById('form-container');
+            let n = 1;
             database.forEach(sec => {
-                const header = document.createElement('div');
-                header.className = 'section-header';
-                header.innerText = sec.t;
-                container.appendChild(header);
-
+                const h = document.createElement('div'); h.className = 'section-header'; h.innerText = sec.t; container.appendChild(h);
                 sec.q.forEach(txt => {
                     const div = document.createElement('div');
                     div.className = `card-pregunta grp-${sec.id}`;
-                    div.id = `qbox-${counter}`;
-                    
-                    let logicTrigger = "";
-                    if (counter === 7) logicTrigger = `onchange="execLogic(7, 'SSHH')"`;
-                    if (counter === 14) logicTrigger = `onchange="execLogic(14, 'VEST')"`;
-                    if (counter === 17) logicTrigger = `onchange="execLogic(17, 'ESTAR')"`;
+                    let logic = "";
+                    if (n === 7) logic = `onchange="runLogic(7, 'SSHH')"`;
+                    if (n === 14) logic = `onchange="runLogic(14, 'VEST')"`;
+                    if (n === 17) logic = `onchange="runLogic(17, 'ESTAR')"`;
 
-                    div.innerHTML = `
-                        <p class="text-xs font-bold text-gray-700 mb-2">${counter}. ${txt}</p>
+                    div.innerHTML = `<p class="text-xs font-bold text-gray-700 mb-2">${n}. ${txt}</p>
                         <div class="grid grid-cols-1 md:grid-cols-4 gap-2">
-                            <select id="v_${counter}" ${logicTrigger} class="font-bold">
-                                <option value="CUMPLE">CUMPLE</option>
-                                <option value="NO CUMPLE">NO CUMPLE</option>
-                                <option value="N/A">N/A</option>
-                            </select>
-                            <input type="text" id="m_${counter}" placeholder="Medida">
-                            <input type="date" id="f_${counter}">
-                            <input type="text" id="r_${counter}" placeholder="Responsable">
+                            <select id="v_${n}" ${logic} class="font-bold"><option>CUMPLE</option><option>NO CUMPLE</option><option>N/A</option></select>
+                            <input type="text" id="m_${n}" placeholder="Medida">
+                            <input type="date" id="f_${n}">
+                            <input type="text" id="r_${n}" placeholder="Resp.">
                         </div>`;
-                    container.appendChild(div);
-                    counter++;
+                    container.appendChild(div); n++;
                 });
             });
         }
 
-        function execLogic(num, grpId) {
-            const selector = document.getElementById(`v_${num}`);
-            const cards = document.querySelectorAll(`.grp-${grpId}`);
-            // Lógica: Si es N/A, ocultar el resto de la sección
-            cards.forEach((card, i) => {
-                if (i > 0) card.style.display = (selector.value === "N/A") ? "none" : "block";
-            });
+        function runLogic(n, id) {
+            const val = document.getElementById(`v_${n}`).value;
+            const cards = document.querySelectorAll(`.grp-${id}`);
+            cards.forEach((c, i) => { if(i > 0) c.style.display = (val === 'N/A') ? 'none' : 'block'; });
         }
 
-        const imgList = [];
+        const imgData = [];
         document.getElementById('fotos').onchange = (e) => {
-            const p = document.getElementById('preview'); p.innerHTML = ''; imgList.length = 0;
+            const p = document.getElementById('preview'); p.innerHTML = ''; imgData.length = 0;
             Array.from(e.target.files).slice(0, 10).forEach(f => {
                 const r = new FileReader();
-                r.onload = (ev) => { imgList.push(ev.target.result); p.innerHTML += `<img src="${ev.target.result}" class="h-16 w-full object-cover rounded shadow">`; };
+                r.onload = (ev) => { imgData.push(ev.target.result); p.innerHTML += `<img src="${ev.target.result}" class="h-16 w-full object-cover rounded">`; };
                 r.readAsDataURL(f);
             });
         };
 
-        async function descargarInformeFinal() {
+        async function generarInformeFinal() {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
-            doc.setFillColor(0, 156, 166); doc.rect(0, 0, 210, 20, 'F');
-            doc.setTextColor(255); doc.setFontSize(14); doc.text("INSPECCIÓN DE SERVICIOS - CLÍNICA ALEMANA", 10, 13);
+            
+            // Logo en el PDF
+            const logoUrl = "https://www.clinicaalemana.cl/images/default-source/logos/logo-clinica-alemana-svg.svg";
+            // Nota: Para PDF se suele usar imágenes estáticas. Aquí generamos un encabezado de color corporativo.
+            doc.setFillColor(0, 156, 166); doc.rect(0, 0, 210, 25, 'F');
+            doc.setTextColor(255); doc.setFontSize(14); doc.text("INSPECCIÓN DE SERVICIOS - CLÍNICA ALEMANA", 15, 16);
+            
             doc.setTextColor(0); doc.setFontSize(9);
-            doc.text(`Evaluador: ${document.getElementById('evaluador').value}`, 10, 30);
-            doc.text(`Instalación: ${document.getElementById('instalacion').value}`, 110, 30);
-            doc.text(`Servicio: ${document.getElementById('servicio').value} | Piso: ${document.getElementById('piso').value}`, 10, 37);
-            doc.text(`Fecha: ${document.getElementById('fecha').value}`, 110, 37);
+            doc.text(`Evaluador: ${document.getElementById('evaluador').value}`, 15, 35);
+            doc.text(`Sede: ${document.getElementById('instalacion').value}`, 110, 35);
+            doc.text(`Servicio: ${document.getElementById('servicio').value} | Piso: ${document.getElementById('piso').value}`, 15, 42);
+            doc.text(`Fecha: ${document.getElementById('fecha').value}`, 110, 42);
 
             const rows = [];
-            let allTexts = database.flatMap(s => s.q);
-            for(let i=1; i<=45; i++) {
-                rows.push([
-                    i, allTexts[i-1], 
-                    document.getElementById(`v_${i}`).value, 
-                    document.getElementById(`m_${i}`).value, 
-                    document.getElementById(`f_${i}`).value,
-                    document.getElementById(`r_${i}`).value
-                ]);
+            let allQ = database.flatMap(s => s.q);
+            for(let i=1; i<=allQ.length; i++) {
+                rows.push([i, allQ[i-1], document.getElementById(`v_${i}`).value, document.getElementById(`m_${i}`).value, document.getElementById(`f_${i}`).value]);
             }
 
-            doc.autoTable({
-                startY: 45, head: [['N°', 'Ítem', 'Estado', 'Medida', 'Fecha', 'Resp.']], body: rows,
-                headStyles: { fillColor: [0, 51, 102] }, styles: { fontSize: 6 }, columnStyles: { 1: { cellWidth: 70 } }
-            });
+            doc.autoTable({ startY: 50, head: [['N°', 'Ítem', 'Estado', 'Medida', 'Fecha']], body: rows, headStyles: { fillColor: [0, 51, 102] }, styles: { fontSize: 6.5 } });
 
-            if(imgList.length > 0) {
-                doc.addPage();
-                imgList.forEach((img, i) => {
-                    let y = 20 + (Math.floor(i/2) * 55);
-                    let x = (i % 2 === 0) ? 10 : 110;
-                    if(y > 250) { doc.addPage(); y = 20; }
-                    doc.addImage(img, 'JPEG', x, y, 90, 50);
+            if(imgData.length > 0) {
+                doc.addPage(); doc.text("REGISTRO FOTOGRÁFICO", 15, 20);
+                imgData.forEach((img, i) => {
+                    let y = 25 + (Math.floor(i/2) * 55);
+                    let x = (i % 2 === 0) ? 15 : 110;
+                    if(y > 250) { doc.addPage(); y = 25; }
+                    doc.addImage(img, 'JPEG', x, y, 85, 45);
                 });
             }
             doc.save(`Inspeccion_${document.getElementById('instalacion').value || 'CA'}.pdf`);
         }
-        window.onload = startApp;
+        window.onload = render;
     </script>
 </body>
 </html>
