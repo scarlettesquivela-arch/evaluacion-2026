@@ -109,25 +109,30 @@
         };
 
         async function enviarInformeCompleto() {
-            const eval = document.getElementById('evaluador').value;
-            const inst = document.getElementById('instalacion').value;
-            const serv = document.getElementById('servicio').value;
-            const fech = document.getElementById('fecha').value;
-            const piso = document.getElementById('piso').value;
+            const payload = {
+        evaluador: document.getElementById('evaluador').value,
+        instalacion: document.getElementById('instalacion').value,
+        servicio: document.getElementById('servicio').value,
+        piso: document.getElementById('piso').value,
+        fecha: document.getElementById('fecha').value
+    };
+            for(let i = 1; i <= 45; i++) {
+        if(document.getElementById(`v_${i}`)) {
+            payload[`P${i}_Estado`] = document.getElementById(`v_${i}`).value;
+            payload[`P${i}_Hallazgo`] = document.getElementById(`h_${i}`).value;
+            payload[`P${i}_Medida`] = document.getElementById(`m_${i}`).value;
+            payload[`P${i}_FechaEjec`] = document.getElementById(`f_${i}`).value;
+            payload[`P${i}_Resp`] = document.getElementById(`r_${i}`).value;
+        }
+    }
 
-            const payload = { evaluador: eval, instalacion: inst, servicio: serv, piso: piso, fecha: fech };
-            for(let i=1; i<=45; i++) {
-                if(document.getElementById(`v_${i}`)) {
-                    payload[`P${i}_Estado`] = document.getElementById(`v_${i}`).value;
-                    payload[`P${i}_Hallazgo`] = document.getElementById(`h_${i}`).value;
-                    payload[`P${i}_Medida`] = document.getElementById(`m_${i}`).value;
-                    payload[`P${i}_FechaEjec`] = document.getElementById(`f_${i}`).value;
-                    payload[`P${i}_Resp`] = document.getElementById(`r_${i}`).value;
-                }
-            }
-
-            const urlPowerAutomate = "TU_URL_AQUI"; 
-            fetch(urlPowerAutomate, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+    const urlPowerAutomate = "TU_URL_AQUI"; 
+    fetch(urlPowerAutomate, { 
+        method: "POST", 
+        headers: { "Content-Type": "application/json" }, 
+        body: JSON.stringify(payload) 
+    });
+}
 
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF('l', 'mm', 'a4');
