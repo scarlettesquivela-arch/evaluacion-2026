@@ -64,17 +64,6 @@
             grid-template-columns: 1fr 1fr;
             gap: 15px;
         }
-        .checkbox-group {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-        .checkbox-item {
-            background: #f2f2f2;
-            padding: 5px 10px;
-            border-radius: 4px;
-            font-size: 13px;
-        }
         .hallazgo-card {
             background-color: #E8F4FA;
             border: 1px solid #b3e0f5;
@@ -85,8 +74,35 @@
         .hallazgo-title {
             color: #0033A0;
             font-weight: bold;
-            margin-bottom: 10px;
-            font-size: 16px;
+            margin-bottom: 15px;
+            font-size: 18px;
+            border-bottom: 1px solid #b3e0f5;
+            padding-bottom: 5px;
+        }
+        .firma-box {
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            padding: 10px;
+            background: #fdfdfd;
+            text-align: center;
+        }
+        canvas {
+            border: 1px dashed #999;
+            background-color: #fff;
+            width: 100%;
+            height: 150px;
+            cursor: crosshair;
+            touch-action: none; /* Evita que la pantalla haga scroll al firmar */
+        }
+        .btn-clear {
+            background-color: #ff4d4d;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            margin-top: 5px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 12px;
         }
         .btn-submit {
             background-color: #0033A0;
@@ -103,8 +119,13 @@
         .btn-submit:hover {
             background-color: #002266;
         }
+        .risk-reference {
+            font-size: 12px;
+            color: #555;
+            margin-top: 3px;
+            display: block;
+        }
         
-        /* Ajustes para móviles */
         @media (max-width: 600px) {
             .grid-2 {
                 grid-template-columns: 1fr;
@@ -122,6 +143,10 @@
         <div class="section-title">1. ANTECEDENTES DE LA INSPECCIÓN</div>
         <div class="grid-2" style="margin-top: 15px;">
             <div class="form-group">
+                <label for="instalacion">Nombre de la Instalación:</label>
+                <input type="text" id="instalacion" name="instalacion" placeholder="Ej. Clínica Alemana Vitacura" required>
+            </div>
+            <div class="form-group">
                 <label for="servicio">Servicio / Unidad Clínica:</label>
                 <input type="text" id="servicio" name="servicio" placeholder="Ej. UPC Adulto" required>
             </div>
@@ -130,25 +155,12 @@
                 <input type="datetime-local" id="fechaHora" name="fechaHora" required>
             </div>
             <div class="form-group">
+                <label for="evaluador">Evaluador DGR:</label>
+                <input type="text" id="evaluador" name="evaluador" placeholder="Ej. Nani Rico">
+            </div>
+            <div class="form-group" style="grid-column: 1 / -1;">
                 <label for="lider">Líder del Servicio (Acompañante):</label>
                 <input type="text" id="lider" name="lider" placeholder="Nombre y Cargo">
-            </div>
-            <div class="form-group">
-                <label for="evaluador">Evaluador DGR:</label>
-                <input type="text" id="evaluador" name="evaluador" placeholder="Nombre del Prevencionista">
-            </div>
-        </div>
-
-        <div class="form-group">
-            <label>Pilares Evaluados:</label>
-            <div class="checkbox-group">
-                <label class="checkbox-item"><input type="checkbox" value="Seg. Industrial"> Seg. Industrial</label>
-                <label class="checkbox-item"><input type="checkbox" value="Gest. Preventiva"> Gest. Preventiva</label>
-                <label class="checkbox-item"><input type="checkbox" value="Medio Ambiente (REAS)"> Medio Ambiente (REAS)</label>
-                <label class="checkbox-item"><input type="checkbox" value="Control"> Control y Aseguramiento</label>
-                <label class="checkbox-item"><input type="checkbox" value="Contratistas"> Contratistas</label>
-                <label class="checkbox-item"><input type="checkbox" value="Radioprotección"> Radioprotección</label>
-                <label class="checkbox-item"><input type="checkbox" value="Sustancias Peligrosas"> Sust. Peligrosas</label>
             </div>
         </div>
 
@@ -158,107 +170,282 @@
             <textarea id="reconocimiento" name="reconocimiento" placeholder="Ej. Se observa excelente adherencia al uso de EPP..."></textarea>
         </div>
 
-        <div class="section-title">3. TOP 3: HALLAZGOS CRÍTICOS Y PAC</div>
+        <div class="section-title">3. HALLAZGOS CRÍTICOS Y PAC</div>
         
         <div class="hallazgo-card">
-            <div class="hallazgo-title">🔴 PRIORIDAD 1: (Mayor Criticidad)</div>
-            <div class="form-group">
-                <label>Título del Hallazgo:</label>
-                <input type="text" placeholder="Breve título del problema">
+            <div class="hallazgo-title">HALLAZGO 1</div>
+            <div class="grid-2">
+                <div class="form-group">
+                    <label>Pilar asociado al hallazgo:</label>
+                    <select required>
+                        <option value="">Seleccione un pilar...</option>
+                        <option value="Seguridad Industrial">Seguridad Industrial e Infraestructura</option>
+                        <option value="Gestión Preventiva">Gestión Preventiva (Administrativa)</option>
+                        <option value="Medio Ambiente">Medio Ambiente (Gestión REAS)</option>
+                        <option value="Control y Aseguramiento">Control y Aseguramiento (Equipos vitales)</option>
+                        <option value="Empresas Contratistas">Empresas Contratistas</option>
+                        <option value="Radioprotección">Radioprotección</option>
+                        <option value="Sustancias Peligrosas">Sustancias Peligrosas y Químicos</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Ubicación Exacta:</label>
+                    <input type="text" placeholder="Ej. Pasillo central, Box 4">
+                </div>
             </div>
             <div class="form-group">
-                <label>Descripción y Ubicación Exacta:</label>
-                <textarea placeholder="Detalle la condición subestándar y su georreferenciación"></textarea>
+                <label>Descripción del Hallazgo:</label>
+                <textarea placeholder="Detalle la condición subestándar observada"></textarea>
             </div>
             <div class="grid-2">
                 <div class="form-group">
                     <label>Nivel de Riesgo:</label>
                     <select>
-                        <option value="">Seleccione...</option>
-                        <option value="P1">P1 (Riesgo Vital/Clausura)</option>
-                        <option value="P1B">P1B (Urgente Operacional)</option>
-                        <option value="P2">P2 (Desviación Menor)</option>
+                        <option value="">Seleccione el nivel...</option>
+                        <option value="P1">P1 - CRÍTICO (Riesgo vital/clausura. Res. < 24 hrs)</option>
+                        <option value="P1B">P1B - URGENTE (Afecta soporte/acreditación)</option>
+                        <option value="P2">P2 - MODERADO (Desviación menor/mantención)</option>
+                        <option value="P3">P3 - MENOR (Falta de orden, mejora estética)</option>
                     </select>
                 </div>
                 <div class="form-group">
                     <label>Normativa Infringida:</label>
-                    <input type="text" placeholder="Ej. D.S. 594, REAS">
+                    <input type="text" placeholder="Ej. D.S. 594, REAS, D.S. 43">
                 </div>
                 <div class="form-group">
                     <label>Acción Correctiva (PAC):</label>
                     <input type="text" placeholder="Medida a tomar">
                 </div>
                 <div class="form-group">
-                    <label>Responsable y Plazo:</label>
-                    <input type="text" placeholder="Ej. Mantenimiento / 24 Horas">
+                    <label>Responsable:</label>
+                    <input type="text" placeholder="Área o persona a cargo">
+                </div>
+                <div class="form-group">
+                    <label>Plazo de Ejecución:</label>
+                    <input type="text" placeholder="Ej. Inmediato, 24 hrs, 1 semana">
                 </div>
                 <div class="form-group">
                     <label>Adjuntar Fotografía:</label>
-                    <input type="file" accept="image/*">
+                    <input type="file" accept="image/*" capture="environment">
                 </div>
             </div>
         </div>
 
         <div class="hallazgo-card">
-            <div class="hallazgo-title">🟠 PRIORIDAD 2:</div>
-            <div class="form-group">
-                <label>Título del Hallazgo:</label>
-                <input type="text" placeholder="Breve título del problema">
+            <div class="hallazgo-title">HALLAZGO 2</div>
+            <div class="grid-2">
+                <div class="form-group">
+                    <label>Pilar asociado al hallazgo:</label>
+                    <select>
+                        <option value="">Seleccione un pilar...</option>
+                        <option value="Seguridad Industrial">Seguridad Industrial e Infraestructura</option>
+                        <option value="Gestión Preventiva">Gestión Preventiva (Administrativa)</option>
+                        <option value="Medio Ambiente">Medio Ambiente (Gestión REAS)</option>
+                        <option value="Control y Aseguramiento">Control y Aseguramiento (Equipos vitales)</option>
+                        <option value="Empresas Contratistas">Empresas Contratistas</option>
+                        <option value="Radioprotección">Radioprotección</option>
+                        <option value="Sustancias Peligrosas">Sustancias Peligrosas y Químicos</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Ubicación Exacta:</label>
+                    <input type="text" placeholder="Ej. Pasillo central, Box 4">
+                </div>
             </div>
             <div class="form-group">
-                <label>Descripción y Ubicación Exacta:</label>
-                <textarea placeholder="Detalle la condición subestándar y su georreferenciación"></textarea>
+                <label>Descripción del Hallazgo:</label>
+                <textarea placeholder="Detalle la condición subestándar observada"></textarea>
             </div>
             <div class="grid-2">
                 <div class="form-group">
                     <label>Nivel de Riesgo:</label>
                     <select>
-                        <option value="">Seleccione...</option>
-                        <option value="P1">P1 (Riesgo Vital/Clausura)</option>
-                        <option value="P1B">P1B (Urgente Operacional)</option>
-                        <option value="P2">P2 (Desviación Menor)</option>
+                        <option value="">Seleccione el nivel...</option>
+                        <option value="P1">P1 - CRÍTICO (Riesgo vital/clausura. Res. < 24 hrs)</option>
+                        <option value="P1B">P1B - URGENTE (Afecta soporte/acreditación)</option>
+                        <option value="P2">P2 - MODERADO (Desviación menor/mantención)</option>
+                        <option value="P3">P3 - MENOR (Falta de orden, mejora estética)</option>
                     </select>
                 </div>
                 <div class="form-group">
                     <label>Normativa Infringida:</label>
-                    <input type="text" placeholder="Ej. D.S. 594, REAS">
+                    <input type="text" placeholder="Ej. D.S. 594, REAS, D.S. 43">
                 </div>
                 <div class="form-group">
                     <label>Acción Correctiva (PAC):</label>
                     <input type="text" placeholder="Medida a tomar">
                 </div>
                 <div class="form-group">
-                    <label>Responsable y Plazo:</label>
-                    <input type="text" placeholder="Ej. Aseo / 2 Horas">
+                    <label>Responsable:</label>
+                    <input type="text" placeholder="Área o persona a cargo">
+                </div>
+                <div class="form-group">
+                    <label>Plazo de Ejecución:</label>
+                    <input type="text" placeholder="Ej. Inmediato, 24 hrs, 1 semana">
                 </div>
                 <div class="form-group">
                     <label>Adjuntar Fotografía:</label>
-                    <input type="file" accept="image/*">
+                    <input type="file" accept="image/*" capture="environment">
+                </div>
+            </div>
+        </div>
+
+        <div class="hallazgo-card">
+            <div class="hallazgo-title">HALLAZGO 3</div>
+            <div class="grid-2">
+                <div class="form-group">
+                    <label>Pilar asociado al hallazgo:</label>
+                    <select>
+                        <option value="">Seleccione un pilar...</option>
+                        <option value="Seguridad Industrial">Seguridad Industrial e Infraestructura</option>
+                        <option value="Gestión Preventiva">Gestión Preventiva (Administrativa)</option>
+                        <option value="Medio Ambiente">Medio Ambiente (Gestión REAS)</option>
+                        <option value="Control y Aseguramiento">Control y Aseguramiento (Equipos vitales)</option>
+                        <option value="Empresas Contratistas">Empresas Contratistas</option>
+                        <option value="Radioprotección">Radioprotección</option>
+                        <option value="Sustancias Peligrosas">Sustancias Peligrosas y Químicos</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Ubicación Exacta:</label>
+                    <input type="text" placeholder="Ej. Pasillo central, Box 4">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Descripción del Hallazgo:</label>
+                <textarea placeholder="Detalle la condición subestándar observada"></textarea>
+            </div>
+            <div class="grid-2">
+                <div class="form-group">
+                    <label>Nivel de Riesgo:</label>
+                    <select>
+                        <option value="">Seleccione el nivel...</option>
+                        <option value="P1">P1 - CRÍTICO (Riesgo vital/clausura. Res. < 24 hrs)</option>
+                        <option value="P1B">P1B - URGENTE (Afecta soporte/acreditación)</option>
+                        <option value="P2">P2 - MODERADO (Desviación menor/mantención)</option>
+                        <option value="P3">P3 - MENOR (Falta de orden, mejora estética)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Normativa Infringida:</label>
+                    <input type="text" placeholder="Ej. D.S. 594, REAS, D.S. 43">
+                </div>
+                <div class="form-group">
+                    <label>Acción Correctiva (PAC):</label>
+                    <input type="text" placeholder="Medida a tomar">
+                </div>
+                <div class="form-group">
+                    <label>Responsable:</label>
+                    <input type="text" placeholder="Área o persona a cargo">
+                </div>
+                <div class="form-group">
+                    <label>Plazo de Ejecución:</label>
+                    <input type="text" placeholder="Ej. Inmediato, 24 hrs, 1 semana">
+                </div>
+                <div class="form-group">
+                    <label>Adjuntar Fotografía:</label>
+                    <input type="file" accept="image/*" capture="environment">
                 </div>
             </div>
         </div>
 
         <div class="section-title">4. ACUERDOS Y CIERRE EN TERRENO</div>
-        <p style="font-size: 13px; color: #555; margin-top: 15px;">
-            El líder del servicio toma conocimiento de los hallazgos descritos y se compromete a gestionar los recursos o facilitar los accesos para la resolución en los plazos estipulados.
+        <p style="font-size: 13px; color: #555; margin-top: 15px; text-align: justify;">
+            El líder del servicio toma conocimiento de los hallazgos descritos y se compromete a gestionar los recursos o facilitar los accesos para la resolución en los plazos estipulados. El DGR brindará el soporte técnico normativo necesario para el cierre exitoso del ciclo.
         </p>
+        
         <div class="grid-2" style="margin-top: 20px;">
-            <div class="form-group">
-                <label>Nombre y Firma Líder del Servicio:</label>
-                <input type="text" placeholder="Escriba el nombre para dar conformidad">
+            <div class="firma-box">
+                <label>Nombre Líder / Jefatura:</label>
+                <input type="text" placeholder="Nombre completo" style="margin-bottom: 10px;">
+                <label>Firma (Dibuje aquí):</label>
+                <canvas id="firmaLider"></canvas>
+                <button type="button" class="btn-clear" onclick="limpiarFirma('firmaLider')">Limpiar Firma</button>
             </div>
-            <div class="form-group">
-                <label>Nombre y Firma Evaluador DGR:</label>
-                <input type="text" placeholder="Escriba su nombre">
+            
+            <div class="firma-box">
+                <label>Nombre Evaluador DGR:</label>
+                <input type="text" placeholder="Nombre completo" style="margin-bottom: 10px;">
+                <label>Firma (Dibuje aquí):</label>
+                <canvas id="firmaEvaluador"></canvas>
+                <button type="button" class="btn-clear" onclick="limpiarFirma('firmaEvaluador')">Limpiar Firma</button>
             </div>
         </div>
 
-        <button type="button" class="btn-submit" onclick="alert('Funcionalidad de envío lista para ser conectada a Power Automate o base de datos.')">
-            Guardar y Generar Informe PAC
+        <button type="button" class="btn-submit" onclick="window.print()">
+            GENERAR INFORME
         </button>
 
     </form>
 </div>
+
+<script>
+    function setupCanvas(canvasId) {
+        const canvas = document.getElementById(canvasId);
+        const ctx = canvas.getContext('2d');
+        let isDrawing = false;
+
+        // Ajustar resolución del canvas
+        canvas.width = canvas.offsetWidth;
+        canvas.height = canvas.offsetHeight;
+        
+        // Estilo del trazo
+        ctx.lineWidth = 2;
+        ctx.lineCap = 'round';
+        ctx.strokeStyle = '#000033';
+
+        function getMousePos(canvas, evt) {
+            const rect = canvas.getBoundingClientRect();
+            return {
+                x: (evt.clientX || evt.touches[0].clientX) - rect.left,
+                y: (evt.clientY || evt.touches[0].clientY) - rect.top
+            };
+        }
+
+        function startDrawing(e) {
+            isDrawing = true;
+            const pos = getMousePos(canvas, e);
+            ctx.beginPath();
+            ctx.moveTo(pos.x, pos.y);
+            e.preventDefault(); // Evita scroll en móviles al firmar
+        }
+
+        function draw(e) {
+            if (!isDrawing) return;
+            const pos = getMousePos(canvas, e);
+            ctx.lineTo(pos.x, pos.y);
+            ctx.stroke();
+            e.preventDefault();
+        }
+
+        function stopDrawing() {
+            isDrawing = false;
+        }
+
+        // Eventos para Mouse
+        canvas.addEventListener('mousedown', startDrawing);
+        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('mouseup', stopDrawing);
+        canvas.addEventListener('mouseout', stopDrawing);
+
+        // Eventos para Táctil (Celulares y Tablets)
+        canvas.addEventListener('touchstart', startDrawing, {passive: false});
+        canvas.addEventListener('touchmove', draw, {passive: false});
+        canvas.addEventListener('touchend', stopDrawing);
+    }
+
+    function limpiarFirma(canvasId) {
+        const canvas = document.getElementById(canvasId);
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+
+    // Inicializar ambos recuadros de firma al cargar la página
+    window.onload = function() {
+        setupCanvas('firmaLider');
+        setupCanvas('firmaEvaluador');
+    };
+</script>
 
 </body>
 </html>
