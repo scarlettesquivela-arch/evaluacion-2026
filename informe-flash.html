@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>App - Informe Flash de Inspección DGR</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -70,6 +72,7 @@
             padding: 15px;
             border-radius: 6px;
             margin-top: 15px;
+            page-break-inside: avoid; /* Evita que el PDF corte la tarjeta por la mitad */
         }
         .hallazgo-title {
             color: #0033A0;
@@ -85,6 +88,7 @@
             padding: 10px;
             background: #fdfdfd;
             text-align: center;
+            page-break-inside: avoid;
         }
         canvas {
             border: 1px dashed #999;
@@ -92,7 +96,7 @@
             width: 100%;
             height: 150px;
             cursor: crosshair;
-            touch-action: none; /* Evita que la pantalla haga scroll al firmar */
+            touch-action: none;
         }
         .btn-clear {
             background-color: #ff4d4d;
@@ -119,12 +123,6 @@
         .btn-submit:hover {
             background-color: #002266;
         }
-        .risk-reference {
-            font-size: 12px;
-            color: #555;
-            margin-top: 3px;
-            display: block;
-        }
         
         @media (max-width: 600px) {
             .grid-2 {
@@ -135,7 +133,7 @@
 </head>
 <body>
 
-<div class="container">
+<div class="container" id="informeContenedor">
     <h1>Informe Flash de Inspección - Gestión de Riesgos</h1>
     
     <form id="informeFlashForm">
@@ -224,7 +222,7 @@
                     <label>Plazo de Ejecución:</label>
                     <input type="text" placeholder="Ej. Inmediato, 24 hrs, 1 semana">
                 </div>
-                <div class="form-group">
+                <div class="form-group hide-on-pdf">
                     <label>Adjuntar Fotografía:</label>
                     <input type="file" accept="image/*" capture="environment">
                 </div>
@@ -283,7 +281,7 @@
                     <label>Plazo de Ejecución:</label>
                     <input type="text" placeholder="Ej. Inmediato, 24 hrs, 1 semana">
                 </div>
-                <div class="form-group">
+                <div class="form-group hide-on-pdf">
                     <label>Adjuntar Fotografía:</label>
                     <input type="file" accept="image/*" capture="environment">
                 </div>
@@ -342,7 +340,7 @@
                     <label>Plazo de Ejecución:</label>
                     <input type="text" placeholder="Ej. Inmediato, 24 hrs, 1 semana">
                 </div>
-                <div class="form-group">
+                <div class="form-group hide-on-pdf">
                     <label>Adjuntar Fotografía:</label>
                     <input type="file" accept="image/*" capture="environment">
                 </div>
@@ -360,7 +358,7 @@
                 <input type="text" placeholder="Nombre completo" style="margin-bottom: 10px;">
                 <label>Firma (Dibuje aquí):</label>
                 <canvas id="firmaLider"></canvas>
-                <button type="button" class="btn-clear" onclick="limpiarFirma('firmaLider')">Limpiar Firma</button>
+                <button type="button" class="btn-clear hide-on-pdf" onclick="limpiarFirma('firmaLider')">Limpiar Firma</button>
             </div>
             
             <div class="firma-box">
@@ -368,28 +366,27 @@
                 <input type="text" placeholder="Nombre completo" style="margin-bottom: 10px;">
                 <label>Firma (Dibuje aquí):</label>
                 <canvas id="firmaEvaluador"></canvas>
-                <button type="button" class="btn-clear" onclick="limpiarFirma('firmaEvaluador')">Limpiar Firma</button>
+                <button type="button" class="btn-clear hide-on-pdf" onclick="limpiarFirma('firmaEvaluador')">Limpiar Firma</button>
             </div>
         </div>
 
-        <button type="button" class="btn-submit" onclick="window.print()">
-            GENERAR INFORME
+        <button type="button" id="btnGenerarPDF" class="btn-submit hide-on-pdf" onclick="generarPDF()">
+            GENERAR INFORME PDF
         </button>
 
     </form>
 </div>
 
 <script>
+    // 1. CONFIGURACIÓN DE FIRMAS (Canvas)
     function setupCanvas(canvasId) {
         const canvas = document.getElementById(canvasId);
         const ctx = canvas.getContext('2d');
         let isDrawing = false;
 
-        // Ajustar resolución del canvas
         canvas.width = canvas.offsetWidth;
         canvas.height = canvas.offsetHeight;
         
-        // Estilo del trazo
         ctx.lineWidth = 2;
         ctx.lineCap = 'round';
         ctx.strokeStyle = '#000033';
@@ -407,7 +404,7 @@
             const pos = getMousePos(canvas, e);
             ctx.beginPath();
             ctx.moveTo(pos.x, pos.y);
-            e.preventDefault(); // Evita scroll en móviles al firmar
+            e.preventDefault();
         }
 
         function draw(e) {
@@ -422,13 +419,10 @@
             isDrawing = false;
         }
 
-        // Eventos para Mouse
         canvas.addEventListener('mousedown', startDrawing);
         canvas.addEventListener('mousemove', draw);
         canvas.addEventListener('mouseup', stopDrawing);
         canvas.addEventListener('mouseout', stopDrawing);
-
-        // Eventos para Táctil (Celulares y Tablets)
         canvas.addEventListener('touchstart', startDrawing, {passive: false});
         canvas.addEventListener('touchmove', draw, {passive: false});
         canvas.addEventListener('touchend', stopDrawing);
@@ -440,11 +434,56 @@
         ctx.clearRect(0, 0, canvas.width, canvas.height);
     }
 
-    // Inicializar ambos recuadros de firma al cargar la página
     window.onload = function() {
         setupCanvas('firmaLider');
         setupCanvas('firmaEvaluador');
     };
+
+    // 2. GENERACIÓN DEL PDF CON NOMBRE DINÁMICO
+    function generarPDF() {
+        // Obtener los datos para el nombre del archivo
+        let instalacion = document.getElementById('instalacion').value.trim() || 'Instalacion';
+        let servicio = document.getElementById('servicio').value.trim() || 'Servicio';
+        let fechaHora = document.getElementById('fechaHora').value || 'Fecha';
+        
+        // Limpiar textos para evitar errores en el nombre del archivo (espacios por guiones bajos)
+        instalacion = instalacion.replace(/\s+/g, '_');
+        servicio = servicio.replace(/\s+/g, '_');
+        let fechaFormateada = fechaHora.replace('T', '_').replace(/:/g, '-'); 
+
+        // Construir el nombre final
+        let nombreArchivo = `${instalacion}_${servicio}_${fechaFormateada}.pdf`;
+
+        // Ocultar botones antes de tomar la "foto" para el PDF
+        const elementosOcultar = document.querySelectorAll('.hide-on-pdf');
+        elementosOcultar.forEach(el => el.style.display = 'none');
+
+        // Seleccionar el contenedor principal
+        const elemento = document.getElementById('informeContenedor');
+
+        // Opciones de configuración del PDF
+        const opciones = {
+            margin:       10,
+            filename:     nombreArchivo,
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { scale: 2, useCORS: true }, // scale: 2 mejora la calidad del texto
+            jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
+            pagebreak:    { mode: ['avoid-all', 'css', 'legacy'] } // Evita que corte tarjetas a la mitad
+        };
+
+        // Generar y descargar
+        html2pdf().set(opciones).from(elemento).save().then(() => {
+            // Volver a mostrar los botones una vez que el PDF se descargó
+            elementosOcultar.forEach(el => {
+                // Restaurar el display adecuado (block para el botón generar, inline-block para las firmas)
+                if(el.id === 'btnGenerarPDF') {
+                    el.style.display = 'block';
+                } else {
+                    el.style.display = 'inline-block';
+                }
+            });
+        });
+    }
 </script>
 
 </body>
