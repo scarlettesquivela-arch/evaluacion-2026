@@ -43,10 +43,9 @@
             border-radius: 4px;
         }
         
-        /* Clase especial para forzar el salto de página en el PDF */
+        /* Forzar salto de página */
         .page-break-before {
             page-break-before: always;
-            break-before: page;
         }
 
         .form-group {
@@ -55,7 +54,6 @@
             box-sizing: border-box;
         }
         
-        /* Clase para centrar contenido específico */
         .text-center {
             text-align: center;
             display: flex;
@@ -97,7 +95,6 @@
             width: 100%;
         }
         
-        /* PROTECCIÓN CONTRA CORTES EN EL PDF */
         .hallazgo-card {
             background-color: #E8F4FA;
             border: 1px solid #b3e0f5;
@@ -105,7 +102,6 @@
             border-radius: 6px;
             margin-top: 15px;
             page-break-inside: avoid;
-            break-inside: avoid;
             box-sizing: border-box;
             width: 100%;
         }
@@ -116,7 +112,6 @@
             background: #fdfdfd;
             text-align: center;
             page-break-inside: avoid;
-            break-inside: avoid;
         }
         
         .hallazgo-title {
@@ -137,7 +132,6 @@
             touch-action: none;
         }
         
-        /* ESTILOS PARA LAS FOTOGRAFÍAS */
         .foto-preview {
             display: none; 
             max-width: 100%; 
@@ -185,15 +179,17 @@
             .grid-2 { grid-template-columns: 1fr; }
         }
 
-        /* CLASES ESPECIALES PARA EL MOMENTO DE CREAR EL PDF */
+        /* MODO PDF MEJORADO PARA EVITAR CORTES */
         .pdf-export-mode {
-            width: 800px !important; /* Fuerza ancho de escritorio para centrado perfecto */
+            width: 800px !important; 
             max-width: 800px !important;
             padding: 20px !important;
             margin: 0 auto !important;
             background: white !important;
             box-shadow: none !important;
             border: none !important;
+            height: auto !important; /* Garantiza que se estire */
+            overflow: visible !important;
         }
         .pdf-export-mode .grid-2 {
             grid-template-columns: 1fr 1fr !important;
@@ -205,11 +201,15 @@
             -webkit-appearance: none;
             -moz-appearance: none;
             appearance: none;
-            overflow: visible !important; /* Asegura que el texto largo se vea */
+            overflow: visible !important; 
             white-space: pre-wrap !important;
         }
         .pdf-export-mode .page-break-before {
             margin-top: 0 !important;
+        }
+        /* Oculta las flechas de los select en PDF */
+        .pdf-export-mode select {
+            background-image: none !important;
         }
     </style>
 </head>
@@ -509,7 +509,7 @@
 </div>
 
 <script>
-    // 1. FUNCIÓN PARA MOSTRAR TEXTO LIBRE SI SE ELIGE "OTRA" INSTALACIÓN
+    // 1. TEXTO LIBRE SI SE ELIGE "OTRA" INSTALACIÓN
     function toggleInstalacionOtra() {
         const select = document.getElementById("instalacionSelect");
         const inputOtra = document.getElementById("instalacionOtra");
@@ -523,7 +523,7 @@
         }
     }
 
-    // 2. FUNCIÓN PARA PREVISUALIZAR FOTOGRAFÍAS EN EL PDF
+    // 2. PREVISUALIZAR FOTOGRAFÍAS
     function previewImage(event, previewId) {
         const file = event.target.files[0];
         if (file) {
@@ -538,22 +538,18 @@
         }
     }
 
-    // 3. CONFIGURACIÓN DE FIRMAS TÁCTILES
+    // 3. FIRMAS TÁCTILES
     function setupCanvas(canvasId) {
         const canvas = document.getElementById(canvasId);
         const ctx = canvas.getContext('2d');
         let isDrawing = false;
 
-        function resizeCanvas() {
-            canvas.width = canvas.offsetWidth;
-            canvas.height = canvas.offsetHeight;
-            ctx.lineWidth = 2;
-            ctx.lineCap = 'round';
-            ctx.strokeStyle = '#000033';
-        }
-        
-        window.addEventListener('resize', resizeCanvas);
-        resizeCanvas();
+        // Se quita el resizeEvent para que no borre las firmas al generar el PDF
+        canvas.width = canvas.parentElement.offsetWidth - 22; // Ajuste manual
+        canvas.height = 150;
+        ctx.lineWidth = 2;
+        ctx.lineCap = 'round';
+        ctx.strokeStyle = '#000033';
 
         function getMousePos(canvas, evt) {
             const rect = canvas.getBoundingClientRect();
@@ -607,23 +603,20 @@
     }
 
     window.onload = function() {
-        setupCanvas('firmaLider');
-        setupCanvas('firmaEvaluador');
+        // Un pequeño timeout asegura que los contenedores ya tengan su ancho final en móviles
+        setTimeout(() => {
+            setupCanvas('firmaLider');
+            setupCanvas('firmaEvaluador');
+        }, 300);
     };
 
-    // 4. GENERACIÓN DE PDF REPARADA PARA FORMATO CARTA (LETTER) Y SALTO DE PÁGINA
+    // 4. GENERACIÓN DE PDF SIN CORTES (TIMEOUT APLICADO)
     function generarPDF() {
+        // Mover la pantalla al tope
         window.scrollTo(0, 0);
 
-        // Captura inteligente de la Instalación
         let selectInstalacion = document.getElementById('instalacionSelect').value;
-        let instalacion = selectInstalacion;
-        if (selectInstalacion === "Otra") {
-            instalacion = document.getElementById('instalacionOtra').value.trim() || 'Instalacion_Otra';
-        } else if (!selectInstalacion) {
-            instalacion = 'Instalacion';
-        }
-
+        let instalacion = selectInstalacion === "Otra" ? (document.getElementById('instalacionOtra').value.trim() || 'Instalacion_Otra') : (selectInstalacion || 'Instalacion');
         let servicio = document.getElementById('servicio').value.trim() || 'Servicio';
         let piso = document.getElementById('piso').value.trim() || 'Piso';
         let fechaHora = document.getElementById('fechaHora').value || 'Fecha';
@@ -636,53 +629,65 @@
 
         const elemento = document.getElementById('informeContenedor');
         
-        // Ocultar elementos que no van en el PDF
+        // 1. Ocultar botones e inputs
         const elementosOcultar = document.querySelectorAll('.hide-on-pdf');
         elementosOcultar.forEach(el => el.style.display = 'none');
         
-        // Ajustar textareas para que muestren TODO el texto sin scroll
-        const textareas = document.querySelectorAll('textarea');
-        textareas.forEach(ta => {
-            ta.style.height = 'auto';
-            ta.style.height = (ta.scrollHeight + 15) + 'px'; // +15px de margen de seguridad
-        });
-
         const selectOriginal = document.getElementById("instalacionSelect");
         if(selectOriginal.value === "Otra") {
             selectOriginal.style.display = "none";
         }
 
+        // 2. Expandir Textareas y evitar overflow
+        document.body.style.overflow = 'visible';
+        document.documentElement.style.overflow = 'visible';
+        
+        const textareas = document.querySelectorAll('textarea');
+        textareas.forEach(ta => {
+            ta.style.height = 'auto';
+            ta.style.height = (ta.scrollHeight + 15) + 'px';
+        });
+
+        // 3. Forzar el formato A4 en la web antes de tomar la foto
         elemento.classList.add('pdf-export-mode');
 
-        // Configuración específica para tamaño Carta (Letter) y Salto de Página
-        const opciones = {
-            margin:       [10, 10, 10, 10],
-            filename:     nombreArchivo,
-            image:        { type: 'jpeg', quality: 0.98 },
-            html2canvas:  { 
-                scale: 2, 
-                scrollY: 0, 
-                useCORS: true,
-                windowWidth: 800
-            },
-            // Formato 'letter' en lugar de 'a4'
-            jsPDF:        { unit: 'mm', format: 'letter', orientation: 'portrait' },
-            // Instrucción estricta para aplicar el salto de página en .page-break-before
-            pagebreak:    { mode: ['css', 'legacy'], before: '.page-break-before', avoid: ['.hallazgo-card', '.firma-box', '.foto-preview'] }
-        };
+        // 4. Esperar 500ms para que el celular termine de reacomodar el tamaño visual
+        setTimeout(() => {
+            const opciones = {
+                margin:       [10, 10, 10, 10],
+                filename:     nombreArchivo,
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { 
+                    scale: 2, 
+                    scrollY: 0, 
+                    useCORS: true,
+                    windowWidth: 800,
+                    // Forzamos al motor a leer todo el alto disponible
+                    height: elemento.scrollHeight,
+                    windowHeight: elemento.scrollHeight
+                },
+                jsPDF:        { unit: 'mm', format: 'letter', orientation: 'portrait' },
+                // Solo reglas de CSS nativo para evitar bugs de html2pdf
+                pagebreak:    { mode: ['css', 'legacy'] }
+            };
 
-        html2pdf().set(opciones).from(elemento).save().then(() => {
-            elemento.classList.remove('pdf-export-mode');
-            textareas.forEach(ta => ta.style.height = ''); 
-            
-            if(selectOriginal.value === "Otra") {
-                selectOriginal.style.display = "block";
-            }
+            html2pdf().set(opciones).from(elemento).save().then(() => {
+                // Restaurar vista web normal
+                elemento.classList.remove('pdf-export-mode');
+                document.body.style.overflow = '';
+                document.documentElement.style.overflow = '';
+                
+                textareas.forEach(ta => ta.style.height = ''); 
+                
+                if(selectOriginal.value === "Otra") {
+                    selectOriginal.style.display = "block";
+                }
 
-            elementosOcultar.forEach(el => {
-                el.style.display = (el.id === 'btnGenerarPDF') ? 'block' : 'inline-block';
+                elementosOcultar.forEach(el => {
+                    el.style.display = (el.id === 'btnGenerarPDF') ? 'block' : 'inline-block';
+                });
             });
-        });
+        }, 500); // 500 milisegundos de espera
     }
 </script>
 
