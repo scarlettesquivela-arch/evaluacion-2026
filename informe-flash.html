@@ -318,7 +318,7 @@
         const pilares = `
             <option value="">Seleccionar pilar...</option>
             <option value="Seguridad Industrial e Infraestructura">Seguridad Industrial e Infraestructura</option>
-            <option value="Gestión Preventiva (Administrativa)">Gestión Preventiva (Administrativa)</option>
+            <option value="Gestión Preventiva">Gestión Preventiva</option>
             <option value="Medio Ambiente (Gestión REAS)">Medio Ambiente (Gestión REAS)</option>
             <option value="Control y Aseguramiento (Equipos vitales)">Control y Aseguramiento (Equipos vitales)</option>
             <option value="Empresas Contratistas">Empresas Contratistas</option>
@@ -354,7 +354,6 @@
                         <label>Descripción del hallazgo:</label>
                         <textarea id="descripcion_${i}" rows="2" placeholder="Detalle lo observado..."></textarea>
                     </div>
-                </div>
                 
                 <div class="bloque-inferior force-page-break">
                     <div class="form-field">
@@ -366,12 +365,13 @@
                         <label>Normativa Infringida:</label>
                         <input type="text" id="normativa_${i}" placeholder="Ej. DS 594">
                     </div>
+                       </div>
                     
                     <div class="form-field">
                         <label>Acción correctiva (PAC):</label>
                         <textarea id="accion_${i}" rows="2" placeholder="Qué se debe hacer..."></textarea>
                     </div>
-                    
+            
                     <div class="form-field">
                         <label>Responsable:</label>
                         <input type="text" id="responsable_${i}" placeholder="Área o persona">
@@ -397,7 +397,6 @@
     <p class="avoid-break" style="font-size: 13px; color: #555; text-align: justify; margin-bottom: 20px;">
         El Líder del servicio toma conocimiento de los hallazgos descritos y se compromete a gestionar los recursos o facilitar los accesos para la resolución en los plazos estipulados. El DGR brindará el soporte técnico normativo necesario para el cierre exitoso del ciclo.
     </p>
-
     <div class="grid-layout avoid-break">
         <div class="firma-container avoid-break">
             <label>Nombre del Líder / Jefatura:</label>
@@ -414,7 +413,6 @@
             <canvas id="canvasDGR" width="600" height="200"></canvas>
             <button class="btn-limpiar hide-in-pdf" onclick="clearCanvas('canvasDGR')">Limpiar Firma</button>
         </div>
-    </div>
 
     <div class="btn-container hide-in-pdf">
         <button class="btn-generar btn-descargar" onclick="procesarPDF('descargar')">DESCARGAR PDF</button>
