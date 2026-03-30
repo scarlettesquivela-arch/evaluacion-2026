@@ -6,7 +6,6 @@
     <title>Informe Flash de Inspección - DGR</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     
     <style>
         /* =========================================
@@ -65,6 +64,7 @@
             display: flex;
             flex-direction: column;
             box-sizing: border-box;
+            margin-bottom: 12px;
         }
         label {
             font-weight: bold;
@@ -85,10 +85,10 @@
         textarea {
             resize: none;
             overflow: hidden;
-            min-height: 60px;
+            min-height: 50px;
         }
 
-        /* DISEÑO DE HALLAZGOS Y PAGINACIÓN */
+        /* PAGINACIÓN PDF */
         .avoid-break {
             page-break-inside: avoid !important;
             break-inside: avoid !important;
@@ -98,6 +98,7 @@
             break-before: page !important;
         }
 
+        /* DISEÑO DE HALLAZGOS VERTICALES */
         .hallazgo-box {
             background-color: #F8FBFC;
             border: 1px solid #B3E0F5;
@@ -116,19 +117,8 @@
             padding-bottom: 5px;
             text-align: center;
         }
-        
-        .hallazgo-row {
-            display: grid;
-            gap: 10px;
-            margin-bottom: 15px;
-            grid-template-columns: 1fr; 
-        }
-        @media (min-width: 768px) {
-            .hallazgo-row.r1 { grid-template-columns: 1.5fr 1fr 2fr 1.5fr 1fr; }
-            .hallazgo-row.r2 { grid-template-columns: 2fr 1fr 1fr; }
-        }
 
-        /* FOTOGRAFÍA */
+        /* FOTOGRAFÍA (CANDADO DE TAMAÑO) */
         .foto-container {
             display: flex;
             flex-direction: column;
@@ -190,14 +180,10 @@
             cursor: pointer;
         }
 
-        /* BOTONES DE ACCIÓN */
-        .btn-container {
-            display: flex;
-            gap: 15px;
-            margin-top: 30px;
-        }
+        /* BOTÓN PRINCIPAL PDF */
         .btn-generar {
-            flex: 1;
+            width: 100%;
+            background-color: #0033A0;
             color: white;
             border: none;
             padding: 16px;
@@ -207,38 +193,36 @@
             cursor: pointer;
             box-shadow: 0 4px 6px rgba(0,0,0,0.2);
             text-align: center;
-        }
-        .btn-excel { background-color: #107C41; } 
-        .btn-pdf { background-color: #0033A0; }   
-
-        @media (max-width: 600px) {
-            .btn-container { flex-direction: column; }
+            margin-top: 30px;
+            text-transform: uppercase;
         }
 
         /* =========================================
-           MODO EXPORTACIÓN PDF (ANCLAJE ABSOLUTO)
+           MODO EXPORTACIÓN PDF (REAJUSTE DE HOJA)
            ========================================= */
-        .pdf-mode {
-            /* ESTOS ATRIBUTOS SON LA CLAVE PARA EVITAR EL RECORTE IZQUIERDO */
-            position: absolute !important;
-            top: 0 !important;
-            left: 0 !important;
+        body.exporting-pdf {
+            width: 800px !important;
+            min-width: 800px !important;
             margin: 0 !important;
-            transform: none !important;
-            
+            padding: 0 !important;
+            overflow: visible !important;
+            background: white !important;
+        }
+
+        .pdf-mode {
             width: 800px !important; 
             max-width: 800px !important;
-            padding: 20px !important;
+            padding: 20px 40px !important; 
+            margin: 0 !important;
             background: white !important;
             box-shadow: none !important;
             border: none !important;
-            z-index: 9999; /* Asegura que quede por encima de todo */
+            transform: none !important; 
         }
-        .pdf-mode .grid-layout { display: grid !important; grid-template-columns: 1fr 1fr !important; }
-        .pdf-mode .hallazgo-row.r1 { display: grid !important; grid-template-columns: 1.5fr 1fr 2fr 1.5fr 1fr !important; }
-        .pdf-mode .hallazgo-row.r2 { display: grid !important; grid-template-columns: 2fr 1fr 1fr !important; }
 
-        /* Clones de texto generados dinámicamente */
+        .pdf-mode .grid-layout { display: grid !important; grid-template-columns: 1fr 1fr !important; }
+
+        /* Clones de texto generados para evitar cortes */
         .pdf-text-clone {
             border: 1px solid #777;
             padding: 10px;
@@ -340,53 +324,56 @@
         `;
 
         for(let i=1; i<=3; i++) {
+            // Instrucción estricta: El Hallazgo 2 siempre inicia una nueva página
             let extraClass = (i === 2) ? "force-page-break" : "";
 
             document.write(`
             <div class="hallazgo-box avoid-break ${extraClass}">
                 <div class="hallazgo-title">Hallazgo ${i}</div>
                 
-                <div class="hallazgo-row r1">
-                    <div class="form-field">
-                        <label style="text-align: center;">Pilar asociado al hallazgo:</label>
-                        <select id="pilar_${i}" style="text-align: center;">${pilares}</select>
-                    </div>
-                    <div class="form-field">
-                        <label style="text-align: center;">Ubicación exacta:</label>
-                        <input type="text" id="ubicacion_${i}" placeholder="Ej. Pasillo Box 4" style="text-align: center;">
-                    </div>
-                    <div class="form-field">
-                        <label style="text-align: center;">Descripción del hallazgo:</label>
-                        <textarea id="descripcion_${i}" rows="1" placeholder="Detalle lo observado..."></textarea>
-                    </div>
-                    <div class="form-field">
-                        <label style="text-align: center;">Nivel de riesgo:</label>
-                        <select id="riesgo_${i}" style="text-align: center;">${riesgos}</select>
-                    </div>
-                    <div class="form-field">
-                        <label style="text-align: center;">Normativa Infringida:</label>
-                        <input type="text" id="normativa_${i}" placeholder="Ej. DS 594" style="text-align: center;">
-                    </div>
+                <div class="form-field">
+                    <label>Pilar asociado al hallazgo:</label>
+                    <select id="pilar_${i}">${pilares}</select>
                 </div>
-
-                <div class="hallazgo-row r2">
-                    <div class="form-field">
-                        <label style="text-align: center;">Acción correctiva:</label>
-                        <textarea id="accion_${i}" rows="1" placeholder="Qué se debe hacer..."></textarea>
-                    </div>
-                    <div class="form-field">
-                        <label style="text-align: center;">Responsable:</label>
-                        <input type="text" id="responsable_${i}" placeholder="Área o persona" style="text-align: center;">
-                    </div>
-                    <div class="form-field">
-                        <label style="text-align: center;">Plazo:</label>
-                        <input type="text" id="plazo_${i}" placeholder="Ej. 24 hrs" style="text-align: center;">
-                    </div>
+                
+                <div class="form-field">
+                    <label>Ubicación exacta:</label>
+                    <input type="text" id="ubicacion_${i}" placeholder="Ej. Pasillo Box 4">
+                </div>
+                
+                <div class="form-field">
+                    <label>Descripción del hallazgo:</label>
+                    <textarea id="descripcion_${i}" rows="2" placeholder="Detalle lo observado..."></textarea>
+                </div>
+                
+                <div class="form-field">
+                    <label>Nivel de riesgo:</label>
+                    <select id="riesgo_${i}">${riesgos}</select>
+                </div>
+                
+                <div class="form-field">
+                    <label>Normativa Infringida:</label>
+                    <input type="text" id="normativa_${i}" placeholder="Ej. DS 594">
+                </div>
+                
+                <div class="form-field">
+                    <label>Acción correctiva (PAC):</label>
+                    <textarea id="accion_${i}" rows="2" placeholder="Qué se debe hacer..."></textarea>
+                </div>
+                
+                <div class="form-field">
+                    <label>Responsable:</label>
+                    <input type="text" id="responsable_${i}" placeholder="Área o persona">
+                </div>
+                
+                <div class="form-field">
+                    <label>Plazo:</label>
+                    <input type="text" id="plazo_${i}" placeholder="Ej. 24 hrs">
                 </div>
 
                 <div class="foto-container avoid-break">
-                    <label style="color:#0033A0; text-transform: uppercase;">Fotografia</label>
-                    <input type="file" accept="image/*" class="hide-in-pdf hide-in-excel" onchange="previewImg(event, 'imgH${i}')">
+                    <label style="color:#0033A0; text-transform: uppercase;">Fotografía adjunta</label>
+                    <input type="file" accept="image/*" class="hide-in-pdf" onchange="previewImg(event, 'imgH${i}')">
                     <img id="imgH${i}" class="foto-preview">
                 </div>
             </div>
@@ -396,7 +383,7 @@
 
     <div class="section-header avoid-break">4. Acuerdos y Cierre en Terreno</div>
     <p class="avoid-break" style="font-size: 13px; color: #555; text-align: justify; margin-bottom: 20px;">
-        El Líder del servicio toma conocimiento de los hallazgos descritos y se compromete a gestionar los recursos o facilitar los accesos para la resolución en los plazos estipulados. El DGR brindara elk soporte técnico normativo necesario para el cierre exitisos del ciclo.
+        El Líder del servicio toma conocimiento de los hallazgos descritos y se compromete a gestionar los recursos o facilitar los accesos para la resolución en los plazos estipulados. El DGR brindará el soporte técnico normativo necesario para el cierre exitoso del ciclo.
     </p>
 
     <div class="grid-layout avoid-break">
@@ -405,7 +392,7 @@
             <input type="text" id="nombreFirmaLider" placeholder="Nombre completo" style="margin-bottom: 10px; text-align: center;">
             <label>Firma (Dibuje aquí):</label>
             <canvas id="canvasLider" width="600" height="200"></canvas>
-            <button class="btn-limpiar hide-in-pdf hide-in-excel" onclick="clearCanvas('canvasLider')">Limpiar Firma</button>
+            <button class="btn-limpiar hide-in-pdf" onclick="clearCanvas('canvasLider')">Limpiar Firma</button>
         </div>
         
         <div class="firma-container avoid-break">
@@ -413,14 +400,11 @@
             <input type="text" id="nombreFirmaDGR" placeholder="Nombre completo" style="margin-bottom: 10px; text-align: center;">
             <label>Firma (Dibuje aquí):</label>
             <canvas id="canvasDGR" width="600" height="200"></canvas>
-            <button class="btn-limpiar hide-in-pdf hide-in-excel" onclick="clearCanvas('canvasDGR')">Limpiar Firma</button>
+            <button class="btn-limpiar hide-in-pdf" onclick="clearCanvas('canvasDGR')">Limpiar Firma</button>
         </div>
     </div>
 
-    <div class="btn-container hide-in-pdf hide-in-excel">
-        <button class="btn-generar btn-excel" onclick="crearExcel()">DESCARGAR EXCEL</button>
-        <button class="btn-generar btn-pdf" onclick="crearPDF()">DESCARGAR PDF</button>
-    </div>
+    <button class="btn-generar hide-in-pdf" onclick="crearPDF()">DESCARGAR INFORME PDF</button>
 
 </div>
 
@@ -495,6 +479,7 @@
         initSignature('canvasLider');
         initSignature('canvasDGR');
         
+        // Autocompletar nombres hacia las firmas
         document.getElementById('lider').addEventListener('input', (e) => {
             document.getElementById('nombreFirmaLider').value = e.target.value;
         });
@@ -504,78 +489,10 @@
     };
 
     // ==========================================
-    // EXPORTACIÓN A EXCEL 
-    // ==========================================
-    function crearExcel() {
-        let instSelect = document.getElementById('instalacionSelect').value;
-        let instalacion = instSelect === 'Otra' ? document.getElementById('instalacionOtra').value : instSelect;
-        
-        let evaluador = document.getElementById('evaluador').value;
-        let servicio = document.getElementById('servicio').value;
-        let fecha = document.getElementById('fechaHora').value.replace('T', ' ');
-        let piso = document.getElementById('piso').value;
-        let lider = document.getElementById('lider').value;
-        let buenaPractica = document.getElementById('buenaPractica').value;
-
-        const ws_data = [
-            ["INFORME FLASH DE INSPECCIÓN"],
-            ["GESTIÓN DE RIESGOS"],
-            [],
-            ["1. Antecedentes de la Inspección"],
-            ["Nombre del evaluador", evaluador],
-            ["Instalación", instalacion],
-            ["Unidad o Servicio", servicio],
-            ["Fecha de Evaluación", fecha],
-            ["Piso donde se ubica", piso],
-            ["Nombre del Lider Servicio/Unidad (Acompañante)", lider],
-            [],
-            ["2. Reconocimiento Preventivo"],
-            ["Destacar una buena práctica (Técnica del Sandwich)", buenaPractica],
-            [],
-            ["3. Hallazgos Criticos y PAC"]
-        ];
-
-        for(let i=1; i<=3; i++) {
-            let pilar = document.getElementById(`pilar_${i}`).value;
-            let ubi = document.getElementById(`ubicacion_${i}`).value;
-            let desc = document.getElementById(`descripcion_${i}`).value;
-            let riesgo = document.getElementById(`riesgo_${i}`).value;
-            let norm = document.getElementById(`normativa_${i}`).value;
-            
-            let accion = document.getElementById(`accion_${i}`).value;
-            let resp = document.getElementById(`responsable_${i}`).value;
-            let plazo = document.getElementById(`plazo_${i}`).value;
-            
-            let foto = document.getElementById(`imgH${i}`).src.length > 100 ? "Foto adjunta en PDF" : "Sin foto";
-
-            ws_data.push([`Hallazgo ${i}`]);
-            ws_data.push(["Pilar asociado al hallazgo", "", "Ubicación exacta", "Descripción del hallazgo", "", "Nivel de riesgo", "Normativa Infringida"]);
-            ws_data.push([pilar, "", ubi, desc, "", riesgo, norm]);
-            ws_data.push(["Acción correctiva", "", "", "Responsable", "", "Plazo", "Fotografia"]);
-            ws_data.push([accion, "", "", resp, "", plazo, foto]);
-            ws_data.push([]);
-        }
-
-        ws_data.push(["4. Acuerdos y Cierre en Terreno"]);
-        ws_data.push(["El Líder del servicio toma conocimiento de los hallazgos descritos y se compromete a gestionar los recursos o facilitar los accesos para la resolución en los plazos estipulados. El DGR brindara elk soporte técnico normativo necesario para el cierre exitisos del ciclo."]);
-        ws_data.push([`Nombre Evaluador: ${document.getElementById('nombreFirmaDGR').value}`]);
-        ws_data.push([`Nombre Líder: ${document.getElementById('nombreFirmaLider').value}`]);
-
-        const wb = XLSX.utils.book_new();
-        const ws = XLSX.utils.aoa_to_sheet(ws_data);
-        XLSX.utils.book_append_sheet(wb, ws, "Informe Flash");
-
-        let fechaArchivo = document.getElementById('fechaHora').value.replace('T', '_').replace(/:/g, '-') || 'Fecha';
-        let nombreArchivo = `Informe_Flash_${instalacion}_${servicio}_${fechaArchivo}.xlsx`.replace(/\s+/g, '_');
-        
-        XLSX.writeFile(wb, nombreArchivo);
-    }
-
-    // ==========================================
-    // EXPORTACIÓN A PDF (ANCLAJE ABSOLUTO)
+    // EXPORTACIÓN A PDF CON CLONACIÓN VERTICAL
     // ==========================================
     function crearPDF() {
-        // Desplazamos la vista al tope obligatoriamente
+        // Volver al inicio para captura completa
         window.scrollTo(0, 0);
 
         let instalacion = document.getElementById('instalacionSelect').value;
@@ -586,19 +503,17 @@
 
         const elemento = document.getElementById('informeContenedor');
 
+        // Ocultar botones e inputs
         document.querySelectorAll('.hide-in-pdf').forEach(el => el.style.display = 'none');
         
         const selectInst = document.getElementById('instalacionSelect');
         if(selectInst.value === 'Otra') selectInst.style.display = 'none';
 
-        // Permitimos que el body revele contenido oculto para que no recorte la captura
-        const originalBodyOverflow = document.body.style.overflow;
-        document.body.style.overflow = 'visible';
-        document.documentElement.style.overflow = 'visible';
-
-        // Ancla absoluta a la coordenada 0,0 para que no pase el error del recorte lateral
+        // Anclar la página temporalmente para celular
+        document.body.classList.add('exporting-pdf');
         elemento.classList.add('pdf-mode');
 
+        // Convertir campos de texto a DIVs para que no se corte la lectura
         const formElements = document.querySelectorAll('#informeContenedor input:not([type="file"]), #informeContenedor textarea, #informeContenedor select');
         
         formElements.forEach(el => {
@@ -606,7 +521,7 @@
             
             const div = document.createElement('div');
             div.className = 'pdf-text-clone';
-            div.style.textAlign = window.getComputedStyle(el).textAlign;
+            div.style.textAlign = window.getComputedStyle(el).textAlign || 'left';
 
             if (el.tagName === 'SELECT') {
                 div.innerText = (el.options[el.selectedIndex]?.text && !el.options[el.selectedIndex].text.includes('Seleccion')) ? el.options[el.selectedIndex].text : '';
@@ -622,6 +537,7 @@
             el.classList.add('pdf-hidden');
         });
 
+        // Aplicar candado a fotos
         document.querySelectorAll('.foto-preview').forEach(img => {
             if(img.style.display === 'block') {
                 img.style.width = 'auto';
@@ -633,7 +549,7 @@
 
         setTimeout(() => {
             const opciones = {
-                margin:       [12, 12, 15, 12], 
+                margin:       [10, 10, 15, 10], 
                 filename:     nombreArchivo,
                 image:        { type: 'jpeg', quality: 0.98 },
                 html2canvas:  { 
@@ -641,19 +557,20 @@
                     useCORS: true,
                     windowWidth: 800, 
                     width: 800,
-                    x: 0, // INDISPENSABLE: Fuerza a que la captura empiece desde el borde izquierdo extremo
+                    x: 0, 
                     y: 0,
                     scrollX: 0,
                     scrollY: 0
                 },
                 jsPDF:        { unit: 'mm', format: 'letter', orientation: 'portrait' },
+                // force-page-break asegura que el Hallazgo 2 y el resto del informe pasen a la Hoja 2
                 pagebreak:    { mode: ['css', 'legacy'], before: '.force-page-break', avoid: ['.avoid-break'] }
             };
 
             html2pdf().set(opciones).from(elemento).save().then(() => {
+                // Restaurar la vista web original
+                document.body.classList.remove('exporting-pdf');
                 elemento.classList.remove('pdf-mode');
-                document.body.style.overflow = originalBodyOverflow;
-                document.documentElement.style.overflow = '';
                 
                 document.querySelectorAll('.pdf-text-clone').forEach(el => el.remove());
                 document.querySelectorAll('.pdf-hidden').forEach(el => {
@@ -662,7 +579,7 @@
                 });
 
                 if(selectInst.value === 'Otra') selectInst.style.display = 'block';
-                document.querySelectorAll('.hide-in-pdf').forEach(el => el.style.display = 'flex');
+                document.querySelectorAll('.hide-in-pdf').forEach(el => el.style.display = 'block'); // Devolver como bloque original
             });
         }, 500); 
     }
