@@ -41,14 +41,20 @@
             font-weight: bold;
             margin-top: 20px;
             border-radius: 4px;
-            page-break-after: avoid;
-            break-after: avoid;
         }
+        
+        /* Clase especial para forzar el salto de página en el PDF */
+        .page-break-before {
+            page-break-before: always;
+            break-before: page;
+        }
+
         .form-group {
             margin-bottom: 15px;
             width: 100%;
             box-sizing: border-box;
         }
+        
         /* Clase para centrar contenido específico */
         .text-center {
             text-align: center;
@@ -58,7 +64,7 @@
         }
         .text-center input, .text-center select {
             text-align: center;
-            text-align-last: center; /* Centra el texto en los select */
+            text-align-last: center; 
         }
         
         label {
@@ -135,7 +141,7 @@
         .foto-preview {
             display: none; 
             max-width: 100%; 
-            max-height: 250px; 
+            max-height: 300px; 
             margin-top: 10px; 
             border-radius: 5px; 
             border: 1px solid #ccc;
@@ -181,7 +187,7 @@
 
         /* CLASES ESPECIALES PARA EL MOMENTO DE CREAR EL PDF */
         .pdf-export-mode {
-            width: 800px !important;
+            width: 800px !important; /* Fuerza ancho de escritorio para centrado perfecto */
             max-width: 800px !important;
             padding: 20px !important;
             margin: 0 auto !important;
@@ -199,6 +205,11 @@
             -webkit-appearance: none;
             -moz-appearance: none;
             appearance: none;
+            overflow: visible !important; /* Asegura que el texto largo se vea */
+            white-space: pre-wrap !important;
+        }
+        .pdf-export-mode .page-break-before {
+            margin-top: 0 !important;
         }
     </style>
 </head>
@@ -267,13 +278,13 @@
             <textarea placeholder="Ej. Se observa excelente adherencia al uso de EPP..."></textarea>
         </div>
 
-        <div class="section-title">3. HALLAZGOS CRÍTICOS Y PAC</div>
+        <div class="section-title page-break-before">3. HALLAZGOS CRÍTICOS Y PAC</div>
         
         <div class="hallazgo-card">
             <div class="hallazgo-title">HALLAZGO 1</div>
             
             <div class="grid-2">
-                <div class="form-group">
+                <div class="form-group text-center">
                     <label>Pilar asociado al hallazgo:</label>
                     <select>
                         <option value="">Seleccione un pilar...</option>
@@ -286,14 +297,14 @@
                         <option value="Sustancias Peligrosas y Químicos">Sustancias Peligrosas y Químicos</option>
                     </select>
                 </div>
-                <div class="form-group">
+                <div class="form-group text-center">
                     <label>Ubicación Exacta:</label>
                     <input type="text" placeholder="Ej. Pasillo central, Box 4">
                 </div>
             </div>
             
             <div class="form-group">
-                <label>Descripción del Hallazgo:</label>
+                <label style="text-align: center;">Descripción del Hallazgo:</label>
                 <textarea placeholder="Detalle la condición subestándar observada"></textarea>
             </div>
 
@@ -339,7 +350,7 @@
             <div class="hallazgo-title">HALLAZGO 2</div>
             
             <div class="grid-2">
-                <div class="form-group">
+                <div class="form-group text-center">
                     <label>Pilar asociado al hallazgo:</label>
                     <select>
                         <option value="">Seleccione un pilar...</option>
@@ -352,14 +363,14 @@
                         <option value="Sustancias Peligrosas y Químicos">Sustancias Peligrosas y Químicos</option>
                     </select>
                 </div>
-                <div class="form-group">
+                <div class="form-group text-center">
                     <label>Ubicación Exacta:</label>
                     <input type="text" placeholder="Ej. Pasillo central, Box 4">
                 </div>
             </div>
             
             <div class="form-group">
-                <label>Descripción del Hallazgo:</label>
+                <label style="text-align: center;">Descripción del Hallazgo:</label>
                 <textarea placeholder="Detalle la condición subestándar observada"></textarea>
             </div>
 
@@ -405,7 +416,7 @@
             <div class="hallazgo-title">HALLAZGO 3</div>
             
             <div class="grid-2">
-                <div class="form-group">
+                <div class="form-group text-center">
                     <label>Pilar asociado al hallazgo:</label>
                     <select>
                         <option value="">Seleccione un pilar...</option>
@@ -418,14 +429,14 @@
                         <option value="Sustancias Peligrosas y Químicos">Sustancias Peligrosas y Químicos</option>
                     </select>
                 </div>
-                <div class="form-group">
+                <div class="form-group text-center">
                     <label>Ubicación Exacta:</label>
                     <input type="text" placeholder="Ej. Pasillo central, Box 4">
                 </div>
             </div>
             
             <div class="form-group">
-                <label>Descripción del Hallazgo:</label>
+                <label style="text-align: center;">Descripción del Hallazgo:</label>
                 <textarea placeholder="Detalle la condición subestándar observada"></textarea>
             </div>
 
@@ -508,7 +519,7 @@
         } else {
             inputOtra.style.display = "none";
             inputOtra.required = false;
-            inputOtra.value = ""; // Limpia el valor si se arrepiente y escoge otra
+            inputOtra.value = ""; 
         }
     }
 
@@ -521,7 +532,7 @@
                 const imgElement = document.getElementById(previewId);
                 imgElement.src = e.target.result;
                 imgElement.style.display = 'block'; 
-                imgElement.style.margin = '0 auto'; // Asegura centrado
+                imgElement.style.margin = '0 auto'; 
             }
             reader.readAsDataURL(file);
         }
@@ -600,11 +611,11 @@
         setupCanvas('firmaEvaluador');
     };
 
-    // 4. GENERACIÓN DE PDF
+    // 4. GENERACIÓN DE PDF REPARADA PARA FORMATO CARTA (LETTER) Y SALTO DE PÁGINA
     function generarPDF() {
         window.scrollTo(0, 0);
 
-        // Captura inteligente de la Instalación (Si es "Otra", saca el texto del input libre)
+        // Captura inteligente de la Instalación
         let selectInstalacion = document.getElementById('instalacionSelect').value;
         let instalacion = selectInstalacion;
         if (selectInstalacion === "Otra") {
@@ -625,16 +636,17 @@
 
         const elemento = document.getElementById('informeContenedor');
         
+        // Ocultar elementos que no van en el PDF
         const elementosOcultar = document.querySelectorAll('.hide-on-pdf');
         elementosOcultar.forEach(el => el.style.display = 'none');
         
+        // Ajustar textareas para que muestren TODO el texto sin scroll
         const textareas = document.querySelectorAll('textarea');
         textareas.forEach(ta => {
             ta.style.height = 'auto';
-            ta.style.height = (ta.scrollHeight + 5) + 'px';
+            ta.style.height = (ta.scrollHeight + 15) + 'px'; // +15px de margen de seguridad
         });
 
-        // Ocultar la flecha del select y si "Otra" está activa, ocultar el select en el PDF
         const selectOriginal = document.getElementById("instalacionSelect");
         if(selectOriginal.value === "Otra") {
             selectOriginal.style.display = "none";
@@ -642,6 +654,7 @@
 
         elemento.classList.add('pdf-export-mode');
 
+        // Configuración específica para tamaño Carta (Letter) y Salto de Página
         const opciones = {
             margin:       [10, 10, 10, 10],
             filename:     nombreArchivo,
@@ -649,17 +662,19 @@
             html2canvas:  { 
                 scale: 2, 
                 scrollY: 0, 
-                useCORS: true 
+                useCORS: true,
+                windowWidth: 800
             },
-            jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
-            pagebreak:    { mode: 'css', avoid: ['.hallazgo-card', '.firma-box', '.section-title', '.foto-preview'] }
+            // Formato 'letter' en lugar de 'a4'
+            jsPDF:        { unit: 'mm', format: 'letter', orientation: 'portrait' },
+            // Instrucción estricta para aplicar el salto de página en .page-break-before
+            pagebreak:    { mode: ['css', 'legacy'], before: '.page-break-before', avoid: ['.hallazgo-card', '.firma-box', '.foto-preview'] }
         };
 
         html2pdf().set(opciones).from(elemento).save().then(() => {
             elemento.classList.remove('pdf-export-mode');
             textareas.forEach(ta => ta.style.height = ''); 
             
-            // Restaurar vista del select si fue ocultado
             if(selectOriginal.value === "Otra") {
                 selectOriginal.style.display = "block";
             }
