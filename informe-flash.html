@@ -23,6 +23,7 @@
             border-radius: 8px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
             border-top: 8px solid #0033A0;
+            box-sizing: border-box;
         }
         h1 {
             color: #0033A0;
@@ -45,7 +46,21 @@
         }
         .form-group {
             margin-bottom: 15px;
+            width: 100%;
+            box-sizing: border-box;
         }
+        /* Clase para centrar contenido específico */
+        .text-center {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .text-center input, .text-center select {
+            text-align: center;
+            text-align-last: center; /* Centra el texto en los select */
+        }
+        
         label {
             display: block;
             font-weight: bold;
@@ -62,6 +77,7 @@
             font-family: Arial, sans-serif;
             font-size: 14px;
             background-color: #fff;
+            max-width: 100%;
         }
         textarea {
             resize: none;
@@ -72,6 +88,7 @@
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 15px;
+            width: 100%;
         }
         
         /* PROTECCIÓN CONTRA CORTES EN EL PDF */
@@ -83,6 +100,8 @@
             margin-top: 15px;
             page-break-inside: avoid;
             break-inside: avoid;
+            box-sizing: border-box;
+            width: 100%;
         }
         .firma-box {
             border: 1px solid #ccc;
@@ -101,6 +120,7 @@
             font-size: 18px;
             border-bottom: 1px solid #b3e0f5;
             padding-bottom: 5px;
+            text-align: center;
         }
         canvas {
             border: 1px dashed #999;
@@ -120,6 +140,12 @@
             border-radius: 5px; 
             border: 1px solid #ccc;
             object-fit: contain;
+        }
+        input[type="file"] {
+            margin: 0 auto;
+            display: block;
+            width: 100%;
+            text-align: center;
         }
 
         .btn-clear {
@@ -187,10 +213,34 @@
         <div class="grid-2" style="margin-top: 15px;">
             <div class="form-group">
                 <label>Nombre de la Instalación:</label>
-                <input type="text" id="instalacion" placeholder="Ej. Clínica Alemana Vitacura" required>
+                <select id="instalacionSelect" onchange="toggleInstalacionOtra()" required>
+                    <option value="">Seleccione una instalación...</option>
+                    <option value="CAS Vitacura">CAS Vitacura</option>
+                    <option value="CAS La Dehesa">CAS La Dehesa</option>
+                    <option value="CM Chicureo">CM Chicureo</option>
+                    <option value="CM Plaza Egaña">CM Plaza Egaña</option>
+                    <option value="CM San Carlos de Apoquindo">CM San Carlos de Apoquindo</option>
+                    <option value="CM Rafael Maluenda">CM Rafael Maluenda</option>
+                    <option value="CM Maitencillo">CM Maitencillo</option>
+                    <option value="CM La Parva">CM La Parva</option>
+                    <option value="TM Los Dominicos">TM Los Dominicos</option>
+                    <option value="TM La Reina">TM La Reina</option>
+                    <option value="TM Manuel Montt">TM Manuel Montt</option>
+                    <option value="TM Tobalaba">TM Tobalaba</option>
+                    <option value="TM Huechuraba">TM Huechuraba</option>
+                    <option value="TM Providencia">TM Providencia</option>
+                    <option value="TM El Golf">TM El Golf</option>
+                    <option value="Sala Cuna">Sala Cuna</option>
+                    <option value="Cowork">Cowork</option>
+                    <option value="Concilio Vaticano">Concilio Vaticano</option>
+                    <option value="Lo Arcaya">Lo Arcaya</option>
+                    <option value="Otra">Otra (especificar)</option>
+                </select>
+                <input type="text" id="instalacionOtra" placeholder="Escriba el nombre de la instalación..." style="display: none; margin-top: 10px;">
             </div>
+            
             <div class="form-group">
-                <label>Servicio / Unidad Clínica:</label>
+                <label>Nombre del Servicio / Unidad:</label>
                 <input type="text" id="servicio" placeholder="Ej. UPC Adulto" required>
             </div>
             <div class="form-group">
@@ -198,15 +248,15 @@
                 <input type="text" id="piso" placeholder="Ej. Piso 3, Subterráneo 1" required>
             </div>
             <div class="form-group">
-                <label>Fecha y Hora:</label>
+                <label>Fecha de Evaluación:</label>
                 <input type="datetime-local" id="fechaHora" required>
             </div>
             <div class="form-group">
-                <label>Evaluador DGR:</label>
+                <label>Nombre Evaluador DGR:</label>
                 <input type="text" id="evaluador" placeholder="Ej. Nani Rico">
             </div>
             <div class="form-group">
-                <label>Líder del Servicio (Acompañante):</label>
+                <label>Nombre del Líder Servicio / Unidad (Acompañante):</label>
                 <input type="text" id="lider" placeholder="Nombre y Cargo">
             </div>
         </div>
@@ -221,6 +271,7 @@
         
         <div class="hallazgo-card">
             <div class="hallazgo-title">HALLAZGO 1</div>
+            
             <div class="grid-2">
                 <div class="form-group">
                     <label>Pilar asociado al hallazgo:</label>
@@ -240,46 +291,53 @@
                     <input type="text" placeholder="Ej. Pasillo central, Box 4">
                 </div>
             </div>
+            
             <div class="form-group">
                 <label>Descripción del Hallazgo:</label>
                 <textarea placeholder="Detalle la condición subestándar observada"></textarea>
             </div>
+
             <div class="grid-2">
-                <div class="form-group">
+                <div class="form-group text-center">
                     <label>Nivel de Riesgo:</label>
                     <select>
                         <option value="">Seleccione el nivel...</option>
-                        <option value="P1 - CRÍTICO">P1 - CRÍTICO (Riesgo vital/clausura. Res. < 24 hrs)</option>
+                        <option value="P1 - CRÍTICO">P1 - CRÍTICO (Riesgo vital/clausura)</option>
                         <option value="P1B - URGENTE">P1B - URGENTE (Afecta soporte/acreditación)</option>
-                        <option value="P2 - MODERADO">P2 - MODERADO (Desviación menor/mantención)</option>
-                        <option value="P3 - MENOR">P3 - MENOR (Falta de orden, mejora estética)</option>
+                        <option value="P2 - MODERADO">P2 - MODERADO (Desviación menor)</option>
+                        <option value="P3 - MENOR">P3 - MENOR (Falta de orden, estética)</option>
                     </select>
                 </div>
-                <div class="form-group">
+                <div class="form-group text-center">
                     <label>Normativa Infringida:</label>
-                    <input type="text" placeholder="Ej. D.S. 594, REAS, D.S. 43">
+                    <input type="text" placeholder="Ej. D.S. 594, REAS">
                 </div>
-                <div class="form-group">
+                
+                <div class="form-group text-center" style="grid-column: 1 / -1;">
                     <label>Acción Correctiva (PAC):</label>
                     <input type="text" placeholder="Medida a tomar">
                 </div>
-                <div class="form-group">
-                    <label>Responsable y Plazo:</label>
-                    <input type="text" placeholder="Ej. Aseo / 24 hrs">
+
+                <div class="form-group text-center">
+                    <label>Responsable:</label>
+                    <input type="text" placeholder="Área o persona a cargo">
+                </div>
+                <div class="form-group text-center">
+                    <label>Plazo:</label>
+                    <input type="text" placeholder="Ej. 24 hrs">
                 </div>
                 
-                <div class="form-group" style="grid-column: 1 / -1;">
+                <div class="form-group text-center" style="grid-column: 1 / -1;">
                     <label class="hide-on-pdf">Adjuntar Fotografía:</label>
                     <input type="file" accept="image/*" capture="environment" class="hide-on-pdf" onchange="previewImage(event, 'foto1')">
-                    <div style="text-align: center;">
-                        <img id="foto1" class="foto-preview">
-                    </div>
+                    <img id="foto1" class="foto-preview">
                 </div>
             </div>
         </div>
 
         <div class="hallazgo-card">
             <div class="hallazgo-title">HALLAZGO 2</div>
+            
             <div class="grid-2">
                 <div class="form-group">
                     <label>Pilar asociado al hallazgo:</label>
@@ -299,46 +357,53 @@
                     <input type="text" placeholder="Ej. Pasillo central, Box 4">
                 </div>
             </div>
+            
             <div class="form-group">
                 <label>Descripción del Hallazgo:</label>
                 <textarea placeholder="Detalle la condición subestándar observada"></textarea>
             </div>
+
             <div class="grid-2">
-                <div class="form-group">
+                <div class="form-group text-center">
                     <label>Nivel de Riesgo:</label>
                     <select>
                         <option value="">Seleccione el nivel...</option>
-                        <option value="P1 - CRÍTICO">P1 - CRÍTICO (Riesgo vital/clausura. Res. < 24 hrs)</option>
+                        <option value="P1 - CRÍTICO">P1 - CRÍTICO (Riesgo vital/clausura)</option>
                         <option value="P1B - URGENTE">P1B - URGENTE (Afecta soporte/acreditación)</option>
-                        <option value="P2 - MODERADO">P2 - MODERADO (Desviación menor/mantención)</option>
-                        <option value="P3 - MENOR">P3 - MENOR (Falta de orden, mejora estética)</option>
+                        <option value="P2 - MODERADO">P2 - MODERADO (Desviación menor)</option>
+                        <option value="P3 - MENOR">P3 - MENOR (Falta de orden, estética)</option>
                     </select>
                 </div>
-                <div class="form-group">
+                <div class="form-group text-center">
                     <label>Normativa Infringida:</label>
-                    <input type="text" placeholder="Ej. D.S. 594, REAS, D.S. 43">
+                    <input type="text" placeholder="Ej. D.S. 594, REAS">
                 </div>
-                <div class="form-group">
+                
+                <div class="form-group text-center" style="grid-column: 1 / -1;">
                     <label>Acción Correctiva (PAC):</label>
                     <input type="text" placeholder="Medida a tomar">
                 </div>
-                <div class="form-group">
-                    <label>Responsable y Plazo:</label>
-                    <input type="text" placeholder="Ej. Mantenimiento / 24 hrs">
+
+                <div class="form-group text-center">
+                    <label>Responsable:</label>
+                    <input type="text" placeholder="Área o persona a cargo">
+                </div>
+                <div class="form-group text-center">
+                    <label>Plazo:</label>
+                    <input type="text" placeholder="Ej. 24 hrs">
                 </div>
                 
-                <div class="form-group" style="grid-column: 1 / -1;">
+                <div class="form-group text-center" style="grid-column: 1 / -1;">
                     <label class="hide-on-pdf">Adjuntar Fotografía:</label>
                     <input type="file" accept="image/*" capture="environment" class="hide-on-pdf" onchange="previewImage(event, 'foto2')">
-                    <div style="text-align: center;">
-                        <img id="foto2" class="foto-preview">
-                    </div>
+                    <img id="foto2" class="foto-preview">
                 </div>
             </div>
         </div>
 
         <div class="hallazgo-card">
             <div class="hallazgo-title">HALLAZGO 3</div>
+            
             <div class="grid-2">
                 <div class="form-group">
                     <label>Pilar asociado al hallazgo:</label>
@@ -358,40 +423,46 @@
                     <input type="text" placeholder="Ej. Pasillo central, Box 4">
                 </div>
             </div>
+            
             <div class="form-group">
                 <label>Descripción del Hallazgo:</label>
                 <textarea placeholder="Detalle la condición subestándar observada"></textarea>
             </div>
+
             <div class="grid-2">
-                <div class="form-group">
+                <div class="form-group text-center">
                     <label>Nivel de Riesgo:</label>
                     <select>
                         <option value="">Seleccione el nivel...</option>
-                        <option value="P1 - CRÍTICO">P1 - CRÍTICO (Riesgo vital/clausura. Res. < 24 hrs)</option>
+                        <option value="P1 - CRÍTICO">P1 - CRÍTICO (Riesgo vital/clausura)</option>
                         <option value="P1B - URGENTE">P1B - URGENTE (Afecta soporte/acreditación)</option>
-                        <option value="P2 - MODERADO">P2 - MODERADO (Desviación menor/mantención)</option>
-                        <option value="P3 - MENOR">P3 - MENOR (Falta de orden, mejora estética)</option>
+                        <option value="P2 - MODERADO">P2 - MODERADO (Desviación menor)</option>
+                        <option value="P3 - MENOR">P3 - MENOR (Falta de orden, estética)</option>
                     </select>
                 </div>
-                <div class="form-group">
+                <div class="form-group text-center">
                     <label>Normativa Infringida:</label>
-                    <input type="text" placeholder="Ej. D.S. 594, REAS, D.S. 43">
+                    <input type="text" placeholder="Ej. D.S. 594, REAS">
                 </div>
-                <div class="form-group">
+                
+                <div class="form-group text-center" style="grid-column: 1 / -1;">
                     <label>Acción Correctiva (PAC):</label>
                     <input type="text" placeholder="Medida a tomar">
                 </div>
-                <div class="form-group">
-                    <label>Responsable y Plazo:</label>
-                    <input type="text" placeholder="Ej. Operaciones / 1 semana">
+
+                <div class="form-group text-center">
+                    <label>Responsable:</label>
+                    <input type="text" placeholder="Área o persona a cargo">
+                </div>
+                <div class="form-group text-center">
+                    <label>Plazo:</label>
+                    <input type="text" placeholder="Ej. 24 hrs">
                 </div>
                 
-                <div class="form-group" style="grid-column: 1 / -1;">
+                <div class="form-group text-center" style="grid-column: 1 / -1;">
                     <label class="hide-on-pdf">Adjuntar Fotografía:</label>
                     <input type="file" accept="image/*" capture="environment" class="hide-on-pdf" onchange="previewImage(event, 'foto3')">
-                    <div style="text-align: center;">
-                        <img id="foto3" class="foto-preview">
-                    </div>
+                    <img id="foto3" class="foto-preview">
                 </div>
             </div>
         </div>
@@ -427,7 +498,21 @@
 </div>
 
 <script>
-    // 1. FUNCIÓN PARA PREVISUALIZAR FOTOGRAFÍAS EN EL PDF
+    // 1. FUNCIÓN PARA MOSTRAR TEXTO LIBRE SI SE ELIGE "OTRA" INSTALACIÓN
+    function toggleInstalacionOtra() {
+        const select = document.getElementById("instalacionSelect");
+        const inputOtra = document.getElementById("instalacionOtra");
+        if (select.value === "Otra") {
+            inputOtra.style.display = "block";
+            inputOtra.required = true;
+        } else {
+            inputOtra.style.display = "none";
+            inputOtra.required = false;
+            inputOtra.value = ""; // Limpia el valor si se arrepiente y escoge otra
+        }
+    }
+
+    // 2. FUNCIÓN PARA PREVISUALIZAR FOTOGRAFÍAS EN EL PDF
     function previewImage(event, previewId) {
         const file = event.target.files[0];
         if (file) {
@@ -435,13 +520,14 @@
             reader.onload = function(e) {
                 const imgElement = document.getElementById(previewId);
                 imgElement.src = e.target.result;
-                imgElement.style.display = 'inline-block'; // Hace visible la imagen
+                imgElement.style.display = 'block'; 
+                imgElement.style.margin = '0 auto'; // Asegura centrado
             }
             reader.readAsDataURL(file);
         }
     }
 
-    // 2. CONFIGURACIÓN DE FIRMAS TÁCTILES
+    // 3. CONFIGURACIÓN DE FIRMAS TÁCTILES
     function setupCanvas(canvasId) {
         const canvas = document.getElementById(canvasId);
         const ctx = canvas.getContext('2d');
@@ -514,40 +600,50 @@
         setupCanvas('firmaEvaluador');
     };
 
-    // 3. GENERACIÓN DE PDF REPARADA (TAMAÑO FORZADO Y FOTOS INTEGRADAS)
+    // 4. GENERACIÓN DE PDF
     function generarPDF() {
-        // Subir al inicio de la pantalla para evitar cortes visuales
         window.scrollTo(0, 0);
 
-        let instalacion = document.getElementById('instalacion').value.trim() || 'Instalacion';
+        // Captura inteligente de la Instalación (Si es "Otra", saca el texto del input libre)
+        let selectInstalacion = document.getElementById('instalacionSelect').value;
+        let instalacion = selectInstalacion;
+        if (selectInstalacion === "Otra") {
+            instalacion = document.getElementById('instalacionOtra').value.trim() || 'Instalacion_Otra';
+        } else if (!selectInstalacion) {
+            instalacion = 'Instalacion';
+        }
+
         let servicio = document.getElementById('servicio').value.trim() || 'Servicio';
         let piso = document.getElementById('piso').value.trim() || 'Piso';
         let fechaHora = document.getElementById('fechaHora').value || 'Fecha';
         
         instalacion = instalacion.replace(/\s+/g, '_');
         servicio = servicio.replace(/\s+/g, '_');
-        piso = piso.replace(/\s+/g, ''); // Quita espacios en el piso para el nombre del archivo
+        piso = piso.replace(/\s+/g, ''); 
         let fechaFormateada = fechaHora.replace('T', '_').replace(/:/g, '-'); 
         let nombreArchivo = `${instalacion}_${servicio}_${piso}_${fechaFormateada}.pdf`;
 
         const elemento = document.getElementById('informeContenedor');
         
-        // Ocultar botones e inputs de subida de fotos (la foto en sí quedará visible)
         const elementosOcultar = document.querySelectorAll('.hide-on-pdf');
         elementosOcultar.forEach(el => el.style.display = 'none');
         
-        // Expandir áreas de texto para que todo sea visible
         const textareas = document.querySelectorAll('textarea');
         textareas.forEach(ta => {
             ta.style.height = 'auto';
             ta.style.height = (ta.scrollHeight + 5) + 'px';
         });
 
-        // Forzar tamaño exacto para el PDF
+        // Ocultar la flecha del select y si "Otra" está activa, ocultar el select en el PDF
+        const selectOriginal = document.getElementById("instalacionSelect");
+        if(selectOriginal.value === "Otra") {
+            selectOriginal.style.display = "none";
+        }
+
         elemento.classList.add('pdf-export-mode');
 
         const opciones = {
-            margin:       [10, 10, 10, 10], // Margen: arriba, derecha, abajo, izquierda (en mm)
+            margin:       [10, 10, 10, 10],
             filename:     nombreArchivo,
             image:        { type: 'jpeg', quality: 0.98 },
             html2canvas:  { 
@@ -556,15 +652,18 @@
                 useCORS: true 
             },
             jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
-            // Evita cortes de hoja en mitad de la información y fotos
             pagebreak:    { mode: 'css', avoid: ['.hallazgo-card', '.firma-box', '.section-title', '.foto-preview'] }
         };
 
-        // Crear PDF y luego restaurar la vista original a modo web
         html2pdf().set(opciones).from(elemento).save().then(() => {
             elemento.classList.remove('pdf-export-mode');
             textareas.forEach(ta => ta.style.height = ''); 
             
+            // Restaurar vista del select si fue ocultado
+            if(selectOriginal.value === "Otra") {
+                selectOriginal.style.display = "block";
+            }
+
             elementosOcultar.forEach(el => {
                 el.style.display = (el.id === 'btnGenerarPDF') ? 'block' : 'inline-block';
             });
