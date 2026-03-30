@@ -208,30 +208,37 @@
             box-shadow: 0 4px 6px rgba(0,0,0,0.2);
             text-align: center;
         }
-        .btn-excel { background-color: #107C41; } /* Color Verde Excel */
-        .btn-pdf { background-color: #0033A0; }   /* Color Azul DGR */
+        .btn-excel { background-color: #107C41; } 
+        .btn-pdf { background-color: #0033A0; }   
 
         @media (max-width: 600px) {
             .btn-container { flex-direction: column; }
         }
 
         /* =========================================
-           MODO EXPORTACIÓN PDF (HOJA CARTA EXACTA)
+           MODO EXPORTACIÓN PDF (ANCLAJE ABSOLUTO)
            ========================================= */
         .pdf-mode {
+            /* ESTOS ATRIBUTOS SON LA CLAVE PARA EVITAR EL RECORTE IZQUIERDO */
+            position: absolute !important;
+            top: 0 !important;
+            left: 0 !important;
+            margin: 0 !important;
+            transform: none !important;
+            
             width: 800px !important; 
             max-width: 800px !important;
             padding: 20px !important;
-            margin: 0 !important;
             background: white !important;
             box-shadow: none !important;
             border: none !important;
+            z-index: 9999; /* Asegura que quede por encima de todo */
         }
         .pdf-mode .grid-layout { display: grid !important; grid-template-columns: 1fr 1fr !important; }
         .pdf-mode .hallazgo-row.r1 { display: grid !important; grid-template-columns: 1.5fr 1fr 2fr 1.5fr 1fr !important; }
         .pdf-mode .hallazgo-row.r2 { display: grid !important; grid-template-columns: 2fr 1fr 1fr !important; }
 
-        /* Clones de texto generados dinámicamente para asegurar que el texto no se corte */
+        /* Clones de texto generados dinámicamente */
         .pdf-text-clone {
             border: 1px solid #777;
             padding: 10px;
@@ -333,7 +340,6 @@
         `;
 
         for(let i=1; i<=3; i++) {
-            // El Hallazgo 2 inicia la Página 2 en el PDF
             let extraClass = (i === 2) ? "force-page-break" : "";
 
             document.write(`
@@ -498,7 +504,7 @@
     };
 
     // ==========================================
-    // EXPORTACIÓN A EXCEL (USANDO SHEETJS)
+    // EXPORTACIÓN A EXCEL 
     // ==========================================
     function crearExcel() {
         let instSelect = document.getElementById('instalacionSelect').value;
@@ -511,7 +517,6 @@
         let lider = document.getElementById('lider').value;
         let buenaPractica = document.getElementById('buenaPractica').value;
 
-        // Estructura de Matriz que imita el CSV original
         const ws_data = [
             ["INFORME FLASH DE INSPECCIÓN"],
             ["GESTIÓN DE RIESGOS"],
@@ -530,7 +535,6 @@
             ["3. Hallazgos Criticos y PAC"]
         ];
 
-        // Recorrer los 3 hallazgos
         for(let i=1; i<=3; i++) {
             let pilar = document.getElementById(`pilar_${i}`).value;
             let ubi = document.getElementById(`ubicacion_${i}`).value;
@@ -557,7 +561,6 @@
         ws_data.push([`Nombre Evaluador: ${document.getElementById('nombreFirmaDGR').value}`]);
         ws_data.push([`Nombre Líder: ${document.getElementById('nombreFirmaLider').value}`]);
 
-        // Crear libro y hoja
         const wb = XLSX.utils.book_new();
         const ws = XLSX.utils.aoa_to_sheet(ws_data);
         XLSX.utils.book_append_sheet(wb, ws, "Informe Flash");
@@ -569,9 +572,10 @@
     }
 
     // ==========================================
-    // EXPORTACIÓN A PDF (CON CLONACIÓN DE TEXTO)
+    // EXPORTACIÓN A PDF (ANCLAJE ABSOLUTO)
     // ==========================================
     function crearPDF() {
+        // Desplazamos la vista al tope obligatoriamente
         window.scrollTo(0, 0);
 
         let instalacion = document.getElementById('instalacionSelect').value;
@@ -582,15 +586,19 @@
 
         const elemento = document.getElementById('informeContenedor');
 
-        // Ocultar botones e inputs de archivo
         document.querySelectorAll('.hide-in-pdf').forEach(el => el.style.display = 'none');
         
         const selectInst = document.getElementById('instalacionSelect');
         if(selectInst.value === 'Otra') selectInst.style.display = 'none';
 
+        // Permitimos que el body revele contenido oculto para que no recorte la captura
+        const originalBodyOverflow = document.body.style.overflow;
+        document.body.style.overflow = 'visible';
+        document.documentElement.style.overflow = 'visible';
+
+        // Ancla absoluta a la coordenada 0,0 para que no pase el error del recorte lateral
         elemento.classList.add('pdf-mode');
 
-        // Clonar inputs a DIVs para asegurar visibilidad total del texto
         const formElements = document.querySelectorAll('#informeContenedor input:not([type="file"]), #informeContenedor textarea, #informeContenedor select');
         
         formElements.forEach(el => {
@@ -632,7 +640,11 @@
                     scale: 2, 
                     useCORS: true,
                     windowWidth: 800, 
-                    width: 800
+                    width: 800,
+                    x: 0, // INDISPENSABLE: Fuerza a que la captura empiece desde el borde izquierdo extremo
+                    y: 0,
+                    scrollX: 0,
+                    scrollY: 0
                 },
                 jsPDF:        { unit: 'mm', format: 'letter', orientation: 'portrait' },
                 pagebreak:    { mode: ['css', 'legacy'], before: '.force-page-break', avoid: ['.avoid-break'] }
@@ -640,6 +652,8 @@
 
             html2pdf().set(opciones).from(elemento).save().then(() => {
                 elemento.classList.remove('pdf-mode');
+                document.body.style.overflow = originalBodyOverflow;
+                document.documentElement.style.overflow = '';
                 
                 document.querySelectorAll('.pdf-text-clone').forEach(el => el.remove());
                 document.querySelectorAll('.pdf-hidden').forEach(el => {
