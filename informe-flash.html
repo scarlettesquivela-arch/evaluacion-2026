@@ -7,6 +7,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     
     <style>
+        /* ESTILOS GENERALES Y ESTRUCTURA */
         body {
             font-family: Arial, sans-serif;
             background-color: #f4f6f9;
@@ -23,27 +24,6 @@
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
             border-top: 8px solid #0033A0;
         }
-        
-        /* ESTILOS DE IMPRESIÓN (Se activan solo al crear el PDF) */
-        .pdf-mode {
-            padding: 10px !important;
-            box-shadow: none !important;
-            border-top: none !important;
-            width: 100% !important;
-            max-width: 800px !important;
-            margin: 0 auto !important;
-            background-color: white !important;
-        }
-        .pdf-mode input, .pdf-mode select, .pdf-mode textarea {
-            border: 1px solid #999 !important; /* Borde más nítido para PDF */
-            background-color: transparent !important;
-            color: black !important;
-            /* Quitar la flecha del selector en el PDF para que se vea como texto */
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            appearance: none;
-        }
-
         h1 {
             color: #0033A0;
             text-align: center;
@@ -60,6 +40,8 @@
             font-weight: bold;
             margin-top: 20px;
             border-radius: 4px;
+            page-break-after: avoid;
+            break-after: avoid;
         }
         .form-group {
             margin-bottom: 15px;
@@ -91,20 +73,16 @@
             grid-template-columns: 1fr 1fr;
             gap: 15px;
         }
+        
+        /* PROTECCIÓN CONTRA CORTES EN EL PDF */
         .hallazgo-card {
             background-color: #E8F4FA;
             border: 1px solid #b3e0f5;
             padding: 15px;
             border-radius: 6px;
             margin-top: 15px;
-        }
-        .hallazgo-title {
-            color: #0033A0;
-            font-weight: bold;
-            margin-bottom: 15px;
-            font-size: 18px;
-            border-bottom: 1px solid #b3e0f5;
-            padding-bottom: 5px;
+            page-break-inside: avoid;
+            break-inside: avoid;
         }
         .firma-box {
             border: 1px solid #ccc;
@@ -112,6 +90,17 @@
             padding: 10px;
             background: #fdfdfd;
             text-align: center;
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+        
+        .hallazgo-title {
+            color: #0033A0;
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 18px;
+            border-bottom: 1px solid #b3e0f5;
+            padding-bottom: 5px;
         }
         canvas {
             border: 1px dashed #999;
@@ -150,6 +139,28 @@
         
         @media (max-width: 600px) {
             .grid-2 { grid-template-columns: 1fr; }
+        }
+
+        /* CLASES ESPECIALES PARA EL MOMENTO DE CREAR EL PDF */
+        .pdf-export-mode {
+            width: 800px !important;
+            max-width: 800px !important;
+            padding: 20px !important;
+            margin: 0 auto !important;
+            background: white !important;
+            box-shadow: none !important;
+            border: none !important;
+        }
+        .pdf-export-mode .grid-2 {
+            grid-template-columns: 1fr 1fr !important;
+        }
+        .pdf-export-mode input, .pdf-export-mode select, .pdf-export-mode textarea {
+            border: 1px solid #666 !important;
+            background: transparent !important;
+            color: black !important;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
         }
     </style>
 </head>
@@ -414,13 +425,11 @@
             ctx.strokeStyle = '#000033';
         }
         
-        // Ajustar tamaño inicial y al rotar la pantalla
         window.addEventListener('resize', resizeCanvas);
         resizeCanvas();
 
         function getMousePos(canvas, evt) {
             const rect = canvas.getBoundingClientRect();
-            // Corrección crucial para móviles y scroll
             const scaleX = canvas.width / rect.width;
             const scaleY = canvas.height / rect.height;
             let clientX = evt.clientX;
@@ -475,9 +484,9 @@
         setupCanvas('firmaEvaluador');
     };
 
-    // 2. GENERACIÓN DE PDF REPARADA
+    // 2. GENERACIÓN DE PDF REPARADA (TAMAÑO FORZADO)
     function generarPDF() {
-        // SOLUCIÓN AL CORTE DE PANTALLA: Obligar a la app a subir al inicio antes de la "foto"
+        // FORZAR INICIO DE PANTALLA PARA EVITAR CORTE SUPERIOR
         window.scrollTo(0, 0);
 
         let instalacion = document.getElementById('instalacion').value.trim() || 'Instalacion';
@@ -491,41 +500,39 @@
 
         const elemento = document.getElementById('informeContenedor');
         
-        // Ocultar elementos no deseados
+        // Ocultar botones e inputs de fotos
         const elementosOcultar = document.querySelectorAll('.hide-on-pdf');
         elementosOcultar.forEach(el => el.style.display = 'none');
         
-        // Ajustar textareas para que no se oculte texto
+        // Expandir áreas de texto para que todo sea visible
         const textareas = document.querySelectorAll('textarea');
         textareas.forEach(ta => {
             ta.style.height = 'auto';
-            ta.style.height = (ta.scrollHeight) + 'px';
+            ta.style.height = (ta.scrollHeight + 5) + 'px';
         });
 
-        // Activar modo impresión
-        elemento.classList.add('pdf-mode');
+        // FORZAR TAMAÑO EXACTO PARA EL PDF
+        elemento.classList.add('pdf-export-mode');
 
-        // Configuración estricta para html2pdf
         const opciones = {
-            margin:       [10, 10, 10, 10], // Margen en mm
+            margin:       [10, 10, 10, 10], // Margen: arriba, derecha, abajo, izquierda (en mm)
             filename:     nombreArchivo,
             image:        { type: 'jpeg', quality: 0.98 },
             html2canvas:  { 
-                scale: 2,           // Mayor calidad
-                scrollY: 0,         // <-- CLAVE: Iniciar captura desde arriba
+                scale: 2, 
+                scrollY: 0, 
                 useCORS: true 
             },
             jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
-            // Regla estricta para que no corte cajas de hallazgos ni firmas
-            pagebreak:    { mode: ['css', 'legacy'], avoid: ['.hallazgo-card', '.section-title', '.firma-box'] }
+            // Evitar que corte las tarjetas y las firmas a la mitad de la hoja
+            pagebreak:    { mode: 'css', avoid: ['.hallazgo-card', '.firma-box', '.section-title'] }
         };
 
-        // Procesar y restaurar
+        // Crear PDF y luego restaurar la vista original
         html2pdf().set(opciones).from(elemento).save().then(() => {
-            elemento.classList.remove('pdf-mode');
+            elemento.classList.remove('pdf-export-mode');
+            textareas.forEach(ta => ta.style.height = ''); 
             
-            textareas.forEach(ta => ta.style.height = ''); // Vuelve al tamaño normal
-
             elementosOcultar.forEach(el => {
                 el.style.display = (el.id === 'btnGenerarPDF') ? 'block' : 'inline-block';
             });
