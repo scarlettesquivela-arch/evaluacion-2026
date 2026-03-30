@@ -98,7 +98,7 @@
             break-before: page !important;
         }
 
-        /* DISEÑO DE HALLAZGOS VERTICALES (SIN AVOID-BREAK GENERAL PARA PERMITIR EL CORTE INTERNO) */
+        /* DISEÑO DE HALLAZGOS VERTICALES */
         .hallazgo-box {
             background-color: #F8FBFC;
             border: 1px solid #B3E0F5;
@@ -116,11 +116,6 @@
             border-bottom: 1px solid #B3E0F5;
             padding-bottom: 5px;
             text-align: center;
-        }
-        
-        /* BLOQUES INTERNOS PARA PAGINACIÓN */
-        .bloque-superior, .bloque-inferior {
-            width: 100%;
         }
 
         /* FOTOGRAFÍA (CANDADO DE TAMAÑO) */
@@ -160,7 +155,7 @@
         .firma-container {
             border: 1px solid #ccc;
             border-radius: 6px;
-            padding: 15px;
+            padding: 10px;
             background: #fff;
             text-align: center;
         }
@@ -172,7 +167,7 @@
             cursor: crosshair;
             touch-action: none;
             border-radius: 4px;
-            margin-top: 10px;
+            margin-top: 5px;
         }
         .btn-limpiar {
             background-color: #e74c3c;
@@ -318,7 +313,7 @@
         const pilares = `
             <option value="">Seleccionar pilar...</option>
             <option value="Seguridad Industrial e Infraestructura">Seguridad Industrial e Infraestructura</option>
-            <option value="Gestión Preventiva">Gestión Preventiva</option>
+            <option value="Gestión Preventiva (Administrativa)">Gestión Preventiva (Administrativa)</option>
             <option value="Medio Ambiente (Gestión REAS)">Medio Ambiente (Gestión REAS)</option>
             <option value="Control y Aseguramiento (Equipos vitales)">Control y Aseguramiento (Equipos vitales)</option>
             <option value="Empresas Contratistas">Empresas Contratistas</option>
@@ -335,9 +330,14 @@
         `;
 
         for(let i=1; i<=3; i++) {
+            // LÓGICA DE QUIEBRES: Define en qué punto exacto se genera la hoja nueva según el número de hallazgo.
+            let claseSaltoAccion = (i === 1) ? "force-page-break" : "avoid-break"; // Página 2
+            let claseSaltoResponsable = (i === 2) ? "force-page-break" : "avoid-break"; // Página 3
+            let claseSaltoPlazo = (i === 3) ? "force-page-break" : "avoid-break"; // Página 4
+
             document.write(`
             <div class="hallazgo-box">
-                <div class="bloque-superior avoid-break">
+                <div class="avoid-break">
                     <div class="hallazgo-title">Hallazgo ${i}</div>
                     
                     <div class="form-field">
@@ -354,8 +354,7 @@
                         <label>Descripción del hallazgo:</label>
                         <textarea id="descripcion_${i}" rows="2" placeholder="Detalle lo observado..."></textarea>
                     </div>
-                
-                <div class="bloque-inferior force-page-break">
+                    
                     <div class="form-field">
                         <label>Nivel de riesgo:</label>
                         <select id="riesgo_${i}">${riesgos}</select>
@@ -365,18 +364,23 @@
                         <label>Normativa Infringida:</label>
                         <input type="text" id="normativa_${i}" placeholder="Ej. DS 594">
                     </div>
-                       </div>
-                    
+                </div>
+                
+                <div class="${claseSaltoAccion}">
                     <div class="form-field">
                         <label>Acción correctiva (PAC):</label>
                         <textarea id="accion_${i}" rows="2" placeholder="Qué se debe hacer..."></textarea>
                     </div>
-            
+                </div>
+                
+                <div class="${claseSaltoResponsable}">
                     <div class="form-field">
                         <label>Responsable:</label>
                         <input type="text" id="responsable_${i}" placeholder="Área o persona">
                     </div>
-                    
+                </div>
+
+                <div class="${claseSaltoPlazo}">
                     <div class="form-field">
                         <label>Plazo:</label>
                         <input type="text" id="plazo_${i}" placeholder="Ej. 24 hrs">
@@ -393,14 +397,15 @@
         }
     </script>
 
-    <div class="section-header avoid-break">4. Acuerdos y Cierre en Terreno</div>
-    <p class="avoid-break" style="font-size: 13px; color: #555; text-align: justify; margin-bottom: 20px;">
+    <div class="section-header avoid-break" style="margin-bottom: 5px;">4. Acuerdos y Cierre en Terreno</div>
+    <p class="avoid-break" style="font-size: 13px; color: #555; text-align: justify; margin-bottom: 5px; margin-top: 0;">
         El Líder del servicio toma conocimiento de los hallazgos descritos y se compromete a gestionar los recursos o facilitar los accesos para la resolución en los plazos estipulados. El DGR brindará el soporte técnico normativo necesario para el cierre exitoso del ciclo.
     </p>
-    <div class="grid-layout avoid-break">
+
+    <div class="grid-layout avoid-break" style="margin-top: 5px;">
         <div class="firma-container avoid-break">
             <label>Nombre del Líder / Jefatura:</label>
-            <input type="text" id="nombreFirmaLider" placeholder="Nombre completo" style="margin-bottom: 10px; text-align: center;">
+            <input type="text" id="nombreFirmaLider" placeholder="Nombre completo" style="margin-bottom: 5px; text-align: center;">
             <label>Firma (Dibuje aquí):</label>
             <canvas id="canvasLider" width="600" height="200"></canvas>
             <button class="btn-limpiar hide-in-pdf" onclick="clearCanvas('canvasLider')">Limpiar Firma</button>
@@ -408,11 +413,12 @@
         
         <div class="firma-container avoid-break">
             <label>Nombre Evaluador DGR:</label>
-            <input type="text" id="nombreFirmaDGR" placeholder="Nombre completo" style="margin-bottom: 10px; text-align: center;">
+            <input type="text" id="nombreFirmaDGR" placeholder="Nombre completo" style="margin-bottom: 5px; text-align: center;">
             <label>Firma (Dibuje aquí):</label>
             <canvas id="canvasDGR" width="600" height="200"></canvas>
             <button class="btn-limpiar hide-in-pdf" onclick="clearCanvas('canvasDGR')">Limpiar Firma</button>
         </div>
+    </div>
 
     <div class="btn-container hide-in-pdf">
         <button class="btn-generar btn-descargar" onclick="procesarPDF('descargar')">DESCARGAR PDF</button>
@@ -491,7 +497,7 @@
     };
 
     // ==========================================
-    // MOTOR PDF (DESCARGA O COMPARTIR VÍA CORREO/WHATSAPP)
+    // MOTOR PDF (DESCARGA O COMPARTIR VÍA CORREO/WHATSAPP NATIVO)
     // ==========================================
     function procesarPDF(accion) {
         window.scrollTo(0, 0);
@@ -548,50 +554,4 @@
                 margin:       [10, 10, 15, 10], 
                 filename:     nombreArchivo,
                 image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, useCORS: true, windowWidth: 800, width: 800, x: 0, y: 0, scrollX: 0, scrollY: 0 },
-                jsPDF:        { unit: 'mm', format: 'letter', orientation: 'portrait' },
-                // force-page-break actúa exactamente donde cortamos el bloque de hallazgos
-                pagebreak:    { mode: ['css', 'legacy'], before: '.force-page-break', avoid: ['.avoid-break'] }
-            };
-
-            if (accion === 'descargar') {
-                // Descarga normal
-                html2pdf().set(opciones).from(elemento).save().then(restaurarVista);
-            } else if (accion === 'compartir') {
-                // Convierte a Blob y abre la ventana de envío (Correo/WhatsApp)
-                html2pdf().set(opciones).from(elemento).output('blob').then(function(pdfBlob) {
-                    restaurarVista();
-                    const file = new File([pdfBlob], nombreArchivo, { type: 'application/pdf' });
-                    
-                    if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                        navigator.share({
-                            title: 'Informe Flash DGR',
-                            text: 'Se adjunta Informe Flash de Inspección DGR.',
-                            files: [file]
-                        }).catch(err => console.log('Envío cancelado', err));
-                    } else {
-                        alert("Tu dispositivo o navegador no soporta el envío directo. El archivo se descargará para que lo envíes manualmente.");
-                        html2pdf().set(opciones).from(elemento).save();
-                    }
-                });
-            }
-        }, 500); 
-
-        function restaurarVista() {
-            document.body.classList.remove('exporting-pdf');
-            elemento.classList.remove('pdf-mode');
-            
-            document.querySelectorAll('.pdf-text-clone').forEach(el => el.remove());
-            document.querySelectorAll('.pdf-hidden').forEach(el => {
-                el.style.display = el.getAttribute('data-original-display');
-                el.classList.remove('pdf-hidden');
-            });
-
-            if(selectInst.value === 'Otra') selectInst.style.display = 'block';
-            document.querySelectorAll('.hide-in-pdf').forEach(el => el.style.display = 'block');
-        }
-    }
-</script>
-
-</body>
-</html>
+                html2canvas:  { scale: 2, useCORS: true, windowWidth: 800, width: 800,
