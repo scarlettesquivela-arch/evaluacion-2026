@@ -110,6 +110,18 @@
             cursor: crosshair;
             touch-action: none;
         }
+        
+        /* ESTILOS PARA LAS FOTOGRAFÍAS */
+        .foto-preview {
+            display: none; 
+            max-width: 100%; 
+            max-height: 250px; 
+            margin-top: 10px; 
+            border-radius: 5px; 
+            border: 1px solid #ccc;
+            object-fit: contain;
+        }
+
         .btn-clear {
             background-color: #ff4d4d;
             color: white;
@@ -182,6 +194,10 @@
                 <input type="text" id="servicio" placeholder="Ej. UPC Adulto" required>
             </div>
             <div class="form-group">
+                <label>Número de Piso:</label>
+                <input type="text" id="piso" placeholder="Ej. Piso 3, Subterráneo 1" required>
+            </div>
+            <div class="form-group">
                 <label>Fecha y Hora:</label>
                 <input type="datetime-local" id="fechaHora" required>
             </div>
@@ -189,7 +205,7 @@
                 <label>Evaluador DGR:</label>
                 <input type="text" id="evaluador" placeholder="Ej. Nani Rico">
             </div>
-            <div class="form-group" style="grid-column: 1 / -1;">
+            <div class="form-group">
                 <label>Líder del Servicio (Acompañante):</label>
                 <input type="text" id="lider" placeholder="Nombre y Cargo">
             </div>
@@ -248,16 +264,16 @@
                     <input type="text" placeholder="Medida a tomar">
                 </div>
                 <div class="form-group">
-                    <label>Responsable:</label>
-                    <input type="text" placeholder="Área o persona a cargo">
+                    <label>Responsable y Plazo:</label>
+                    <input type="text" placeholder="Ej. Aseo / 24 hrs">
                 </div>
-                <div class="form-group">
-                    <label>Plazo de Ejecución:</label>
-                    <input type="text" placeholder="Ej. Inmediato, 24 hrs, 1 semana">
-                </div>
-                <div class="form-group hide-on-pdf">
-                    <label>Adjuntar Fotografía:</label>
-                    <input type="file" accept="image/*" capture="environment">
+                
+                <div class="form-group" style="grid-column: 1 / -1;">
+                    <label class="hide-on-pdf">Adjuntar Fotografía:</label>
+                    <input type="file" accept="image/*" capture="environment" class="hide-on-pdf" onchange="previewImage(event, 'foto1')">
+                    <div style="text-align: center;">
+                        <img id="foto1" class="foto-preview">
+                    </div>
                 </div>
             </div>
         </div>
@@ -307,16 +323,16 @@
                     <input type="text" placeholder="Medida a tomar">
                 </div>
                 <div class="form-group">
-                    <label>Responsable:</label>
-                    <input type="text" placeholder="Área o persona a cargo">
+                    <label>Responsable y Plazo:</label>
+                    <input type="text" placeholder="Ej. Mantenimiento / 24 hrs">
                 </div>
-                <div class="form-group">
-                    <label>Plazo de Ejecución:</label>
-                    <input type="text" placeholder="Ej. Inmediato, 24 hrs, 1 semana">
-                </div>
-                <div class="form-group hide-on-pdf">
-                    <label>Adjuntar Fotografía:</label>
-                    <input type="file" accept="image/*" capture="environment">
+                
+                <div class="form-group" style="grid-column: 1 / -1;">
+                    <label class="hide-on-pdf">Adjuntar Fotografía:</label>
+                    <input type="file" accept="image/*" capture="environment" class="hide-on-pdf" onchange="previewImage(event, 'foto2')">
+                    <div style="text-align: center;">
+                        <img id="foto2" class="foto-preview">
+                    </div>
                 </div>
             </div>
         </div>
@@ -366,16 +382,16 @@
                     <input type="text" placeholder="Medida a tomar">
                 </div>
                 <div class="form-group">
-                    <label>Responsable:</label>
-                    <input type="text" placeholder="Área o persona a cargo">
+                    <label>Responsable y Plazo:</label>
+                    <input type="text" placeholder="Ej. Operaciones / 1 semana">
                 </div>
-                <div class="form-group">
-                    <label>Plazo de Ejecución:</label>
-                    <input type="text" placeholder="Ej. Inmediato, 24 hrs, 1 semana">
-                </div>
-                <div class="form-group hide-on-pdf">
-                    <label>Adjuntar Fotografía:</label>
-                    <input type="file" accept="image/*" capture="environment">
+                
+                <div class="form-group" style="grid-column: 1 / -1;">
+                    <label class="hide-on-pdf">Adjuntar Fotografía:</label>
+                    <input type="file" accept="image/*" capture="environment" class="hide-on-pdf" onchange="previewImage(event, 'foto3')">
+                    <div style="text-align: center;">
+                        <img id="foto3" class="foto-preview">
+                    </div>
                 </div>
             </div>
         </div>
@@ -411,7 +427,21 @@
 </div>
 
 <script>
-    // 1. CONFIGURACIÓN DE FIRMAS
+    // 1. FUNCIÓN PARA PREVISUALIZAR FOTOGRAFÍAS EN EL PDF
+    function previewImage(event, previewId) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const imgElement = document.getElementById(previewId);
+                imgElement.src = e.target.result;
+                imgElement.style.display = 'inline-block'; // Hace visible la imagen
+            }
+            reader.readAsDataURL(file);
+        }
+    }
+
+    // 2. CONFIGURACIÓN DE FIRMAS TÁCTILES
     function setupCanvas(canvasId) {
         const canvas = document.getElementById(canvasId);
         const ctx = canvas.getContext('2d');
@@ -484,23 +514,25 @@
         setupCanvas('firmaEvaluador');
     };
 
-    // 2. GENERACIÓN DE PDF REPARADA (TAMAÑO FORZADO)
+    // 3. GENERACIÓN DE PDF REPARADA (TAMAÑO FORZADO Y FOTOS INTEGRADAS)
     function generarPDF() {
-        // FORZAR INICIO DE PANTALLA PARA EVITAR CORTE SUPERIOR
+        // Subir al inicio de la pantalla para evitar cortes visuales
         window.scrollTo(0, 0);
 
         let instalacion = document.getElementById('instalacion').value.trim() || 'Instalacion';
         let servicio = document.getElementById('servicio').value.trim() || 'Servicio';
+        let piso = document.getElementById('piso').value.trim() || 'Piso';
         let fechaHora = document.getElementById('fechaHora').value || 'Fecha';
         
         instalacion = instalacion.replace(/\s+/g, '_');
         servicio = servicio.replace(/\s+/g, '_');
+        piso = piso.replace(/\s+/g, ''); // Quita espacios en el piso para el nombre del archivo
         let fechaFormateada = fechaHora.replace('T', '_').replace(/:/g, '-'); 
-        let nombreArchivo = `${instalacion}_${servicio}_${fechaFormateada}.pdf`;
+        let nombreArchivo = `${instalacion}_${servicio}_${piso}_${fechaFormateada}.pdf`;
 
         const elemento = document.getElementById('informeContenedor');
         
-        // Ocultar botones e inputs de fotos
+        // Ocultar botones e inputs de subida de fotos (la foto en sí quedará visible)
         const elementosOcultar = document.querySelectorAll('.hide-on-pdf');
         elementosOcultar.forEach(el => el.style.display = 'none');
         
@@ -511,7 +543,7 @@
             ta.style.height = (ta.scrollHeight + 5) + 'px';
         });
 
-        // FORZAR TAMAÑO EXACTO PARA EL PDF
+        // Forzar tamaño exacto para el PDF
         elemento.classList.add('pdf-export-mode');
 
         const opciones = {
@@ -524,11 +556,11 @@
                 useCORS: true 
             },
             jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
-            // Evitar que corte las tarjetas y las firmas a la mitad de la hoja
-            pagebreak:    { mode: 'css', avoid: ['.hallazgo-card', '.firma-box', '.section-title'] }
+            // Evita cortes de hoja en mitad de la información y fotos
+            pagebreak:    { mode: 'css', avoid: ['.hallazgo-card', '.firma-box', '.section-title', '.foto-preview'] }
         };
 
-        // Crear PDF y luego restaurar la vista original
+        // Crear PDF y luego restaurar la vista original a modo web
         html2pdf().set(opciones).from(elemento).save().then(() => {
             elemento.classList.remove('pdf-export-mode');
             textareas.forEach(ta => ta.style.height = ''); 
