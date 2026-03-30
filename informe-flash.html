@@ -14,6 +14,7 @@
             color: #333;
             padding: 20px;
             margin: 0;
+            overflow-x: hidden; /* Evita scroll horizontal en móviles normalmente */
         }
         .container {
             max-width: 900px;
@@ -179,19 +180,17 @@
             .grid-2 { grid-template-columns: 1fr; }
         }
 
-        /* MODO PDF MEJORADO PARA EVITAR CORTES */
+        /* MODO PDF: LA SOLUCIÓN AL RECORTE Y ZOOM */
         .pdf-export-mode {
-            width: 800px !important; 
-            max-width: 800px !important;
             padding: 20px !important;
             margin: 0 auto !important;
             background: white !important;
             box-shadow: none !important;
             border: none !important;
-            height: auto !important; /* Garantiza que se estire */
-            overflow: visible !important;
+            /* Fuerza a que el grid de 2 columnas se respete en el PDF sin importar la pantalla original */
         }
         .pdf-export-mode .grid-2 {
+            display: grid !important;
             grid-template-columns: 1fr 1fr !important;
         }
         .pdf-export-mode input, .pdf-export-mode select, .pdf-export-mode textarea {
@@ -207,7 +206,6 @@
         .pdf-export-mode .page-break-before {
             margin-top: 0 !important;
         }
-        /* Oculta las flechas de los select en PDF */
         .pdf-export-mode select {
             background-image: none !important;
         }
@@ -544,8 +542,26 @@
         const ctx = canvas.getContext('2d');
         let isDrawing = false;
 
-        // Se quita el resizeEvent para que no borre las firmas al generar el PDF
-        canvas.width = canvas.parentElement.offsetWidth - 22; // Ajuste manual
+        function resizeCanvas() {
+            // Guardar firma temporalmente si se rota la pantalla
+            const tempImg = canvas.toDataURL();
+            
+            canvas.width = canvas.parentElement.offsetWidth - 22;
+            canvas.height = 150;
+            ctx.lineWidth = 2;
+            ctx.lineCap = 'round';
+            ctx.strokeStyle = '#000033';
+            
+            // Restaurar firma
+            const img = new Image();
+            img.onload = function() { ctx.drawImage(img, 0, 0); }
+            img.src = tempImg;
+        }
+        
+        window.addEventListener('resize', resizeCanvas);
+        
+        // Ajuste inicial
+        canvas.width = canvas.parentElement.offsetWidth - 22;
         canvas.height = 150;
         ctx.lineWidth = 2;
         ctx.lineCap = 'round';
@@ -603,16 +619,14 @@
     }
 
     window.onload = function() {
-        // Un pequeño timeout asegura que los contenedores ya tengan su ancho final en móviles
         setTimeout(() => {
             setupCanvas('firmaLider');
             setupCanvas('firmaEvaluador');
         }, 300);
     };
 
-    // 4. GENERACIÓN DE PDF SIN CORTES (TIMEOUT APLICADO)
+    // 4. GENERACIÓN DE PDF (SOLUCIÓN DEFINITIVA PARA CORTES)
     function generarPDF() {
-        // Mover la pantalla al tope
         window.scrollTo(0, 0);
 
         let selectInstalacion = document.getElementById('instalacionSelect').value;
@@ -638,20 +652,23 @@
             selectOriginal.style.display = "none";
         }
 
-        // 2. Expandir Textareas y evitar overflow
-        document.body.style.overflow = 'visible';
-        document.documentElement.style.overflow = 'visible';
+        // 2. TRUCO ANTI-CORTE: Forzar el cuerpo (body) al ancho de un PC (900px)
+        const originalBodyWidth = document.body.style.width;
+        document.body.style.width = '900px';
         
+        // Asignar el tamaño forzado al contenedor principal
+        elemento.style.width = '900px';
+        elemento.style.maxWidth = '900px';
+        elemento.classList.add('pdf-export-mode');
+
+        // 3. Expandir Textareas
         const textareas = document.querySelectorAll('textarea');
         textareas.forEach(ta => {
             ta.style.height = 'auto';
             ta.style.height = (ta.scrollHeight + 15) + 'px';
         });
 
-        // 3. Forzar el formato A4 en la web antes de tomar la foto
-        elemento.classList.add('pdf-export-mode');
-
-        // 4. Esperar 500ms para que el celular termine de reacomodar el tamaño visual
+        // 4. Esperar 500ms para que el celular redibuje el DOM en el nuevo ancho antes de la captura
         setTimeout(() => {
             const opciones = {
                 margin:       [10, 10, 10, 10],
@@ -660,22 +677,20 @@
                 html2canvas:  { 
                     scale: 2, 
                     scrollY: 0, 
+                    scrollX: 0,
                     useCORS: true,
-                    windowWidth: 800,
-                    // Forzamos al motor a leer todo el alto disponible
-                    height: elemento.scrollHeight,
-                    windowHeight: elemento.scrollHeight
+                    windowWidth: 900 // Debe coincidir con el body
                 },
                 jsPDF:        { unit: 'mm', format: 'letter', orientation: 'portrait' },
-                // Solo reglas de CSS nativo para evitar bugs de html2pdf
-                pagebreak:    { mode: ['css', 'legacy'] }
+                pagebreak:    { mode: ['css', 'legacy'], before: '.page-break-before', avoid: ['.hallazgo-card', '.firma-box', '.foto-preview'] }
             };
 
             html2pdf().set(opciones).from(elemento).save().then(() => {
-                // Restaurar vista web normal
+                // Restaurar todo a su estado normal móvil
+                document.body.style.width = originalBodyWidth;
+                elemento.style.width = '';
+                elemento.style.maxWidth = '';
                 elemento.classList.remove('pdf-export-mode');
-                document.body.style.overflow = '';
-                document.documentElement.style.overflow = '';
                 
                 textareas.forEach(ta => ta.style.height = ''); 
                 
