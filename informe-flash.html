@@ -7,20 +7,20 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     
     <style>
-        /* ESTILOS BASE */
+        /* ESTILOS BASE Y RESPONSIVOS */
         body {
             font-family: Arial, sans-serif;
             background-color: #f0f4f8;
             color: #333;
             margin: 0;
-            padding: 20px;
+            padding: 15px;
             overflow-x: hidden;
         }
         .app-container {
-            max-width: 900px;
+            max-width: 1000px;
             margin: 0 auto;
             background: #ffffff;
-            padding: 30px;
+            padding: 25px;
             border-radius: 8px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
             border-top: 8px solid #0033A0;
@@ -34,6 +34,7 @@
             border-bottom: 2px solid #0099D8;
             padding-bottom: 15px;
             margin-bottom: 25px;
+            font-weight: bold;
         }
         .section-header {
             background-color: #0099D8;
@@ -44,21 +45,20 @@
             border-radius: 4px;
             margin-top: 25px;
             margin-bottom: 15px;
-            page-break-after: avoid;
         }
 
-        /* CUADRÍCULAS Y FORMULARIOS */
+        /* FORMULARIOS Y CUADRÍCULAS MÓVILES/DESKTOP */
         .grid-layout {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 15px;
             width: 100%;
         }
         .form-field {
             width: 100%;
-            box-sizing: border-box;
             display: flex;
             flex-direction: column;
+            box-sizing: border-box;
         }
         label {
             font-weight: bold;
@@ -68,11 +68,11 @@
         }
         input, select, textarea {
             width: 100%;
-            padding: 10px;
+            padding: 9px;
             border: 1px solid #ccc;
             border-radius: 4px;
             font-family: Arial, sans-serif;
-            font-size: 14px;
+            font-size: 13px;
             box-sizing: border-box;
             background-color: #fdfdfd;
         }
@@ -82,14 +82,14 @@
             min-height: 60px;
         }
 
-        /* DISEÑO DE HALLAZGOS (TIPO EXCEL) */
+        /* DISEÑO DE HALLAZGOS (ESTRUCTURA EXCEL) */
         .hallazgo-box {
             background-color: #F8FBFC;
             border: 1px solid #B3E0F5;
-            padding: 20px;
+            padding: 15px;
             border-radius: 6px;
             margin-bottom: 20px;
-            page-break-inside: avoid; /* Previene cortes en PDF */
+            page-break-inside: avoid;
         }
         .hallazgo-title {
             color: #0033A0;
@@ -98,28 +98,40 @@
             margin-bottom: 15px;
             border-bottom: 1px solid #B3E0F5;
             padding-bottom: 5px;
-        }
-        .hallazgo-row {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 10px;
-            margin-bottom: 15px;
+            text-align: center;
         }
         
+        /* Grillas responsivas nativas para pantallas y PDF */
+        .hallazgo-row {
+            display: grid;
+            gap: 10px;
+            margin-bottom: 15px;
+            /* En celulares se ve en 1 columna, en PC en varias */
+            grid-template-columns: 1fr; 
+        }
+        @media (min-width: 768px) {
+            .hallazgo-row.r1 { grid-template-columns: 1.5fr 1fr 2fr 1.5fr 1fr; }
+            .hallazgo-row.r2 { grid-template-columns: 2fr 1fr 1fr; }
+        }
+
         /* FOTOGRAFÍAS CENTRADAS */
         .foto-container {
-            text-align: center;
-            border: 2px dashed #ccc;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 2px dashed #b3e0f5;
             padding: 15px;
             border-radius: 6px;
             background: #fff;
-            margin-top: 10px;
+            margin-top: 15px;
+            text-align: center;
         }
         .foto-preview {
             display: none;
             max-width: 100%;
             max-height: 250px;
-            margin: 15px auto 0 auto;
+            margin-top: 15px;
             border-radius: 4px;
             border: 1px solid #ddd;
             object-fit: contain;
@@ -173,25 +185,22 @@
             cursor: pointer;
             width: 100%;
             margin-top: 30px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            text-transform: uppercase;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
         }
 
-        @media (max-width: 600px) {
-            .grid-layout { grid-template-columns: 1fr; }
-            .hallazgo-row { grid-template-columns: 1fr; }
-        }
-
-        /* MODO EXPORTACIÓN PDF (EL TRUCO DE TAMAÑO) */
+        /* =========================================
+           MODO EXPORTACIÓN PDF (REPARACIÓN DE CORTES)
+           ========================================= */
         .pdf-mode {
-            width: 900px !important;
-            max-width: 900px !important;
+            width: 1000px !important;
+            max-width: 1000px !important;
             padding: 30px !important;
             margin: 0 auto !important;
             background: white !important;
             box-shadow: none !important;
             border: none !important;
         }
+        /* Fuerza a los inputs a verse como texto impreso limpio */
         .pdf-mode input, .pdf-mode select, .pdf-mode textarea {
             border: 1px solid #888 !important;
             background: transparent !important;
@@ -199,11 +208,15 @@
             -webkit-appearance: none;
             appearance: none;
             white-space: pre-wrap !important;
+            font-size: 12px !important; /* Letra ajustada para que quepa todo */
         }
         .pdf-mode select { background-image: none !important; }
+        
+        /* Forzar la grilla horizontal para el PDF sin importar si es celular */
         .pdf-mode .grid-layout { grid-template-columns: 1fr 1fr !important; }
-        .pdf-mode .hallazgo-row { grid-template-columns: repeat(5, 1fr) !important; }
-        .pdf-mode .hallazgo-row.row-2 { grid-template-columns: 1fr 1fr 1fr !important; }
+        .pdf-mode .hallazgo-row.r1 { display: grid !important; grid-template-columns: 1.5fr 1fr 2fr 1.5fr 1fr !important; }
+        .pdf-mode .hallazgo-row.r2 { display: grid !important; grid-template-columns: 2fr 1fr 1fr !important; }
+        .pdf-mode .foto-container { border: 1px solid #ccc !important; }
     </style>
 </head>
 <body>
@@ -211,7 +224,7 @@
 <div class="app-container" id="informeContenedor">
     <div class="header-title">
         Informe Flash de Inspección<br>
-        <span style="font-size: 16px; color: #666;">Gestión de Riesgos (DGR)</span>
+        <span style="font-size: 16px; color: #666; font-weight: normal;">Gestión de Riesgos (DGR)</span>
     </div>
 
     <div class="section-header">1. Antecedentes de la Inspección</div>
@@ -223,7 +236,7 @@
         <div class="form-field">
             <label>Instalación:</label>
             <select id="instalacionSelect" onchange="toggleInstalacion()">
-                <option value="">Seleccione...</option>
+                <option value="">Seleccione una instalación...</option>
                 <option value="CAS Vitacura">CAS Vitacura</option>
                 <option value="CAS La Dehesa">CAS La Dehesa</option>
                 <option value="CM Chicureo">CM Chicureo</option>
@@ -248,11 +261,11 @@
             <input type="text" id="instalacionOtra" placeholder="Especifique instalación..." style="display: none; margin-top: 5px;">
         </div>
         <div class="form-field">
-            <label>Unidad o Servicio:</label>
+            <label>Nombre del Servicio / Unidad:</label>
             <input type="text" id="servicio" placeholder="Ej. Urgencia">
         </div>
         <div class="form-field">
-            <label>Número de Piso donde se ubica:</label>
+            <label>Número de Piso:</label>
             <input type="text" id="piso" placeholder="Ej. Piso 2">
         </div>
         <div class="form-field">
@@ -268,33 +281,52 @@
     <div class="section-header">2. Reconocimiento Preventivo</div>
     <div class="form-field">
         <label>Destacar una buena práctica (Técnica del Sándwich):</label>
-        <textarea placeholder="Ej. Se observa extintor correctamente señalizado y despejado..."></textarea>
+        <textarea placeholder="Ej. Se observa extintor correctamente señalizado y personal comprometido..."></textarea>
     </div>
 
     <div class="section-header" style="page-break-before: always;">3. Hallazgos Críticos y PAC</div>
     
     <script>
+        const pilares = `
+            <option value="">Seleccionar pilar...</option>
+            <option value="Seguridad Industrial e Infraestructura">Seguridad Industrial e Infraestructura</option>
+            <option value="Gestión Preventiva (Administrativa)">Gestión Preventiva (Administrativa)</option>
+            <option value="Medio Ambiente (Gestión REAS)">Medio Ambiente (Gestión REAS)</option>
+            <option value="Control y Aseguramiento (Equipos vitales)">Control y Aseguramiento (Equipos vitales)</option>
+            <option value="Empresas Contratistas">Empresas Contratistas</option>
+            <option value="Radioprotección">Radioprotección</option>
+            <option value="Sustancias Peligrosas y Químicos">Sustancias Peligrosas y Químicos</option>
+        `;
+
+        const riesgos = `
+            <option value="">Seleccionar riesgo...</option>
+            <option value="P1">P1 - CRÍTICO (Riesgo vital o de clausura)</option>
+            <option value="P1B">P1B - URGENTE (Afecta soporte/acreditación)</option>
+            <option value="P2">P2 - MODERADO (Desviación menor)</option>
+            <option value="P3">P3 - MENOR (Falta de orden o mejora estética)</option>
+        `;
+
         for(let i=1; i<=3; i++) {
             document.write(`
             <div class="hallazgo-box">
-                <div class="hallazgo-title">Hallazgo ${i}</div>
+                <div class="hallazgo-title">HALLAZGO ${i}</div>
                 
-                <div class="hallazgo-row">
+                <div class="hallazgo-row r1">
                     <div class="form-field">
-                        <label>Pilar asociado:</label>
-                        <select><option value="">Seleccionar...</option><option value="Seguridad Industrial">Seguridad Industrial</option><option value="Gestión Preventiva">Gestión Preventiva</option><option value="Medio Ambiente">Medio Ambiente</option><option value="Control y Aseguramiento">Control y Aseguramiento</option></select>
+                        <label>Pilar asociado al hallazgo:</label>
+                        <select>${pilares}</select>
                     </div>
                     <div class="form-field">
                         <label>Ubicación exacta:</label>
-                        <input type="text" placeholder="Ej. Pasillo Norte">
+                        <input type="text" placeholder="Ej. Pasillo Box 4">
                     </div>
-                    <div class="form-field" style="grid-column: span 2;">
+                    <div class="form-field">
                         <label>Descripción del hallazgo:</label>
                         <textarea rows="1" placeholder="Detalle lo observado..."></textarea>
                     </div>
                     <div class="form-field">
                         <label>Nivel de riesgo:</label>
-                        <select><option value="">Seleccionar...</option><option value="P1 - Crítico">P1 - Crítico</option><option value="P2 - Moderado">P2 - Moderado</option><option value="P3 - Menor">P3 - Menor</option></select>
+                        <select>${riesgos}</select>
                     </div>
                     <div class="form-field">
                         <label>Normativa Infringida:</label>
@@ -302,23 +334,23 @@
                     </div>
                 </div>
 
-                <div class="hallazgo-row row-2">
+                <div class="hallazgo-row r2">
                     <div class="form-field">
-                        <label>Acción correctiva:</label>
+                        <label>Acción correctiva (PAC):</label>
                         <textarea rows="1" placeholder="Qué se debe hacer..."></textarea>
                     </div>
                     <div class="form-field">
                         <label>Responsable:</label>
-                        <input type="text" placeholder="Quién lo hará...">
+                        <input type="text" placeholder="Área o persona">
                     </div>
                     <div class="form-field">
                         <label>Plazo:</label>
-                        <input type="text" placeholder="Ej. Inmediato">
+                        <input type="text" placeholder="Ej. Inmediato / 24 hrs">
                     </div>
                 </div>
 
                 <div class="foto-container">
-                    <label style="font-size: 15px; color:#0033A0;">FOTOGRAFÍA DEL HALLAZGO</label>
+                    <label style="color:#0033A0; text-transform: uppercase;">Fotografía del Hallazgo</label>
                     <input type="file" accept="image/*" capture="environment" class="hide-in-pdf" onchange="previewImg(event, 'imgH${i}')">
                     <img id="imgH${i}" class="foto-preview">
                 </div>
@@ -335,7 +367,7 @@
     <div class="grid-layout">
         <div class="firma-container">
             <label>Nombre del Líder / Jefatura:</label>
-            <input type="text" id="nombreFirmaLider" placeholder="Ingrese nombre completo" style="margin-bottom: 10px; text-align: center;">
+            <input type="text" id="nombreFirmaLider" placeholder="Nombre completo" style="margin-bottom: 10px; text-align: center;">
             <label>Firma (Dibuje aquí):</label>
             <canvas id="canvasLider"></canvas>
             <button class="btn-limpiar hide-in-pdf" onclick="clearCanvas('canvasLider')">Limpiar Firma</button>
@@ -343,7 +375,7 @@
         
         <div class="firma-container">
             <label>Nombre Evaluador DGR:</label>
-            <input type="text" id="nombreFirmaDGR" placeholder="Ingrese nombre completo" style="margin-bottom: 10px; text-align: center;">
+            <input type="text" id="nombreFirmaDGR" placeholder="Nombre completo" style="margin-bottom: 10px; text-align: center;">
             <label>Firma (Dibuje aquí):</label>
             <canvas id="canvasDGR"></canvas>
             <button class="btn-limpiar hide-in-pdf" onclick="clearCanvas('canvasDGR')">Limpiar Firma</button>
@@ -355,19 +387,20 @@
 </div>
 
 <script>
-    // --- LÓGICA DE INSTALACIÓN (TEXTO LIBRE) ---
+    // 1. Mostrar/Ocultar "Otra" Instalación
     function toggleInstalacion() {
         const select = document.getElementById('instalacionSelect');
         const input = document.getElementById('instalacionOtra');
         if(select.value === 'Otra') {
             input.style.display = 'block';
+            input.focus();
         } else {
             input.style.display = 'none';
             input.value = '';
         }
     }
 
-    // --- LÓGICA DE FOTOGRAFÍAS CENTRADAS ---
+    // 2. Previsualizar Fotos Centradas
     function previewImg(event, imgId) {
         const file = event.target.files[0];
         if (file) {
@@ -381,7 +414,7 @@
         }
     }
 
-    // --- LÓGICA DE FIRMAS TÁCTILES ANTI-BORRADO ---
+    // 3. Sistema de Firmas Táctiles (Responsivo)
     function initSignature(canvasId) {
         const canvas = document.getElementById(canvasId);
         const ctx = canvas.getContext('2d');
@@ -434,7 +467,7 @@
             initSignature('canvasDGR');
         }, 300);
         
-        // Sincronizar nombres hacia las firmas
+        // Autocompletar los nombres de arriba en las firmas de abajo
         document.getElementById('lider').addEventListener('input', (e) => {
             document.getElementById('nombreFirmaLider').value = e.target.value;
         });
@@ -443,44 +476,44 @@
         });
     };
 
-    // --- GENERACIÓN DEL PDF (SOLUCIÓN AL RECORTE Y ZOOM) ---
+    // 4. EL MOTOR PDF (Corrige recortes en Celulares y adapta al Formato Carta)
     function crearPDF() {
-        // 1. Desplazar a tope para evitar corte superior
+        // Obliga a subir al inicio para capturar la cabecera
         window.scrollTo(0, 0);
 
-        // 2. Preparar variables de nombre
+        // Nombrado automático del archivo
         let instalacion = document.getElementById('instalacionSelect').value;
         if(instalacion === 'Otra') instalacion = document.getElementById('instalacionOtra').value || 'Instalacion';
         let serv = document.getElementById('servicio').value || 'Servicio';
         let fecha = document.getElementById('fechaHora').value.replace('T', '_').replace(/:/g, '-') || 'Fecha';
-        let nombreArchivo = `Flash_${instalacion}_${serv}_${fecha}.pdf`.replace(/\s+/g, '_');
+        let nombreArchivo = `Informe_Flash_${instalacion}_${serv}_${fecha}.pdf`.replace(/\s+/g, '_');
 
         const elemento = document.getElementById('informeContenedor');
-        const viewportMeta = document.getElementById('myViewport');
-        const anchoOriginal = document.body.style.width;
+        const originalWidth = document.body.style.width;
 
-        // 3. Ocultar botones y adaptar textareas
+        // Ocultar elementos de UI
         document.querySelectorAll('.hide-in-pdf').forEach(el => el.style.display = 'none');
         
+        // Ajustar Textareas para mostrar todo el texto
         const textareas = document.querySelectorAll('textarea');
         textareas.forEach(ta => {
             ta.style.height = 'auto';
             ta.style.height = (ta.scrollHeight + 5) + 'px';
         });
 
-        // Ocultar select si "Otra" está activa
+        // Ocultar Select de instalación si se usó "Otra"
         const selectInst = document.getElementById('instalacionSelect');
         if(selectInst.value === 'Otra') selectInst.style.display = 'none';
 
-        // 4. EL TRUCO: Forzar dimensiones de escritorio temporalmente
-        viewportMeta.setAttribute('content', 'width=900');
-        document.body.style.width = '900px';
+        // **TRUCO MAESTRO**: Transformar la app a dimensiones de PC (1000px) 
+        // Esto obliga a la cámara del PDF a tomar todos los márgenes y cuadros completos
+        document.body.style.width = '1000px';
         elemento.classList.add('pdf-mode');
 
-        // 5. Generar PDF (Damos 800ms para que el celular procese el nuevo tamaño)
+        // Retraso de 800ms para permitir que el celular procese la expansión de pantalla
         setTimeout(() => {
             const opciones = {
-                margin:       [10, 10, 10, 10],
+                margin:       [10, 10, 10, 10], // mm de márgenes
                 filename:     nombreArchivo,
                 image:        { type: 'jpeg', quality: 0.98 },
                 html2canvas:  { 
@@ -488,17 +521,16 @@
                     scrollY: 0, 
                     scrollX: 0,
                     useCORS: true,
-                    windowWidth: 900
+                    windowWidth: 1000 // Le decimos al renderizador que lea el ancho forzado
                 },
                 jsPDF:        { unit: 'mm', format: 'letter', orientation: 'portrait' },
-                // Protege los hallazgos y firmas de ser cortados a la mitad
+                // Protege los bloques para no dividirse entre dos hojas
                 pagebreak:    { mode: ['css', 'legacy'], avoid: ['.hallazgo-box', '.firma-container'] }
             };
 
             html2pdf().set(opciones).from(elemento).save().then(() => {
-                // 6. Restaurar la vista móvil normal
-                viewportMeta.setAttribute('content', 'width=device-width, initial-scale=1.0');
-                document.body.style.width = anchoOriginal;
+                // Devolver todo al modo móvil / tablet normal
+                document.body.style.width = originalWidth;
                 elemento.classList.remove('pdf-mode');
                 
                 textareas.forEach(ta => ta.style.height = '');
