@@ -2,673 +2,482 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>App - Informe Flash de Inspección DGR</title>
+    <meta id="myViewport" name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Informe Flash de Inspección - DGR</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     
     <style>
-        /* ESTILOS GENERALES Y ESTRUCTURA */
+        /* ESTILOS BASE */
         body {
             font-family: Arial, sans-serif;
-            background-color: #f4f6f9;
+            background-color: #f0f4f8;
             color: #333;
-            padding: 20px;
             margin: 0;
-            overflow-x: hidden; /* Evita scroll horizontal en móviles normalmente */
+            padding: 20px;
+            overflow-x: hidden;
         }
-        .container {
+        .app-container {
             max-width: 900px;
             margin: 0 auto;
-            background: white;
+            background: #ffffff;
             padding: 30px;
             border-radius: 8px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
             border-top: 8px solid #0033A0;
             box-sizing: border-box;
         }
-        h1 {
-            color: #0033A0;
+        .header-title {
             text-align: center;
+            color: #0033A0;
             text-transform: uppercase;
-            font-size: 22px;
+            font-size: 24px;
             border-bottom: 2px solid #0099D8;
-            padding-bottom: 10px;
-            margin-bottom: 20px;
+            padding-bottom: 15px;
+            margin-bottom: 25px;
         }
-        .section-title {
+        .section-header {
             background-color: #0099D8;
             color: white;
-            padding: 10px;
+            padding: 10px 15px;
             font-weight: bold;
-            margin-top: 20px;
+            font-size: 16px;
             border-radius: 4px;
-        }
-        
-        /* Forzar salto de página */
-        .page-break-before {
-            page-break-before: always;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            page-break-after: avoid;
         }
 
-        .form-group {
-            margin-bottom: 15px;
-            width: 100%;
-            box-sizing: border-box;
-        }
-        
-        .text-center {
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .text-center input, .text-center select {
-            text-align: center;
-            text-align-last: center; 
-        }
-        
-        label {
-            display: block;
-            font-weight: bold;
-            margin-bottom: 5px;
-            font-size: 14px;
-            color: #333;
-        }
-        input[type="text"], input[type="datetime-local"], select, textarea {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            box-sizing: border-box;
-            font-family: Arial, sans-serif;
-            font-size: 14px;
-            background-color: #fff;
-            max-width: 100%;
-        }
-        textarea {
-            resize: none;
-            min-height: 80px;
-            overflow: hidden;
-        }
-        .grid-2 {
+        /* CUADRÍCULAS Y FORMULARIOS */
+        .grid-layout {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 15px;
             width: 100%;
         }
-        
-        .hallazgo-card {
-            background-color: #E8F4FA;
-            border: 1px solid #b3e0f5;
-            padding: 15px;
-            border-radius: 6px;
-            margin-top: 15px;
-            page-break-inside: avoid;
-            box-sizing: border-box;
+        .form-field {
             width: 100%;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
         }
-        .firma-box {
+        label {
+            font-weight: bold;
+            font-size: 13px;
+            margin-bottom: 5px;
+            color: #444;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
             border: 1px solid #ccc;
             border-radius: 4px;
-            padding: 10px;
-            background: #fdfdfd;
-            text-align: center;
-            page-break-inside: avoid;
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            box-sizing: border-box;
+            background-color: #fdfdfd;
         }
-        
+        textarea {
+            resize: none;
+            overflow: hidden;
+            min-height: 60px;
+        }
+
+        /* DISEÑO DE HALLAZGOS (TIPO EXCEL) */
+        .hallazgo-box {
+            background-color: #F8FBFC;
+            border: 1px solid #B3E0F5;
+            padding: 20px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            page-break-inside: avoid; /* Previene cortes en PDF */
+        }
         .hallazgo-title {
             color: #0033A0;
             font-weight: bold;
+            font-size: 16px;
             margin-bottom: 15px;
-            font-size: 18px;
-            border-bottom: 1px solid #b3e0f5;
+            border-bottom: 1px solid #B3E0F5;
             padding-bottom: 5px;
-            text-align: center;
         }
-        canvas {
-            border: 1px dashed #999;
-            background-color: #fff;
-            width: 100%;
-            height: 150px;
-            cursor: crosshair;
-            touch-action: none;
+        .hallazgo-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-bottom: 15px;
         }
         
+        /* FOTOGRAFÍAS CENTRADAS */
+        .foto-container {
+            text-align: center;
+            border: 2px dashed #ccc;
+            padding: 15px;
+            border-radius: 6px;
+            background: #fff;
+            margin-top: 10px;
+        }
         .foto-preview {
-            display: none; 
-            max-width: 100%; 
-            max-height: 300px; 
-            margin-top: 10px; 
-            border-radius: 5px; 
-            border: 1px solid #ccc;
+            display: none;
+            max-width: 100%;
+            max-height: 250px;
+            margin: 15px auto 0 auto;
+            border-radius: 4px;
+            border: 1px solid #ddd;
             object-fit: contain;
         }
         input[type="file"] {
             margin: 0 auto;
-            display: block;
             width: 100%;
-            text-align: center;
+            max-width: 300px;
+            cursor: pointer;
         }
 
-        .btn-clear {
-            background-color: #ff4d4d;
+        /* FIRMAS */
+        .firma-container {
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            padding: 15px;
+            background: #fff;
+            text-align: center;
+            page-break-inside: avoid;
+        }
+        canvas {
+            border: 1px dashed #999;
+            background-color: #f9f9f9;
+            width: 100%;
+            height: 120px;
+            cursor: crosshair;
+            touch-action: none;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+        .btn-limpiar {
+            background-color: #e74c3c;
             color: white;
             border: none;
-            padding: 5px 10px;
-            margin-top: 5px;
-            border-radius: 3px;
-            cursor: pointer;
+            padding: 6px 12px;
+            margin-top: 8px;
+            border-radius: 4px;
             font-size: 12px;
+            cursor: pointer;
         }
-        .btn-submit {
+
+        /* BOTÓN PRINCIPAL */
+        .btn-generar {
             background-color: #0033A0;
             color: white;
             border: none;
-            padding: 15px 30px;
+            padding: 15px;
             font-size: 16px;
             font-weight: bold;
-            border-radius: 5px;
+            border-radius: 6px;
             cursor: pointer;
             width: 100%;
             margin-top: 30px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-        }
-        .btn-submit:hover {
-            background-color: #002266;
-        }
-        
-        @media (max-width: 600px) {
-            .grid-2 { grid-template-columns: 1fr; }
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            text-transform: uppercase;
         }
 
-        /* MODO PDF: LA SOLUCIÓN AL RECORTE Y ZOOM */
-        .pdf-export-mode {
-            padding: 20px !important;
+        @media (max-width: 600px) {
+            .grid-layout { grid-template-columns: 1fr; }
+            .hallazgo-row { grid-template-columns: 1fr; }
+        }
+
+        /* MODO EXPORTACIÓN PDF (EL TRUCO DE TAMAÑO) */
+        .pdf-mode {
+            width: 900px !important;
+            max-width: 900px !important;
+            padding: 30px !important;
             margin: 0 auto !important;
             background: white !important;
             box-shadow: none !important;
             border: none !important;
-            /* Fuerza a que el grid de 2 columnas se respete en el PDF sin importar la pantalla original */
         }
-        .pdf-export-mode .grid-2 {
-            display: grid !important;
-            grid-template-columns: 1fr 1fr !important;
-        }
-        .pdf-export-mode input, .pdf-export-mode select, .pdf-export-mode textarea {
-            border: 1px solid #666 !important;
+        .pdf-mode input, .pdf-mode select, .pdf-mode textarea {
+            border: 1px solid #888 !important;
             background: transparent !important;
-            color: black !important;
+            color: #000 !important;
             -webkit-appearance: none;
-            -moz-appearance: none;
             appearance: none;
-            overflow: visible !important; 
             white-space: pre-wrap !important;
         }
-        .pdf-export-mode .page-break-before {
-            margin-top: 0 !important;
-        }
-        .pdf-export-mode select {
-            background-image: none !important;
-        }
+        .pdf-mode select { background-image: none !important; }
+        .pdf-mode .grid-layout { grid-template-columns: 1fr 1fr !important; }
+        .pdf-mode .hallazgo-row { grid-template-columns: repeat(5, 1fr) !important; }
+        .pdf-mode .hallazgo-row.row-2 { grid-template-columns: 1fr 1fr 1fr !important; }
     </style>
 </head>
 <body>
 
-<div class="container" id="informeContenedor">
-    <h1>Informe Flash de Inspección - Gestión de Riesgos</h1>
+<div class="app-container" id="informeContenedor">
+    <div class="header-title">
+        Informe Flash de Inspección<br>
+        <span style="font-size: 16px; color: #666;">Gestión de Riesgos (DGR)</span>
+    </div>
+
+    <div class="section-header">1. Antecedentes de la Inspección</div>
+    <div class="grid-layout">
+        <div class="form-field">
+            <label>Nombre del Evaluador DGR:</label>
+            <input type="text" id="evaluador" placeholder="Ej. Nombre Apellido">
+        </div>
+        <div class="form-field">
+            <label>Instalación:</label>
+            <select id="instalacionSelect" onchange="toggleInstalacion()">
+                <option value="">Seleccione...</option>
+                <option value="CAS Vitacura">CAS Vitacura</option>
+                <option value="CAS La Dehesa">CAS La Dehesa</option>
+                <option value="CM Chicureo">CM Chicureo</option>
+                <option value="CM Plaza Egaña">CM Plaza Egaña</option>
+                <option value="CM San Carlos de Apoquindo">CM San Carlos de Apoquindo</option>
+                <option value="CM Rafael Maluenda">CM Rafael Maluenda</option>
+                <option value="CM Maitencillo">CM Maitencillo</option>
+                <option value="CM La Parva">CM La Parva</option>
+                <option value="TM Los Dominicos">TM Los Dominicos</option>
+                <option value="TM La Reina">TM La Reina</option>
+                <option value="TM Manuel Montt">TM Manuel Montt</option>
+                <option value="TM Tobalaba">TM Tobalaba</option>
+                <option value="TM Huechuraba">TM Huechuraba</option>
+                <option value="TM Providencia">TM Providencia</option>
+                <option value="TM El Golf">TM El Golf</option>
+                <option value="Sala Cuna">Sala Cuna</option>
+                <option value="Cowork">Cowork</option>
+                <option value="Concilio Vaticano">Concilio Vaticano</option>
+                <option value="Lo Arcaya">Lo Arcaya</option>
+                <option value="Otra">Otra (Escribir manualmente)</option>
+            </select>
+            <input type="text" id="instalacionOtra" placeholder="Especifique instalación..." style="display: none; margin-top: 5px;">
+        </div>
+        <div class="form-field">
+            <label>Unidad o Servicio:</label>
+            <input type="text" id="servicio" placeholder="Ej. Urgencia">
+        </div>
+        <div class="form-field">
+            <label>Número de Piso donde se ubica:</label>
+            <input type="text" id="piso" placeholder="Ej. Piso 2">
+        </div>
+        <div class="form-field">
+            <label>Fecha de Evaluación:</label>
+            <input type="datetime-local" id="fechaHora">
+        </div>
+        <div class="form-field">
+            <label>Nombre del Líder Servicio/Unidad (Acompañante):</label>
+            <input type="text" id="lider" placeholder="Nombre y Cargo">
+        </div>
+    </div>
+
+    <div class="section-header">2. Reconocimiento Preventivo</div>
+    <div class="form-field">
+        <label>Destacar una buena práctica (Técnica del Sándwich):</label>
+        <textarea placeholder="Ej. Se observa extintor correctamente señalizado y despejado..."></textarea>
+    </div>
+
+    <div class="section-header" style="page-break-before: always;">3. Hallazgos Críticos y PAC</div>
     
-    <form id="informeFlashForm">
+    <script>
+        for(let i=1; i<=3; i++) {
+            document.write(`
+            <div class="hallazgo-box">
+                <div class="hallazgo-title">Hallazgo ${i}</div>
+                
+                <div class="hallazgo-row">
+                    <div class="form-field">
+                        <label>Pilar asociado:</label>
+                        <select><option value="">Seleccionar...</option><option value="Seguridad Industrial">Seguridad Industrial</option><option value="Gestión Preventiva">Gestión Preventiva</option><option value="Medio Ambiente">Medio Ambiente</option><option value="Control y Aseguramiento">Control y Aseguramiento</option></select>
+                    </div>
+                    <div class="form-field">
+                        <label>Ubicación exacta:</label>
+                        <input type="text" placeholder="Ej. Pasillo Norte">
+                    </div>
+                    <div class="form-field" style="grid-column: span 2;">
+                        <label>Descripción del hallazgo:</label>
+                        <textarea rows="1" placeholder="Detalle lo observado..."></textarea>
+                    </div>
+                    <div class="form-field">
+                        <label>Nivel de riesgo:</label>
+                        <select><option value="">Seleccionar...</option><option value="P1 - Crítico">P1 - Crítico</option><option value="P2 - Moderado">P2 - Moderado</option><option value="P3 - Menor">P3 - Menor</option></select>
+                    </div>
+                    <div class="form-field">
+                        <label>Normativa Infringida:</label>
+                        <input type="text" placeholder="Ej. DS 594">
+                    </div>
+                </div>
+
+                <div class="hallazgo-row row-2">
+                    <div class="form-field">
+                        <label>Acción correctiva:</label>
+                        <textarea rows="1" placeholder="Qué se debe hacer..."></textarea>
+                    </div>
+                    <div class="form-field">
+                        <label>Responsable:</label>
+                        <input type="text" placeholder="Quién lo hará...">
+                    </div>
+                    <div class="form-field">
+                        <label>Plazo:</label>
+                        <input type="text" placeholder="Ej. Inmediato">
+                    </div>
+                </div>
+
+                <div class="foto-container">
+                    <label style="font-size: 15px; color:#0033A0;">FOTOGRAFÍA DEL HALLAZGO</label>
+                    <input type="file" accept="image/*" capture="environment" class="hide-in-pdf" onchange="previewImg(event, 'imgH${i}')">
+                    <img id="imgH${i}" class="foto-preview">
+                </div>
+            </div>
+            `);
+        }
+    </script>
+
+    <div class="section-header">4. Acuerdos y Cierre en Terreno</div>
+    <p style="font-size: 13px; color: #555; text-align: justify; margin-bottom: 20px;">
+        El Líder del servicio toma conocimiento de los hallazgos descritos y se compromete a gestionar los recursos o facilitar los accesos para la resolución en los plazos estipulados. El DGR brindará el soporte técnico normativo necesario para el cierre exitoso del ciclo.
+    </p>
+
+    <div class="grid-layout">
+        <div class="firma-container">
+            <label>Nombre del Líder / Jefatura:</label>
+            <input type="text" id="nombreFirmaLider" placeholder="Ingrese nombre completo" style="margin-bottom: 10px; text-align: center;">
+            <label>Firma (Dibuje aquí):</label>
+            <canvas id="canvasLider"></canvas>
+            <button class="btn-limpiar hide-in-pdf" onclick="clearCanvas('canvasLider')">Limpiar Firma</button>
+        </div>
         
-        <div class="section-title">1. ANTECEDENTES DE LA INSPECCIÓN</div>
-        <div class="grid-2" style="margin-top: 15px;">
-            <div class="form-group">
-                <label>Nombre de la Instalación:</label>
-                <select id="instalacionSelect" onchange="toggleInstalacionOtra()" required>
-                    <option value="">Seleccione una instalación...</option>
-                    <option value="CAS Vitacura">CAS Vitacura</option>
-                    <option value="CAS La Dehesa">CAS La Dehesa</option>
-                    <option value="CM Chicureo">CM Chicureo</option>
-                    <option value="CM Plaza Egaña">CM Plaza Egaña</option>
-                    <option value="CM San Carlos de Apoquindo">CM San Carlos de Apoquindo</option>
-                    <option value="CM Rafael Maluenda">CM Rafael Maluenda</option>
-                    <option value="CM Maitencillo">CM Maitencillo</option>
-                    <option value="CM La Parva">CM La Parva</option>
-                    <option value="TM Los Dominicos">TM Los Dominicos</option>
-                    <option value="TM La Reina">TM La Reina</option>
-                    <option value="TM Manuel Montt">TM Manuel Montt</option>
-                    <option value="TM Tobalaba">TM Tobalaba</option>
-                    <option value="TM Huechuraba">TM Huechuraba</option>
-                    <option value="TM Providencia">TM Providencia</option>
-                    <option value="TM El Golf">TM El Golf</option>
-                    <option value="Sala Cuna">Sala Cuna</option>
-                    <option value="Cowork">Cowork</option>
-                    <option value="Concilio Vaticano">Concilio Vaticano</option>
-                    <option value="Lo Arcaya">Lo Arcaya</option>
-                    <option value="Otra">Otra (especificar)</option>
-                </select>
-                <input type="text" id="instalacionOtra" placeholder="Escriba el nombre de la instalación..." style="display: none; margin-top: 10px;">
-            </div>
-            
-            <div class="form-group">
-                <label>Nombre del Servicio / Unidad:</label>
-                <input type="text" id="servicio" placeholder="Ej. UPC Adulto" required>
-            </div>
-            <div class="form-group">
-                <label>Número de Piso:</label>
-                <input type="text" id="piso" placeholder="Ej. Piso 3, Subterráneo 1" required>
-            </div>
-            <div class="form-group">
-                <label>Fecha de Evaluación:</label>
-                <input type="datetime-local" id="fechaHora" required>
-            </div>
-            <div class="form-group">
-                <label>Nombre Evaluador DGR:</label>
-                <input type="text" id="evaluador" placeholder="Ej. Nani Rico">
-            </div>
-            <div class="form-group">
-                <label>Nombre del Líder Servicio / Unidad (Acompañante):</label>
-                <input type="text" id="lider" placeholder="Nombre y Cargo">
-            </div>
+        <div class="firma-container">
+            <label>Nombre Evaluador DGR:</label>
+            <input type="text" id="nombreFirmaDGR" placeholder="Ingrese nombre completo" style="margin-bottom: 10px; text-align: center;">
+            <label>Firma (Dibuje aquí):</label>
+            <canvas id="canvasDGR"></canvas>
+            <button class="btn-limpiar hide-in-pdf" onclick="clearCanvas('canvasDGR')">Limpiar Firma</button>
         </div>
+    </div>
 
-        <div class="section-title">2. RECONOCIMIENTO PREVENTIVO</div>
-        <div class="form-group" style="margin-top: 15px;">
-            <label>Destacar buena práctica (Técnica Sándwich):</label>
-            <textarea placeholder="Ej. Se observa excelente adherencia al uso de EPP..."></textarea>
-        </div>
+    <button id="btnGenerar" class="btn-generar hide-in-pdf" onclick="crearPDF()">CREAR INFORME PDF</button>
 
-        <div class="section-title page-break-before">3. HALLAZGOS CRÍTICOS Y PAC</div>
-        
-        <div class="hallazgo-card">
-            <div class="hallazgo-title">HALLAZGO 1</div>
-            
-            <div class="grid-2">
-                <div class="form-group text-center">
-                    <label>Pilar asociado al hallazgo:</label>
-                    <select>
-                        <option value="">Seleccione un pilar...</option>
-                        <option value="Seguridad Industrial e Infraestructura">Seguridad Industrial e Infraestructura</option>
-                        <option value="Gestión Preventiva (Administrativa)">Gestión Preventiva (Administrativa)</option>
-                        <option value="Medio Ambiente (Gestión REAS)">Medio Ambiente (Gestión REAS)</option>
-                        <option value="Control y Aseguramiento (Equipos vitales)">Control y Aseguramiento (Equipos vitales)</option>
-                        <option value="Empresas Contratistas">Empresas Contratistas</option>
-                        <option value="Radioprotección">Radioprotección</option>
-                        <option value="Sustancias Peligrosas y Químicos">Sustancias Peligrosas y Químicos</option>
-                    </select>
-                </div>
-                <div class="form-group text-center">
-                    <label>Ubicación Exacta:</label>
-                    <input type="text" placeholder="Ej. Pasillo central, Box 4">
-                </div>
-            </div>
-            
-            <div class="form-group">
-                <label style="text-align: center;">Descripción del Hallazgo:</label>
-                <textarea placeholder="Detalle la condición subestándar observada"></textarea>
-            </div>
-
-            <div class="grid-2">
-                <div class="form-group text-center">
-                    <label>Nivel de Riesgo:</label>
-                    <select>
-                        <option value="">Seleccione el nivel...</option>
-                        <option value="P1 - CRÍTICO">P1 - CRÍTICO (Riesgo vital/clausura)</option>
-                        <option value="P1B - URGENTE">P1B - URGENTE (Afecta soporte/acreditación)</option>
-                        <option value="P2 - MODERADO">P2 - MODERADO (Desviación menor)</option>
-                        <option value="P3 - MENOR">P3 - MENOR (Falta de orden, estética)</option>
-                    </select>
-                </div>
-                <div class="form-group text-center">
-                    <label>Normativa Infringida:</label>
-                    <input type="text" placeholder="Ej. D.S. 594, REAS">
-                </div>
-                
-                <div class="form-group text-center" style="grid-column: 1 / -1;">
-                    <label>Acción Correctiva (PAC):</label>
-                    <input type="text" placeholder="Medida a tomar">
-                </div>
-
-                <div class="form-group text-center">
-                    <label>Responsable:</label>
-                    <input type="text" placeholder="Área o persona a cargo">
-                </div>
-                <div class="form-group text-center">
-                    <label>Plazo:</label>
-                    <input type="text" placeholder="Ej. 24 hrs">
-                </div>
-                
-                <div class="form-group text-center" style="grid-column: 1 / -1;">
-                    <label class="hide-on-pdf">Adjuntar Fotografía:</label>
-                    <input type="file" accept="image/*" capture="environment" class="hide-on-pdf" onchange="previewImage(event, 'foto1')">
-                    <img id="foto1" class="foto-preview">
-                </div>
-            </div>
-        </div>
-
-        <div class="hallazgo-card">
-            <div class="hallazgo-title">HALLAZGO 2</div>
-            
-            <div class="grid-2">
-                <div class="form-group text-center">
-                    <label>Pilar asociado al hallazgo:</label>
-                    <select>
-                        <option value="">Seleccione un pilar...</option>
-                        <option value="Seguridad Industrial e Infraestructura">Seguridad Industrial e Infraestructura</option>
-                        <option value="Gestión Preventiva (Administrativa)">Gestión Preventiva (Administrativa)</option>
-                        <option value="Medio Ambiente (Gestión REAS)">Medio Ambiente (Gestión REAS)</option>
-                        <option value="Control y Aseguramiento (Equipos vitales)">Control y Aseguramiento (Equipos vitales)</option>
-                        <option value="Empresas Contratistas">Empresas Contratistas</option>
-                        <option value="Radioprotección">Radioprotección</option>
-                        <option value="Sustancias Peligrosas y Químicos">Sustancias Peligrosas y Químicos</option>
-                    </select>
-                </div>
-                <div class="form-group text-center">
-                    <label>Ubicación Exacta:</label>
-                    <input type="text" placeholder="Ej. Pasillo central, Box 4">
-                </div>
-            </div>
-            
-            <div class="form-group">
-                <label style="text-align: center;">Descripción del Hallazgo:</label>
-                <textarea placeholder="Detalle la condición subestándar observada"></textarea>
-            </div>
-
-            <div class="grid-2">
-                <div class="form-group text-center">
-                    <label>Nivel de Riesgo:</label>
-                    <select>
-                        <option value="">Seleccione el nivel...</option>
-                        <option value="P1 - CRÍTICO">P1 - CRÍTICO (Riesgo vital/clausura)</option>
-                        <option value="P1B - URGENTE">P1B - URGENTE (Afecta soporte/acreditación)</option>
-                        <option value="P2 - MODERADO">P2 - MODERADO (Desviación menor)</option>
-                        <option value="P3 - MENOR">P3 - MENOR (Falta de orden, estética)</option>
-                    </select>
-                </div>
-                <div class="form-group text-center">
-                    <label>Normativa Infringida:</label>
-                    <input type="text" placeholder="Ej. D.S. 594, REAS">
-                </div>
-                
-                <div class="form-group text-center" style="grid-column: 1 / -1;">
-                    <label>Acción Correctiva (PAC):</label>
-                    <input type="text" placeholder="Medida a tomar">
-                </div>
-
-                <div class="form-group text-center">
-                    <label>Responsable:</label>
-                    <input type="text" placeholder="Área o persona a cargo">
-                </div>
-                <div class="form-group text-center">
-                    <label>Plazo:</label>
-                    <input type="text" placeholder="Ej. 24 hrs">
-                </div>
-                
-                <div class="form-group text-center" style="grid-column: 1 / -1;">
-                    <label class="hide-on-pdf">Adjuntar Fotografía:</label>
-                    <input type="file" accept="image/*" capture="environment" class="hide-on-pdf" onchange="previewImage(event, 'foto2')">
-                    <img id="foto2" class="foto-preview">
-                </div>
-            </div>
-        </div>
-
-        <div class="hallazgo-card">
-            <div class="hallazgo-title">HALLAZGO 3</div>
-            
-            <div class="grid-2">
-                <div class="form-group text-center">
-                    <label>Pilar asociado al hallazgo:</label>
-                    <select>
-                        <option value="">Seleccione un pilar...</option>
-                        <option value="Seguridad Industrial e Infraestructura">Seguridad Industrial e Infraestructura</option>
-                        <option value="Gestión Preventiva (Administrativa)">Gestión Preventiva (Administrativa)</option>
-                        <option value="Medio Ambiente (Gestión REAS)">Medio Ambiente (Gestión REAS)</option>
-                        <option value="Control y Aseguramiento (Equipos vitales)">Control y Aseguramiento (Equipos vitales)</option>
-                        <option value="Empresas Contratistas">Empresas Contratistas</option>
-                        <option value="Radioprotección">Radioprotección</option>
-                        <option value="Sustancias Peligrosas y Químicos">Sustancias Peligrosas y Químicos</option>
-                    </select>
-                </div>
-                <div class="form-group text-center">
-                    <label>Ubicación Exacta:</label>
-                    <input type="text" placeholder="Ej. Pasillo central, Box 4">
-                </div>
-            </div>
-            
-            <div class="form-group">
-                <label style="text-align: center;">Descripción del Hallazgo:</label>
-                <textarea placeholder="Detalle la condición subestándar observada"></textarea>
-            </div>
-
-            <div class="grid-2">
-                <div class="form-group text-center">
-                    <label>Nivel de Riesgo:</label>
-                    <select>
-                        <option value="">Seleccione el nivel...</option>
-                        <option value="P1 - CRÍTICO">P1 - CRÍTICO (Riesgo vital/clausura)</option>
-                        <option value="P1B - URGENTE">P1B - URGENTE (Afecta soporte/acreditación)</option>
-                        <option value="P2 - MODERADO">P2 - MODERADO (Desviación menor)</option>
-                        <option value="P3 - MENOR">P3 - MENOR (Falta de orden, estética)</option>
-                    </select>
-                </div>
-                <div class="form-group text-center">
-                    <label>Normativa Infringida:</label>
-                    <input type="text" placeholder="Ej. D.S. 594, REAS">
-                </div>
-                
-                <div class="form-group text-center" style="grid-column: 1 / -1;">
-                    <label>Acción Correctiva (PAC):</label>
-                    <input type="text" placeholder="Medida a tomar">
-                </div>
-
-                <div class="form-group text-center">
-                    <label>Responsable:</label>
-                    <input type="text" placeholder="Área o persona a cargo">
-                </div>
-                <div class="form-group text-center">
-                    <label>Plazo:</label>
-                    <input type="text" placeholder="Ej. 24 hrs">
-                </div>
-                
-                <div class="form-group text-center" style="grid-column: 1 / -1;">
-                    <label class="hide-on-pdf">Adjuntar Fotografía:</label>
-                    <input type="file" accept="image/*" capture="environment" class="hide-on-pdf" onchange="previewImage(event, 'foto3')">
-                    <img id="foto3" class="foto-preview">
-                </div>
-            </div>
-        </div>
-
-        <div class="section-title">4. ACUERDOS Y CIERRE EN TERRENO</div>
-        <p style="font-size: 13px; color: #555; margin-top: 15px; text-align: justify;">
-            El líder del servicio toma conocimiento de los hallazgos descritos y se compromete a gestionar los recursos o facilitar los accesos para la resolución en los plazos estipulados. El DGR brindará el soporte técnico normativo necesario para el cierre exitoso del ciclo.
-        </p>
-        
-        <div class="grid-2" style="margin-top: 20px;">
-            <div class="firma-box">
-                <label>Nombre Líder / Jefatura:</label>
-                <input type="text" placeholder="Nombre completo" style="margin-bottom: 10px;">
-                <label>Firma (Dibuje aquí):</label>
-                <canvas id="firmaLider"></canvas>
-                <button type="button" class="btn-clear hide-on-pdf" onclick="limpiarFirma('firmaLider')">Limpiar Firma</button>
-            </div>
-            
-            <div class="firma-box">
-                <label>Nombre Evaluador DGR:</label>
-                <input type="text" placeholder="Nombre completo" style="margin-bottom: 10px;">
-                <label>Firma (Dibuje aquí):</label>
-                <canvas id="firmaEvaluador"></canvas>
-                <button type="button" class="btn-clear hide-on-pdf" onclick="limpiarFirma('firmaEvaluador')">Limpiar Firma</button>
-            </div>
-        </div>
-
-        <button type="button" id="btnGenerarPDF" class="btn-submit hide-on-pdf" onclick="generarPDF()">
-            GENERAR INFORME PDF
-        </button>
-
-    </form>
 </div>
 
 <script>
-    // 1. TEXTO LIBRE SI SE ELIGE "OTRA" INSTALACIÓN
-    function toggleInstalacionOtra() {
-        const select = document.getElementById("instalacionSelect");
-        const inputOtra = document.getElementById("instalacionOtra");
-        if (select.value === "Otra") {
-            inputOtra.style.display = "block";
-            inputOtra.required = true;
+    // --- LÓGICA DE INSTALACIÓN (TEXTO LIBRE) ---
+    function toggleInstalacion() {
+        const select = document.getElementById('instalacionSelect');
+        const input = document.getElementById('instalacionOtra');
+        if(select.value === 'Otra') {
+            input.style.display = 'block';
         } else {
-            inputOtra.style.display = "none";
-            inputOtra.required = false;
-            inputOtra.value = ""; 
+            input.style.display = 'none';
+            input.value = '';
         }
     }
 
-    // 2. PREVISUALIZAR FOTOGRAFÍAS
-    function previewImage(event, previewId) {
+    // --- LÓGICA DE FOTOGRAFÍAS CENTRADAS ---
+    function previewImg(event, imgId) {
         const file = event.target.files[0];
         if (file) {
             const reader = new FileReader();
             reader.onload = function(e) {
-                const imgElement = document.getElementById(previewId);
-                imgElement.src = e.target.result;
-                imgElement.style.display = 'block'; 
-                imgElement.style.margin = '0 auto'; 
+                const img = document.getElementById(imgId);
+                img.src = e.target.result;
+                img.style.display = 'block';
             }
             reader.readAsDataURL(file);
         }
     }
 
-    // 3. FIRMAS TÁCTILES
-    function setupCanvas(canvasId) {
+    // --- LÓGICA DE FIRMAS TÁCTILES ANTI-BORRADO ---
+    function initSignature(canvasId) {
         const canvas = document.getElementById(canvasId);
         const ctx = canvas.getContext('2d');
         let isDrawing = false;
 
-        function resizeCanvas() {
-            // Guardar firma temporalmente si se rota la pantalla
-            const tempImg = canvas.toDataURL();
-            
-            canvas.width = canvas.parentElement.offsetWidth - 22;
-            canvas.height = 150;
+        function resize() {
+            const temp = canvas.toDataURL();
+            canvas.width = canvas.parentElement.clientWidth - 32;
+            canvas.height = 120;
             ctx.lineWidth = 2;
             ctx.lineCap = 'round';
             ctx.strokeStyle = '#000033';
-            
-            // Restaurar firma
             const img = new Image();
-            img.onload = function() { ctx.drawImage(img, 0, 0); }
-            img.src = tempImg;
+            img.onload = () => ctx.drawImage(img, 0, 0);
+            img.src = temp;
         }
-        
-        window.addEventListener('resize', resizeCanvas);
-        
-        // Ajuste inicial
-        canvas.width = canvas.parentElement.offsetWidth - 22;
-        canvas.height = 150;
-        ctx.lineWidth = 2;
-        ctx.lineCap = 'round';
-        ctx.strokeStyle = '#000033';
+        window.addEventListener('resize', resize);
+        resize();
 
-        function getMousePos(canvas, evt) {
+        function getPos(e) {
             const rect = canvas.getBoundingClientRect();
-            const scaleX = canvas.width / rect.width;
-            const scaleY = canvas.height / rect.height;
-            let clientX = evt.clientX;
-            let clientY = evt.clientY;
-
-            if (evt.touches && evt.touches.length > 0) {
-                clientX = evt.touches[0].clientX;
-                clientY = evt.touches[0].clientY;
-            }
-
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
             return {
-                x: (clientX - rect.left) * scaleX,
-                y: (clientY - rect.top) * scaleY
+                x: (clientX - rect.left) * (canvas.width / rect.width),
+                y: (clientY - rect.top) * (canvas.height / rect.height)
             };
         }
 
-        function startDrawing(e) {
-            isDrawing = true;
-            const pos = getMousePos(canvas, e);
-            ctx.beginPath();
-            ctx.moveTo(pos.x, pos.y);
-            e.preventDefault();
-        }
+        const start = (e) => { isDrawing = true; ctx.beginPath(); ctx.moveTo(getPos(e).x, getPos(e).y); e.preventDefault(); };
+        const draw = (e) => { if(!isDrawing) return; ctx.lineTo(getPos(e).x, getPos(e).y); ctx.stroke(); e.preventDefault(); };
+        const stop = () => { isDrawing = false; };
 
-        function draw(e) {
-            if (!isDrawing) return;
-            const pos = getMousePos(canvas, e);
-            ctx.lineTo(pos.x, pos.y);
-            ctx.stroke();
-            e.preventDefault();
-        }
-
-        function stopDrawing() { isDrawing = false; }
-
-        canvas.addEventListener('mousedown', startDrawing);
-        canvas.addEventListener('mousemove', draw);
-        canvas.addEventListener('mouseup', stopDrawing);
-        canvas.addEventListener('mouseout', stopDrawing);
-        canvas.addEventListener('touchstart', startDrawing, {passive: false});
+        canvas.addEventListener('mousedown', start); canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('mouseup', stop); canvas.addEventListener('mouseout', stop);
+        canvas.addEventListener('touchstart', start, {passive: false});
         canvas.addEventListener('touchmove', draw, {passive: false});
-        canvas.addEventListener('touchend', stopDrawing);
+        canvas.addEventListener('touchend', stop);
     }
 
-    function limpiarFirma(canvasId) {
+    function clearCanvas(canvasId) {
         const canvas = document.getElementById(canvasId);
         const ctx = canvas.getContext('2d');
         ctx.clearRect(0, 0, canvas.width, canvas.height);
     }
 
-    window.onload = function() {
+    window.onload = () => {
         setTimeout(() => {
-            setupCanvas('firmaLider');
-            setupCanvas('firmaEvaluador');
+            initSignature('canvasLider');
+            initSignature('canvasDGR');
         }, 300);
+        
+        // Sincronizar nombres hacia las firmas
+        document.getElementById('lider').addEventListener('input', (e) => {
+            document.getElementById('nombreFirmaLider').value = e.target.value;
+        });
+        document.getElementById('evaluador').addEventListener('input', (e) => {
+            document.getElementById('nombreFirmaDGR').value = e.target.value;
+        });
     };
 
-    // 4. GENERACIÓN DE PDF (SOLUCIÓN DEFINITIVA PARA CORTES)
-    function generarPDF() {
+    // --- GENERACIÓN DEL PDF (SOLUCIÓN AL RECORTE Y ZOOM) ---
+    function crearPDF() {
+        // 1. Desplazar a tope para evitar corte superior
         window.scrollTo(0, 0);
 
-        let selectInstalacion = document.getElementById('instalacionSelect').value;
-        let instalacion = selectInstalacion === "Otra" ? (document.getElementById('instalacionOtra').value.trim() || 'Instalacion_Otra') : (selectInstalacion || 'Instalacion');
-        let servicio = document.getElementById('servicio').value.trim() || 'Servicio';
-        let piso = document.getElementById('piso').value.trim() || 'Piso';
-        let fechaHora = document.getElementById('fechaHora').value || 'Fecha';
-        
-        instalacion = instalacion.replace(/\s+/g, '_');
-        servicio = servicio.replace(/\s+/g, '_');
-        piso = piso.replace(/\s+/g, ''); 
-        let fechaFormateada = fechaHora.replace('T', '_').replace(/:/g, '-'); 
-        let nombreArchivo = `${instalacion}_${servicio}_${piso}_${fechaFormateada}.pdf`;
+        // 2. Preparar variables de nombre
+        let instalacion = document.getElementById('instalacionSelect').value;
+        if(instalacion === 'Otra') instalacion = document.getElementById('instalacionOtra').value || 'Instalacion';
+        let serv = document.getElementById('servicio').value || 'Servicio';
+        let fecha = document.getElementById('fechaHora').value.replace('T', '_').replace(/:/g, '-') || 'Fecha';
+        let nombreArchivo = `Flash_${instalacion}_${serv}_${fecha}.pdf`.replace(/\s+/g, '_');
 
         const elemento = document.getElementById('informeContenedor');
-        
-        // 1. Ocultar botones e inputs
-        const elementosOcultar = document.querySelectorAll('.hide-on-pdf');
-        elementosOcultar.forEach(el => el.style.display = 'none');
-        
-        const selectOriginal = document.getElementById("instalacionSelect");
-        if(selectOriginal.value === "Otra") {
-            selectOriginal.style.display = "none";
-        }
+        const viewportMeta = document.getElementById('myViewport');
+        const anchoOriginal = document.body.style.width;
 
-        // 2. TRUCO ANTI-CORTE: Forzar el cuerpo (body) al ancho de un PC (900px)
-        const originalBodyWidth = document.body.style.width;
-        document.body.style.width = '900px';
+        // 3. Ocultar botones y adaptar textareas
+        document.querySelectorAll('.hide-in-pdf').forEach(el => el.style.display = 'none');
         
-        // Asignar el tamaño forzado al contenedor principal
-        elemento.style.width = '900px';
-        elemento.style.maxWidth = '900px';
-        elemento.classList.add('pdf-export-mode');
-
-        // 3. Expandir Textareas
         const textareas = document.querySelectorAll('textarea');
         textareas.forEach(ta => {
             ta.style.height = 'auto';
-            ta.style.height = (ta.scrollHeight + 15) + 'px';
+            ta.style.height = (ta.scrollHeight + 5) + 'px';
         });
 
-        // 4. Esperar 500ms para que el celular redibuje el DOM en el nuevo ancho antes de la captura
+        // Ocultar select si "Otra" está activa
+        const selectInst = document.getElementById('instalacionSelect');
+        if(selectInst.value === 'Otra') selectInst.style.display = 'none';
+
+        // 4. EL TRUCO: Forzar dimensiones de escritorio temporalmente
+        viewportMeta.setAttribute('content', 'width=900');
+        document.body.style.width = '900px';
+        elemento.classList.add('pdf-mode');
+
+        // 5. Generar PDF (Damos 800ms para que el celular procese el nuevo tamaño)
         setTimeout(() => {
             const opciones = {
                 margin:       [10, 10, 10, 10],
@@ -679,30 +488,24 @@
                     scrollY: 0, 
                     scrollX: 0,
                     useCORS: true,
-                    windowWidth: 900 // Debe coincidir con el body
+                    windowWidth: 900
                 },
                 jsPDF:        { unit: 'mm', format: 'letter', orientation: 'portrait' },
-                pagebreak:    { mode: ['css', 'legacy'], before: '.page-break-before', avoid: ['.hallazgo-card', '.firma-box', '.foto-preview'] }
+                // Protege los hallazgos y firmas de ser cortados a la mitad
+                pagebreak:    { mode: ['css', 'legacy'], avoid: ['.hallazgo-box', '.firma-container'] }
             };
 
             html2pdf().set(opciones).from(elemento).save().then(() => {
-                // Restaurar todo a su estado normal móvil
-                document.body.style.width = originalBodyWidth;
-                elemento.style.width = '';
-                elemento.style.maxWidth = '';
-                elemento.classList.remove('pdf-export-mode');
+                // 6. Restaurar la vista móvil normal
+                viewportMeta.setAttribute('content', 'width=device-width, initial-scale=1.0');
+                document.body.style.width = anchoOriginal;
+                elemento.classList.remove('pdf-mode');
                 
-                textareas.forEach(ta => ta.style.height = ''); 
-                
-                if(selectOriginal.value === "Otra") {
-                    selectOriginal.style.display = "block";
-                }
-
-                elementosOcultar.forEach(el => {
-                    el.style.display = (el.id === 'btnGenerarPDF') ? 'block' : 'inline-block';
-                });
+                textareas.forEach(ta => ta.style.height = '');
+                if(selectInst.value === 'Otra') selectInst.style.display = 'block';
+                document.querySelectorAll('.hide-in-pdf').forEach(el => el.style.display = 'block');
             });
-        }, 500); // 500 milisegundos de espera
+        }, 800);
     }
 </script>
 
