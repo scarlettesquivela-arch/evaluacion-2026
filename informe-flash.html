@@ -14,6 +14,7 @@
             padding: 20px;
             margin: 0;
         }
+        /* Contenedor principal */
         .container {
             max-width: 900px;
             margin: 0 auto;
@@ -23,6 +24,17 @@
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
             border-top: 8px solid #0033A0;
         }
+        
+        /* Estilos específicos cuando se genera el PDF */
+        .pdf-mode {
+            padding: 0 !important;
+            box-shadow: none !important;
+            border-top: none !important;
+            width: 800px !important; /* Fuerza el ancho ideal para A4 */
+            max-width: 100% !important;
+            margin: 0 auto !important;
+        }
+
         h1 {
             color: #0033A0;
             text-align: center;
@@ -39,6 +51,7 @@
             font-weight: bold;
             margin-top: 20px;
             border-radius: 4px;
+            page-break-after: avoid; /* Evita que el título quede solo al final de la hoja */
         }
         .form-group {
             margin-bottom: 15px;
@@ -48,6 +61,7 @@
             font-weight: bold;
             margin-bottom: 5px;
             font-size: 14px;
+            color: #333;
         }
         input[type="text"], input[type="datetime-local"], select, textarea {
             width: 100%;
@@ -56,10 +70,13 @@
             border-radius: 4px;
             box-sizing: border-box;
             font-family: Arial, sans-serif;
+            font-size: 14px;
+            background-color: #fff;
         }
         textarea {
             resize: vertical;
             min-height: 80px;
+            overflow: hidden; /* Oculta el scroll para el PDF */
         }
         .grid-2 {
             display: grid;
@@ -72,7 +89,8 @@
             padding: 15px;
             border-radius: 6px;
             margin-top: 15px;
-            page-break-inside: avoid; /* Evita que el PDF corte la tarjeta por la mitad */
+            /* Instrucción clave para el PDF: No cortar este elemento a la mitad */
+            page-break-inside: avoid; 
         }
         .hallazgo-title {
             color: #0033A0;
@@ -439,43 +457,60 @@
         setupCanvas('firmaEvaluador');
     };
 
-    // 2. GENERACIÓN DEL PDF CON NOMBRE DINÁMICO
+    // 2. GENERACIÓN DEL PDF CENTRADO Y SIN CORTES
     function generarPDF() {
-        // Obtener los datos para el nombre del archivo
+        // Preparar nombres
         let instalacion = document.getElementById('instalacion').value.trim() || 'Instalacion';
         let servicio = document.getElementById('servicio').value.trim() || 'Servicio';
         let fechaHora = document.getElementById('fechaHora').value || 'Fecha';
         
-        // Limpiar textos para evitar errores en el nombre del archivo (espacios por guiones bajos)
         instalacion = instalacion.replace(/\s+/g, '_');
         servicio = servicio.replace(/\s+/g, '_');
         let fechaFormateada = fechaHora.replace('T', '_').replace(/:/g, '-'); 
-
-        // Construir el nombre final
         let nombreArchivo = `${instalacion}_${servicio}_${fechaFormateada}.pdf`;
 
-        // Ocultar botones antes de tomar la "foto" para el PDF
+        const elemento = document.getElementById('informeContenedor');
+        
+        // --- INICIO DE PREPARACIÓN VISUAL PARA EL PDF ---
+        // 1. Ocultar botones e inputs de archivo
         const elementosOcultar = document.querySelectorAll('.hide-on-pdf');
         elementosOcultar.forEach(el => el.style.display = 'none');
+        
+        // 2. Expandir los <textarea> para que no se oculte texto con barras de scroll
+        const textareas = document.querySelectorAll('textarea');
+        textareas.forEach(ta => {
+            ta.style.height = 'auto';
+            ta.style.height = (ta.scrollHeight) + 'px';
+        });
 
-        // Seleccionar el contenedor principal
-        const elemento = document.getElementById('informeContenedor');
+        // 3. Forzar el contenedor al modo PDF (ancho fijo y centrado)
+        elemento.classList.add('pdf-mode');
+        // --- FIN DE PREPARACIÓN VISUAL ---
 
-        // Opciones de configuración del PDF
+        // Opciones del PDF (Márgenes perfectos para A4 y escala forzada a 800px)
         const opciones = {
-            margin:       10,
+            margin:       [15, 15, 15, 15], // Márgenes: Arriba, Derecha, Abajo, Izquierda (en mm)
             filename:     nombreArchivo,
             image:        { type: 'jpeg', quality: 0.98 },
-            html2canvas:  { scale: 2, useCORS: true }, // scale: 2 mejora la calidad del texto
+            html2canvas:  { 
+                scale: 2, 
+                useCORS: true,
+                windowWidth: 800 // Engaña al sistema forzando un ancho de escritorio
+            },
             jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
-            pagebreak:    { mode: ['avoid-all', 'css', 'legacy'] } // Evita que corte tarjetas a la mitad
+            pagebreak:    { mode: ['css', 'legacy'] }
         };
 
         // Generar y descargar
         html2pdf().set(opciones).from(elemento).save().then(() => {
-            // Volver a mostrar los botones una vez que el PDF se descargó
+            // --- RESTAURAR LA VISTA NORMAL DESPUÉS DE DESCARGAR ---
+            elemento.classList.remove('pdf-mode');
+            
+            textareas.forEach(ta => {
+                ta.style.height = ''; // Vuelve al tamaño normal
+            });
+
             elementosOcultar.forEach(el => {
-                // Restaurar el display adecuado (block para el botón generar, inline-block para las firmas)
                 if(el.id === 'btnGenerarPDF') {
                     el.style.display = 'block';
                 } else {
