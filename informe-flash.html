@@ -107,6 +107,8 @@
             gap: 10px;
             margin-bottom: 15px;
             grid-template-columns: 1fr; /* Para celulares */
+            width: 100%;
+            box-sizing: border-box;
         }
         /* Responsividad en pantallas más grandes */
         @media (min-width: 768px) {
@@ -114,7 +116,7 @@
             .hallazgo-row.r2 { grid-template-columns: 2fr 1fr 1fr; }
         }
 
-        /* FOTOGRAFÍAS CENTRADAS */
+        /* FOTOGRAFÍAS CENTRADAS (CANDADO DE RESOLUCIÓN) */
         .foto-container {
             display: flex;
             flex-direction: column;
@@ -126,15 +128,18 @@
             background: #fff;
             margin-top: 10px;
             text-align: center;
+            width: 100%;
+            box-sizing: border-box;
+            overflow: hidden; /* Evita que la foto gigante empuje los bordes */
         }
         .foto-preview {
             display: none;
-            max-width: 100%;
-            max-height: 250px;
+            max-width: 100%; /* Candado principal */
+            max-height: 220px; /* Candado de altura para PDF */
             margin-top: 15px;
             border-radius: 4px;
             border: 1px solid #ddd;
-            object-fit: contain;
+            object-fit: contain; /* Ajusta la foto sin deformarla y sin romper el ancho */
         }
         input[type="file"] {
             margin: 0 auto;
@@ -349,7 +354,7 @@
 
                 <div class="foto-container">
                     <label style="color:#0033A0; text-transform: uppercase;">Fotografía del Hallazgo</label>
-                    <input type="file" accept="image/*" capture="environment" class="hide-in-pdf" onchange="previewImg(event, 'imgH${i}')">
+                    <input type="file" accept="image/*" class="hide-in-pdf" onchange="previewImg(event, 'imgH${i}')">
                     <img id="imgH${i}" class="foto-preview">
                 </div>
             </div>
@@ -468,7 +473,7 @@
         });
     };
 
-    // 4. GENERACIÓN DE PDF: EL AJUSTE EXACTO DE ANCHO
+    // 4. GENERACIÓN DE PDF: EL AJUSTE EXACTO DE ANCHO Y BLOQUEO DE FOTOS
     function crearPDF() {
         // Obliga a subir la pantalla (Evita que el navegador corte la parte superior)
         window.scrollTo(0, 0);
