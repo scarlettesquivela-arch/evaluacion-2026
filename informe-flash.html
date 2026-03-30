@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Informe Flash de Inspección - DGR</title>
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     
     <style>
         /* =========================================
@@ -91,7 +93,6 @@
             page-break-inside: avoid !important;
             break-inside: avoid !important;
         }
-        /* Fuerza el salto de página exacto en el PDF */
         .force-page-break {
             page-break-before: always !important;
             break-before: page !important;
@@ -127,7 +128,7 @@
             .hallazgo-row.r2 { grid-template-columns: 2fr 1fr 1fr; }
         }
 
-        /* FOTOGRAFÍA (CANDADO DE RESOLUCIÓN Y TAMAÑO) */
+        /* FOTOGRAFÍA */
         .foto-container {
             display: flex;
             flex-direction: column;
@@ -147,7 +148,7 @@
             display: none;
             width: auto !important;
             max-width: 100% !important; 
-            max-height: 180px !important; /* Altura controlada para encajar en Hoja 1 */
+            max-height: 180px !important; 
             margin-top: 10px;
             border-radius: 4px;
             border: 1px solid #ddd;
@@ -189,9 +190,14 @@
             cursor: pointer;
         }
 
-        /* BOTÓN PRINCIPAL */
+        /* BOTONES DE ACCIÓN */
+        .btn-container {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
         .btn-generar {
-            background-color: #0033A0;
+            flex: 1;
             color: white;
             border: none;
             padding: 16px;
@@ -199,9 +205,14 @@
             font-weight: bold;
             border-radius: 6px;
             cursor: pointer;
-            width: 100%;
-            margin-top: 30px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+        .btn-excel { background-color: #107C41; } /* Color Verde Excel */
+        .btn-pdf { background-color: #0033A0; }   /* Color Azul DGR */
+
+        @media (max-width: 600px) {
+            .btn-container { flex-direction: column; }
         }
 
         /* =========================================
@@ -216,12 +227,11 @@
             box-shadow: none !important;
             border: none !important;
         }
-        
         .pdf-mode .grid-layout { display: grid !important; grid-template-columns: 1fr 1fr !important; }
         .pdf-mode .hallazgo-row.r1 { display: grid !important; grid-template-columns: 1.5fr 1fr 2fr 1.5fr 1fr !important; }
         .pdf-mode .hallazgo-row.r2 { display: grid !important; grid-template-columns: 2fr 1fr 1fr !important; }
 
-        /* Clones de texto generados dinámicamente para el PDF */
+        /* Clones de texto generados dinámicamente para asegurar que el texto no se corte */
         .pdf-text-clone {
             border: 1px solid #777;
             padding: 10px;
@@ -231,6 +241,7 @@
             word-wrap: break-word;
             white-space: pre-wrap;
             min-height: 16px;
+            display: block;
         }
     </style>
 </head>
@@ -238,14 +249,14 @@
 
 <div class="app-container" id="informeContenedor">
     <div class="header-title">
-        Informe Flash de Inspección<br>
-        <span style="font-size: 16px; color: #555; font-weight: normal;">Gestión de Riesgos (DGR)</span>
+        INFORME FLASH DE INSPECCIÓN<br>
+        <span style="font-size: 16px; color: #555; font-weight: normal;">GESTIÓN DE RIESGOS (DGR)</span>
     </div>
 
     <div class="section-header avoid-break">1. Antecedentes de la Inspección</div>
     <div class="grid-layout avoid-break">
         <div class="form-field">
-            <label>Nombre Evaluador DGR:</label>
+            <label>Nombre del evaluador:</label>
             <input type="text" id="evaluador" placeholder="Ej. Nombre Apellido">
         </div>
         <div class="form-field">
@@ -276,27 +287,27 @@
             <input type="text" id="instalacionOtra" placeholder="Especifique instalación..." style="display: none; margin-top: 5px;">
         </div>
         <div class="form-field">
-            <label>Nombre del Servicio / Unidad:</label>
+            <label>Unidad o Servicio:</label>
             <input type="text" id="servicio" placeholder="Ej. Urgencia">
-        </div>
-        <div class="form-field">
-            <label>Número de Piso:</label>
-            <input type="text" id="piso" placeholder="Ej. Piso 2">
         </div>
         <div class="form-field">
             <label>Fecha de Evaluación:</label>
             <input type="datetime-local" id="fechaHora">
         </div>
         <div class="form-field">
-            <label>Nombre del Líder Servicio/Unidad (Acompañante):</label>
+            <label>Piso donde se ubica:</label>
+            <input type="text" id="piso" placeholder="Ej. Piso 2">
+        </div>
+        <div class="form-field">
+            <label>Nombre del Lider Servicio/Unidad (Acompañante):</label>
             <input type="text" id="lider" placeholder="Nombre y Cargo">
         </div>
     </div>
 
     <div class="section-header avoid-break">2. Reconocimiento Preventivo</div>
     <div class="form-field avoid-break" style="margin-bottom: 20px;">
-        <label>Destacar una buena práctica (Técnica del Sándwich):</label>
-        <textarea placeholder="Ej. Se observa extintor correctamente señalizado..."></textarea>
+        <label>Destacar una buena práctica (Técnica del Sandwich):</label>
+        <textarea id="buenaPractica" placeholder="Ej. Se observa extintor correctamente señalizado..."></textarea>
     </div>
 
     <div class="section-header avoid-break">3. Hallazgos Críticos y PAC</div>
@@ -315,61 +326,61 @@
 
         const riesgos = `
             <option value="">Seleccionar riesgo...</option>
-            <option value="P1">P1 - CRÍTICO (Riesgo vital o de clausura)</option>
-            <option value="P1B">P1B - URGENTE (Afecta soporte/acreditación)</option>
-            <option value="P2">P2 - MODERADO (Desviación menor)</option>
-            <option value="P3">P3 - MENOR (Falta de orden o mejora estética)</option>
+            <option value="P1 - CRITICO">P1 - CRÍTICO (Riesgo vital o de clausura)</option>
+            <option value="P1B - URGENTE">P1B - URGENTE (Afecta soporte/acreditación)</option>
+            <option value="P2 - MODERADO">P2 - MODERADO (Desviación menor)</option>
+            <option value="P3 - MENOR">P3 - MENOR (Falta de orden o mejora estética)</option>
         `;
 
         for(let i=1; i<=3; i++) {
-            // El Hallazgo 2 tendrá la instrucción exacta de iniciar la Página 2
+            // El Hallazgo 2 inicia la Página 2 en el PDF
             let extraClass = (i === 2) ? "force-page-break" : "";
 
             document.write(`
             <div class="hallazgo-box avoid-break ${extraClass}">
-                <div class="hallazgo-title">HALLAZGO ${i}</div>
+                <div class="hallazgo-title">Hallazgo ${i}</div>
                 
                 <div class="hallazgo-row r1">
                     <div class="form-field">
-                        <label style="text-align: center;">Pilar asociado:</label>
-                        <select style="text-align: center;">${pilares}</select>
+                        <label style="text-align: center;">Pilar asociado al hallazgo:</label>
+                        <select id="pilar_${i}" style="text-align: center;">${pilares}</select>
                     </div>
                     <div class="form-field">
                         <label style="text-align: center;">Ubicación exacta:</label>
-                        <input type="text" placeholder="Ej. Pasillo Box 4" style="text-align: center;">
+                        <input type="text" id="ubicacion_${i}" placeholder="Ej. Pasillo Box 4" style="text-align: center;">
                     </div>
                     <div class="form-field">
                         <label style="text-align: center;">Descripción del hallazgo:</label>
-                        <textarea rows="1" placeholder="Detalle lo observado..."></textarea>
+                        <textarea id="descripcion_${i}" rows="1" placeholder="Detalle lo observado..."></textarea>
                     </div>
                     <div class="form-field">
                         <label style="text-align: center;">Nivel de riesgo:</label>
-                        <select style="text-align: center;">${riesgos}</select>
+                        <select id="riesgo_${i}" style="text-align: center;">${riesgos}</select>
                     </div>
                     <div class="form-field">
                         <label style="text-align: center;">Normativa Infringida:</label>
-                        <input type="text" placeholder="Ej. DS 594" style="text-align: center;">
+                        <input type="text" id="normativa_${i}" placeholder="Ej. DS 594" style="text-align: center;">
                     </div>
                 </div>
 
                 <div class="hallazgo-row r2">
                     <div class="form-field">
-                        <label style="text-align: center;">Acción correctiva (PAC):</label>
-                        <textarea rows="1" placeholder="Qué se debe hacer..."></textarea>
+                        <label style="text-align: center;">Acción correctiva:</label>
+                        <textarea id="accion_${i}" rows="1" placeholder="Qué se debe hacer..."></textarea>
                     </div>
                     <div class="form-field">
                         <label style="text-align: center;">Responsable:</label>
-                        <input type="text" placeholder="Área o persona" style="text-align: center;">
+                        <input type="text" id="responsable_${i}" placeholder="Área o persona" style="text-align: center;">
                     </div>
                     <div class="form-field">
                         <label style="text-align: center;">Plazo:</label>
-                        <input type="text" placeholder="Ej. 24 hrs" style="text-align: center;">
+                        <input type="text" id="plazo_${i}" placeholder="Ej. 24 hrs" style="text-align: center;">
                     </div>
                 </div>
 
                 <div class="foto-container avoid-break">
-                    <label style="color:#0033A0; text-transform: uppercase;">Fotografía del Hallazgo</label>
-                    <input type="file" accept="image/*" class="hide-in-pdf" onchange="previewImg(event, 'imgH${i}')">
+                    <label style="color:#0033A0; text-transform: uppercase;">Fotografia</label>
+                    <input type="file" accept="image/*" class="hide-in-pdf hide-in-excel" onchange="previewImg(event, 'imgH${i}')">
                     <img id="imgH${i}" class="foto-preview">
                 </div>
             </div>
@@ -379,7 +390,7 @@
 
     <div class="section-header avoid-break">4. Acuerdos y Cierre en Terreno</div>
     <p class="avoid-break" style="font-size: 13px; color: #555; text-align: justify; margin-bottom: 20px;">
-        El Líder del servicio toma conocimiento de los hallazgos descritos y se compromete a gestionar los recursos o facilitar los accesos para la resolución en los plazos estipulados. El DGR brindará el soporte técnico normativo necesario para el cierre exitoso del ciclo.
+        El Líder del servicio toma conocimiento de los hallazgos descritos y se compromete a gestionar los recursos o facilitar los accesos para la resolución en los plazos estipulados. El DGR brindara elk soporte técnico normativo necesario para el cierre exitisos del ciclo.
     </p>
 
     <div class="grid-layout avoid-break">
@@ -388,7 +399,7 @@
             <input type="text" id="nombreFirmaLider" placeholder="Nombre completo" style="margin-bottom: 10px; text-align: center;">
             <label>Firma (Dibuje aquí):</label>
             <canvas id="canvasLider" width="600" height="200"></canvas>
-            <button class="btn-limpiar hide-in-pdf" onclick="clearCanvas('canvasLider')">Limpiar Firma</button>
+            <button class="btn-limpiar hide-in-pdf hide-in-excel" onclick="clearCanvas('canvasLider')">Limpiar Firma</button>
         </div>
         
         <div class="firma-container avoid-break">
@@ -396,16 +407,19 @@
             <input type="text" id="nombreFirmaDGR" placeholder="Nombre completo" style="margin-bottom: 10px; text-align: center;">
             <label>Firma (Dibuje aquí):</label>
             <canvas id="canvasDGR" width="600" height="200"></canvas>
-            <button class="btn-limpiar hide-in-pdf" onclick="clearCanvas('canvasDGR')">Limpiar Firma</button>
+            <button class="btn-limpiar hide-in-pdf hide-in-excel" onclick="clearCanvas('canvasDGR')">Limpiar Firma</button>
         </div>
     </div>
 
-    <button id="btnGenerar" class="btn-generar hide-in-pdf" onclick="crearPDF()">CREAR INFORME PDF</button>
+    <div class="btn-container hide-in-pdf hide-in-excel">
+        <button class="btn-generar btn-excel" onclick="crearExcel()">DESCARGAR EXCEL</button>
+        <button class="btn-generar btn-pdf" onclick="crearPDF()">DESCARGAR PDF</button>
+    </div>
 
 </div>
 
 <script>
-    // Mostrar campo "Otra"
+    // Mostrar campo "Otra" instalación
     function toggleInstalacion() {
         const select = document.getElementById('instalacionSelect');
         const input = document.getElementById('instalacionOtra');
@@ -432,7 +446,7 @@
         }
     }
 
-    // Firmas (Escalables y fijas)
+    // Inicializar Firmas
     function initSignature(canvasId) {
         const canvas = document.getElementById(canvasId);
         const ctx = canvas.getContext('2d');
@@ -475,7 +489,6 @@
         initSignature('canvasLider');
         initSignature('canvasDGR');
         
-        // Autocompleta nombres
         document.getElementById('lider').addEventListener('input', (e) => {
             document.getElementById('nombreFirmaLider').value = e.target.value;
         });
@@ -484,7 +497,80 @@
         });
     };
 
-    // GENERACIÓN PDF - CONVERSIÓN DE TEXTO A BLOQUES PARA EVITAR CORTES
+    // ==========================================
+    // EXPORTACIÓN A EXCEL (USANDO SHEETJS)
+    // ==========================================
+    function crearExcel() {
+        let instSelect = document.getElementById('instalacionSelect').value;
+        let instalacion = instSelect === 'Otra' ? document.getElementById('instalacionOtra').value : instSelect;
+        
+        let evaluador = document.getElementById('evaluador').value;
+        let servicio = document.getElementById('servicio').value;
+        let fecha = document.getElementById('fechaHora').value.replace('T', ' ');
+        let piso = document.getElementById('piso').value;
+        let lider = document.getElementById('lider').value;
+        let buenaPractica = document.getElementById('buenaPractica').value;
+
+        // Estructura de Matriz que imita el CSV original
+        const ws_data = [
+            ["INFORME FLASH DE INSPECCIÓN"],
+            ["GESTIÓN DE RIESGOS"],
+            [],
+            ["1. Antecedentes de la Inspección"],
+            ["Nombre del evaluador", evaluador],
+            ["Instalación", instalacion],
+            ["Unidad o Servicio", servicio],
+            ["Fecha de Evaluación", fecha],
+            ["Piso donde se ubica", piso],
+            ["Nombre del Lider Servicio/Unidad (Acompañante)", lider],
+            [],
+            ["2. Reconocimiento Preventivo"],
+            ["Destacar una buena práctica (Técnica del Sandwich)", buenaPractica],
+            [],
+            ["3. Hallazgos Criticos y PAC"]
+        ];
+
+        // Recorrer los 3 hallazgos
+        for(let i=1; i<=3; i++) {
+            let pilar = document.getElementById(`pilar_${i}`).value;
+            let ubi = document.getElementById(`ubicacion_${i}`).value;
+            let desc = document.getElementById(`descripcion_${i}`).value;
+            let riesgo = document.getElementById(`riesgo_${i}`).value;
+            let norm = document.getElementById(`normativa_${i}`).value;
+            
+            let accion = document.getElementById(`accion_${i}`).value;
+            let resp = document.getElementById(`responsable_${i}`).value;
+            let plazo = document.getElementById(`plazo_${i}`).value;
+            
+            let foto = document.getElementById(`imgH${i}`).src.length > 100 ? "Foto adjunta en PDF" : "Sin foto";
+
+            ws_data.push([`Hallazgo ${i}`]);
+            ws_data.push(["Pilar asociado al hallazgo", "", "Ubicación exacta", "Descripción del hallazgo", "", "Nivel de riesgo", "Normativa Infringida"]);
+            ws_data.push([pilar, "", ubi, desc, "", riesgo, norm]);
+            ws_data.push(["Acción correctiva", "", "", "Responsable", "", "Plazo", "Fotografia"]);
+            ws_data.push([accion, "", "", resp, "", plazo, foto]);
+            ws_data.push([]);
+        }
+
+        ws_data.push(["4. Acuerdos y Cierre en Terreno"]);
+        ws_data.push(["El Líder del servicio toma conocimiento de los hallazgos descritos y se compromete a gestionar los recursos o facilitar los accesos para la resolución en los plazos estipulados. El DGR brindara elk soporte técnico normativo necesario para el cierre exitisos del ciclo."]);
+        ws_data.push([`Nombre Evaluador: ${document.getElementById('nombreFirmaDGR').value}`]);
+        ws_data.push([`Nombre Líder: ${document.getElementById('nombreFirmaLider').value}`]);
+
+        // Crear libro y hoja
+        const wb = XLSX.utils.book_new();
+        const ws = XLSX.utils.aoa_to_sheet(ws_data);
+        XLSX.utils.book_append_sheet(wb, ws, "Informe Flash");
+
+        let fechaArchivo = document.getElementById('fechaHora').value.replace('T', '_').replace(/:/g, '-') || 'Fecha';
+        let nombreArchivo = `Informe_Flash_${instalacion}_${servicio}_${fechaArchivo}.xlsx`.replace(/\s+/g, '_');
+        
+        XLSX.writeFile(wb, nombreArchivo);
+    }
+
+    // ==========================================
+    // EXPORTACIÓN A PDF (CON CLONACIÓN DE TEXTO)
+    // ==========================================
     function crearPDF() {
         window.scrollTo(0, 0);
 
@@ -496,14 +582,15 @@
 
         const elemento = document.getElementById('informeContenedor');
 
-        // 1. Ocultar botones e inputs irrelevantes para impresión
+        // Ocultar botones e inputs de archivo
         document.querySelectorAll('.hide-in-pdf').forEach(el => el.style.display = 'none');
+        
         const selectInst = document.getElementById('instalacionSelect');
         if(selectInst.value === 'Otra') selectInst.style.display = 'none';
 
         elemento.classList.add('pdf-mode');
 
-        // 2. LA MAGIA: Clonar inputs/textareas a DIVs para que el texto NO se corte si es largo
+        // Clonar inputs a DIVs para asegurar visibilidad total del texto
         const formElements = document.querySelectorAll('#informeContenedor input:not([type="file"]), #informeContenedor textarea, #informeContenedor select');
         
         formElements.forEach(el => {
@@ -514,7 +601,7 @@
             div.style.textAlign = window.getComputedStyle(el).textAlign;
 
             if (el.tagName === 'SELECT') {
-                div.innerText = (el.options[el.selectedIndex]?.text && el.options[el.selectedIndex].text !== 'Seleccione un pilar...' && el.options[el.selectedIndex].text !== 'Seleccionar riesgo...' && el.options[el.selectedIndex].text !== 'Seleccione una instalación...') ? el.options[el.selectedIndex].text : '';
+                div.innerText = (el.options[el.selectedIndex]?.text && !el.options[el.selectedIndex].text.includes('Seleccion')) ? el.options[el.selectedIndex].text : '';
             } else if (el.type === 'datetime-local') {
                 div.innerText = el.value.replace('T', ' ');
             } else {
@@ -527,7 +614,6 @@
             el.classList.add('pdf-hidden');
         });
 
-        // Candado visual para fotos
         document.querySelectorAll('.foto-preview').forEach(img => {
             if(img.style.display === 'block') {
                 img.style.width = 'auto';
@@ -553,7 +639,6 @@
             };
 
             html2pdf().set(opciones).from(elemento).save().then(() => {
-                // Restaurar el DOM a la normalidad de formulario interactivo
                 elemento.classList.remove('pdf-mode');
                 
                 document.querySelectorAll('.pdf-text-clone').forEach(el => el.remove());
@@ -563,7 +648,7 @@
                 });
 
                 if(selectInst.value === 'Otra') selectInst.style.display = 'block';
-                document.querySelectorAll('.hide-in-pdf').forEach(el => el.style.display = 'block');
+                document.querySelectorAll('.hide-in-pdf').forEach(el => el.style.display = 'flex');
             });
         }, 500); 
     }
