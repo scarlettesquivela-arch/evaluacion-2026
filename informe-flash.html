@@ -554,4 +554,49 @@
                 margin:       [10, 10, 15, 10], 
                 filename:     nombreArchivo,
                 image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, useCORS: true, windowWidth: 800, width: 800,
+                html2canvas:  { scale: 2, useCORS: true, windowWidth: 800, width: 800, x: 0, y: 0, scrollX: 0, scrollY: 0 },
+                jsPDF:        { unit: 'mm', format: 'letter', orientation: 'portrait' },
+                // Las clases "force-page-break" dinámicas marcan los inicios exactos de página
+                pagebreak:    { mode: ['css', 'legacy'], before: '.force-page-break', avoid: ['.avoid-break'] }
+            };
+
+            if (accion === 'descargar') {
+                html2pdf().set(opciones).from(elemento).save().then(restaurarVista);
+            } else if (accion === 'compartir') {
+                // Función nativa para enviar el PDF por Email, WhatsApp, etc. (Especial para celulares)
+                html2pdf().set(opciones).from(elemento).output('blob').then(function(pdfBlob) {
+                    restaurarVista();
+                    const file = new File([pdfBlob], nombreArchivo, { type: 'application/pdf' });
+                    
+                    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                        navigator.share({
+                            title: 'Informe Flash DGR',
+                            text: 'Se adjunta Informe Flash de Inspección DGR.',
+                            files: [file]
+                        }).catch(err => console.log('Envío cancelado', err));
+                    } else {
+                        alert("El navegador no soporta el envío directo. El archivo se descargará.");
+                        html2pdf().set(opciones).from(elemento).save();
+                    }
+                });
+            }
+        }, 500); 
+
+        function restaurarVista() {
+            document.body.classList.remove('exporting-pdf');
+            elemento.classList.remove('pdf-mode');
+            
+            document.querySelectorAll('.pdf-text-clone').forEach(el => el.remove());
+            document.querySelectorAll('.pdf-hidden').forEach(el => {
+                el.style.display = el.getAttribute('data-original-display');
+                el.classList.remove('pdf-hidden');
+            });
+
+            if(selectInst.value === 'Otra') selectInst.style.display = 'block';
+            document.querySelectorAll('.hide-in-pdf').forEach(el => el.style.display = 'block');
+        }
+    }
+</script>
+
+</body>
+</html>
