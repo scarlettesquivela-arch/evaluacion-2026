@@ -88,7 +88,7 @@
             min-height: 50px;
         }
 
-        /* PAGINACIÓN PDF */
+        /* REGLAS DE PAGINACIÓN PDF */
         .avoid-break {
             page-break-inside: avoid !important;
             break-inside: avoid !important;
@@ -98,7 +98,7 @@
             break-before: page !important;
         }
 
-        /* DISEÑO DE HALLAZGOS VERTICALES */
+        /* DISEÑO DE HALLAZGOS VERTICALES (SIN AVOID-BREAK GENERAL PARA PERMITIR EL CORTE INTERNO) */
         .hallazgo-box {
             background-color: #F8FBFC;
             border: 1px solid #B3E0F5;
@@ -116,6 +116,11 @@
             border-bottom: 1px solid #B3E0F5;
             padding-bottom: 5px;
             text-align: center;
+        }
+        
+        /* BLOQUES INTERNOS PARA PAGINACIÓN */
+        .bloque-superior, .bloque-inferior {
+            width: 100%;
         }
 
         /* FOTOGRAFÍA (CANDADO DE TAMAÑO) */
@@ -180,25 +185,34 @@
             cursor: pointer;
         }
 
-        /* BOTÓN PRINCIPAL PDF */
+        /* BOTONES DE ACCIÓN */
+        .btn-container {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
         .btn-generar {
-            width: 100%;
-            background-color: #0033A0;
+            flex: 1;
             color: white;
             border: none;
             padding: 16px;
-            font-size: 16px;
+            font-size: 15px;
             font-weight: bold;
             border-radius: 6px;
             cursor: pointer;
             box-shadow: 0 4px 6px rgba(0,0,0,0.2);
             text-align: center;
-            margin-top: 30px;
             text-transform: uppercase;
+        }
+        .btn-descargar { background-color: #0033A0; }
+        .btn-enviar { background-color: #107C41; }
+
+        @media (max-width: 600px) {
+            .btn-container { flex-direction: column; }
         }
 
         /* =========================================
-           MODO EXPORTACIÓN PDF (REAJUSTE DE HOJA)
+           MODO EXPORTACIÓN PDF
            ========================================= */
         body.exporting-pdf {
             width: 800px !important;
@@ -208,7 +222,6 @@
             overflow: visible !important;
             background: white !important;
         }
-
         .pdf-mode {
             width: 800px !important; 
             max-width: 800px !important;
@@ -219,10 +232,8 @@
             border: none !important;
             transform: none !important; 
         }
-
         .pdf-mode .grid-layout { display: grid !important; grid-template-columns: 1fr 1fr !important; }
 
-        /* Clones de texto generados para evitar cortes */
         .pdf-text-clone {
             border: 1px solid #777;
             padding: 10px;
@@ -324,57 +335,58 @@
         `;
 
         for(let i=1; i<=3; i++) {
-            // Instrucción estricta: El Hallazgo 2 siempre inicia una nueva página
-            let extraClass = (i === 2) ? "force-page-break" : "";
-
             document.write(`
-            <div class="hallazgo-box avoid-break ${extraClass}">
-                <div class="hallazgo-title">Hallazgo ${i}</div>
-                
-                <div class="form-field">
-                    <label>Pilar asociado al hallazgo:</label>
-                    <select id="pilar_${i}">${pilares}</select>
+            <div class="hallazgo-box">
+                <div class="bloque-superior avoid-break">
+                    <div class="hallazgo-title">Hallazgo ${i}</div>
+                    
+                    <div class="form-field">
+                        <label>Pilar asociado al hallazgo:</label>
+                        <select id="pilar_${i}">${pilares}</select>
+                    </div>
+                    
+                    <div class="form-field">
+                        <label>Ubicación exacta:</label>
+                        <input type="text" id="ubicacion_${i}" placeholder="Ej. Pasillo Box 4">
+                    </div>
+                    
+                    <div class="form-field">
+                        <label>Descripción del hallazgo:</label>
+                        <textarea id="descripcion_${i}" rows="2" placeholder="Detalle lo observado..."></textarea>
+                    </div>
                 </div>
                 
-                <div class="form-field">
-                    <label>Ubicación exacta:</label>
-                    <input type="text" id="ubicacion_${i}" placeholder="Ej. Pasillo Box 4">
-                </div>
-                
-                <div class="form-field">
-                    <label>Descripción del hallazgo:</label>
-                    <textarea id="descripcion_${i}" rows="2" placeholder="Detalle lo observado..."></textarea>
-                </div>
-                
-                <div class="form-field">
-                    <label>Nivel de riesgo:</label>
-                    <select id="riesgo_${i}">${riesgos}</select>
-                </div>
-                
-                <div class="form-field">
-                    <label>Normativa Infringida:</label>
-                    <input type="text" id="normativa_${i}" placeholder="Ej. DS 594">
-                </div>
-                
-                <div class="form-field">
-                    <label>Acción correctiva (PAC):</label>
-                    <textarea id="accion_${i}" rows="2" placeholder="Qué se debe hacer..."></textarea>
-                </div>
-                
-                <div class="form-field">
-                    <label>Responsable:</label>
-                    <input type="text" id="responsable_${i}" placeholder="Área o persona">
-                </div>
-                
-                <div class="form-field">
-                    <label>Plazo:</label>
-                    <input type="text" id="plazo_${i}" placeholder="Ej. 24 hrs">
-                </div>
+                <div class="bloque-inferior force-page-break">
+                    <div class="form-field">
+                        <label>Nivel de riesgo:</label>
+                        <select id="riesgo_${i}">${riesgos}</select>
+                    </div>
+                    
+                    <div class="form-field">
+                        <label>Normativa Infringida:</label>
+                        <input type="text" id="normativa_${i}" placeholder="Ej. DS 594">
+                    </div>
+                    
+                    <div class="form-field">
+                        <label>Acción correctiva (PAC):</label>
+                        <textarea id="accion_${i}" rows="2" placeholder="Qué se debe hacer..."></textarea>
+                    </div>
+                    
+                    <div class="form-field">
+                        <label>Responsable:</label>
+                        <input type="text" id="responsable_${i}" placeholder="Área o persona">
+                    </div>
+                    
+                    <div class="form-field">
+                        <label>Plazo:</label>
+                        <input type="text" id="plazo_${i}" placeholder="Ej. 24 hrs">
+                    </div>
 
-                <div class="foto-container avoid-break">
-                    <label style="color:#0033A0; text-transform: uppercase;">Fotografía adjunta</label>
-                    <input type="file" accept="image/*" class="hide-in-pdf" onchange="previewImg(event, 'imgH${i}')">
-                    <img id="imgH${i}" class="foto-preview">
+                    <div class="foto-container avoid-break">
+                        <label style="color:#0033A0; text-transform: uppercase;">Fotografía adjunta</label>
+                        <input type="file" accept="image/*" class="hide-in-pdf" onchange="previewImg(event, 'imgH${i}')">
+                        <img id="imgH${i}" class="foto-preview">
+                    </div>
                 </div>
             </div>
             `);
@@ -404,12 +416,14 @@
         </div>
     </div>
 
-    <button class="btn-generar hide-in-pdf" onclick="crearPDF()">DESCARGAR INFORME PDF</button>
+    <div class="btn-container hide-in-pdf">
+        <button class="btn-generar btn-descargar" onclick="procesarPDF('descargar')">DESCARGAR PDF</button>
+        <button class="btn-generar btn-enviar" onclick="procesarPDF('compartir')">ENVIAR / COMPARTIR</button>
+    </div>
 
 </div>
 
 <script>
-    // Mostrar campo "Otra" instalación
     function toggleInstalacion() {
         const select = document.getElementById('instalacionSelect');
         const input = document.getElementById('instalacionOtra');
@@ -422,7 +436,6 @@
         }
     }
 
-    // Previsualizar Foto
     function previewImg(event, imgId) {
         const file = event.target.files[0];
         if (file) {
@@ -436,7 +449,6 @@
         }
     }
 
-    // Inicializar Firmas
     function initSignature(canvasId) {
         const canvas = document.getElementById(canvasId);
         const ctx = canvas.getContext('2d');
@@ -452,10 +464,7 @@
             const clientY = e.touches ? e.touches[0].clientY : e.clientY;
             const scaleX = canvas.width / rect.width;
             const scaleY = canvas.height / rect.height;
-            return {
-                x: (clientX - rect.left) * scaleX,
-                y: (clientY - rect.top) * scaleY
-            };
+            return { x: (clientX - rect.left) * scaleX, y: (clientY - rect.top) * scaleY };
         }
 
         const start = (e) => { isDrawing = true; ctx.beginPath(); ctx.moveTo(getPos(e).x, getPos(e).y); e.preventDefault(); };
@@ -479,20 +488,14 @@
         initSignature('canvasLider');
         initSignature('canvasDGR');
         
-        // Autocompletar nombres hacia las firmas
-        document.getElementById('lider').addEventListener('input', (e) => {
-            document.getElementById('nombreFirmaLider').value = e.target.value;
-        });
-        document.getElementById('evaluador').addEventListener('input', (e) => {
-            document.getElementById('nombreFirmaDGR').value = e.target.value;
-        });
+        document.getElementById('lider').addEventListener('input', (e) => { document.getElementById('nombreFirmaLider').value = e.target.value; });
+        document.getElementById('evaluador').addEventListener('input', (e) => { document.getElementById('nombreFirmaDGR').value = e.target.value; });
     };
 
     // ==========================================
-    // EXPORTACIÓN A PDF CON CLONACIÓN VERTICAL
+    // MOTOR PDF (DESCARGA O COMPARTIR VÍA CORREO/WHATSAPP)
     // ==========================================
-    function crearPDF() {
-        // Volver al inicio para captura completa
+    function procesarPDF(accion) {
         window.scrollTo(0, 0);
 
         let instalacion = document.getElementById('instalacionSelect').value;
@@ -503,17 +506,13 @@
 
         const elemento = document.getElementById('informeContenedor');
 
-        // Ocultar botones e inputs
         document.querySelectorAll('.hide-in-pdf').forEach(el => el.style.display = 'none');
-        
         const selectInst = document.getElementById('instalacionSelect');
         if(selectInst.value === 'Otra') selectInst.style.display = 'none';
 
-        // Anclar la página temporalmente para celular
         document.body.classList.add('exporting-pdf');
         elemento.classList.add('pdf-mode');
 
-        // Convertir campos de texto a DIVs para que no se corte la lectura
         const formElements = document.querySelectorAll('#informeContenedor input:not([type="file"]), #informeContenedor textarea, #informeContenedor select');
         
         formElements.forEach(el => {
@@ -537,7 +536,6 @@
             el.classList.add('pdf-hidden');
         });
 
-        // Aplicar candado a fotos
         document.querySelectorAll('.foto-preview').forEach(img => {
             if(img.style.display === 'block') {
                 img.style.width = 'auto';
@@ -552,36 +550,48 @@
                 margin:       [10, 10, 15, 10], 
                 filename:     nombreArchivo,
                 image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { 
-                    scale: 2, 
-                    useCORS: true,
-                    windowWidth: 800, 
-                    width: 800,
-                    x: 0, 
-                    y: 0,
-                    scrollX: 0,
-                    scrollY: 0
-                },
+                html2canvas:  { scale: 2, useCORS: true, windowWidth: 800, width: 800, x: 0, y: 0, scrollX: 0, scrollY: 0 },
                 jsPDF:        { unit: 'mm', format: 'letter', orientation: 'portrait' },
-                // force-page-break asegura que el Hallazgo 2 y el resto del informe pasen a la Hoja 2
+                // force-page-break actúa exactamente donde cortamos el bloque de hallazgos
                 pagebreak:    { mode: ['css', 'legacy'], before: '.force-page-break', avoid: ['.avoid-break'] }
             };
 
-            html2pdf().set(opciones).from(elemento).save().then(() => {
-                // Restaurar la vista web original
-                document.body.classList.remove('exporting-pdf');
-                elemento.classList.remove('pdf-mode');
-                
-                document.querySelectorAll('.pdf-text-clone').forEach(el => el.remove());
-                document.querySelectorAll('.pdf-hidden').forEach(el => {
-                    el.style.display = el.getAttribute('data-original-display');
-                    el.classList.remove('pdf-hidden');
+            if (accion === 'descargar') {
+                // Descarga normal
+                html2pdf().set(opciones).from(elemento).save().then(restaurarVista);
+            } else if (accion === 'compartir') {
+                // Convierte a Blob y abre la ventana de envío (Correo/WhatsApp)
+                html2pdf().set(opciones).from(elemento).output('blob').then(function(pdfBlob) {
+                    restaurarVista();
+                    const file = new File([pdfBlob], nombreArchivo, { type: 'application/pdf' });
+                    
+                    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                        navigator.share({
+                            title: 'Informe Flash DGR',
+                            text: 'Se adjunta Informe Flash de Inspección DGR.',
+                            files: [file]
+                        }).catch(err => console.log('Envío cancelado', err));
+                    } else {
+                        alert("Tu dispositivo o navegador no soporta el envío directo. El archivo se descargará para que lo envíes manualmente.");
+                        html2pdf().set(opciones).from(elemento).save();
+                    }
                 });
-
-                if(selectInst.value === 'Otra') selectInst.style.display = 'block';
-                document.querySelectorAll('.hide-in-pdf').forEach(el => el.style.display = 'block'); // Devolver como bloque original
-            });
+            }
         }, 500); 
+
+        function restaurarVista() {
+            document.body.classList.remove('exporting-pdf');
+            elemento.classList.remove('pdf-mode');
+            
+            document.querySelectorAll('.pdf-text-clone').forEach(el => el.remove());
+            document.querySelectorAll('.pdf-hidden').forEach(el => {
+                el.style.display = el.getAttribute('data-original-display');
+                el.classList.remove('pdf-hidden');
+            });
+
+            if(selectInst.value === 'Otra') selectInst.style.display = 'block';
+            document.querySelectorAll('.hide-in-pdf').forEach(el => el.style.display = 'block');
+        }
     }
 </script>
 
