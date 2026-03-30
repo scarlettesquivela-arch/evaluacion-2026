@@ -47,7 +47,7 @@
             border-radius: 4px;
             margin-top: 25px;
             margin-bottom: 15px;
-            page-break-after: avoid; /* Evita que el título quede solo al final de la hoja */
+            page-break-after: avoid; 
             break-after: avoid;
         }
 
@@ -86,12 +86,17 @@
             min-height: 60px;
         }
 
-        /* DISEÑO DE HALLAZGOS Y BLOQUEO DE CORTES (PAGINACIÓN INTELIGENTE) */
+        /* DISEÑO DE HALLAZGOS Y PAGINACIÓN */
         .avoid-break {
-            /* ESTA CLASE ES LA MAGIA: Evita que cualquier bloque se parta a la mitad entre 2 hojas */
             page-break-inside: avoid !important;
             break-inside: avoid !important;
         }
+        /* Fuerza el salto de página exacto en el PDF */
+        .force-page-break {
+            page-break-before: always !important;
+            break-before: page !important;
+        }
+
         .hallazgo-box {
             background-color: #F8FBFC;
             border: 1px solid #B3E0F5;
@@ -115,16 +120,14 @@
             display: grid;
             gap: 10px;
             margin-bottom: 15px;
-            grid-template-columns: 1fr; /* Responsivo en celular */
+            grid-template-columns: 1fr; 
         }
         @media (min-width: 768px) {
             .hallazgo-row.r1 { grid-template-columns: 1.5fr 1fr 2fr 1.5fr 1fr; }
             .hallazgo-row.r2 { grid-template-columns: 2fr 1fr 1fr; }
         }
 
-        /* =========================================
-           EL CANDADO DE LA FOTOGRAFÍA
-           ========================================= */
+        /* FOTOGRAFÍA (CANDADO DE RESOLUCIÓN Y TAMAÑO) */
         .foto-container {
             display: flex;
             flex-direction: column;
@@ -138,19 +141,17 @@
             text-align: center;
             width: 100%;
             box-sizing: border-box;
-            /* CANDADO 1: Nada sale de esta caja */
             overflow: hidden !important; 
         }
         .foto-preview {
             display: none;
-            /* CANDADO 2: Reducción obligatoria a la cuadrícula */
             width: auto !important;
             max-width: 100% !important; 
-            max-height: 250px !important; 
+            max-height: 180px !important; /* Altura controlada para encajar en Hoja 1 */
             margin-top: 10px;
             border-radius: 4px;
             border: 1px solid #ddd;
-            object-fit: contain !important; /* Mantiene la proporción sin estirar la hoja */
+            object-fit: contain !important; 
         }
         input[type="file"] {
             margin: 0 auto;
@@ -204,10 +205,10 @@
         }
 
         /* =========================================
-           MODO EXPORTACIÓN PDF (HOJA CARTA PERFECTA)
+           MODO EXPORTACIÓN PDF (HOJA CARTA EXACTA)
            ========================================= */
         .pdf-mode {
-            width: 800px !important; /* Fija el ancho exacto para simular la hoja Carta */
+            width: 800px !important; 
             max-width: 800px !important;
             padding: 20px !important;
             margin: 0 !important;
@@ -215,21 +216,22 @@
             box-shadow: none !important;
             border: none !important;
         }
-        .pdf-mode input, .pdf-mode select, .pdf-mode textarea {
-            border: 1px solid #777 !important;
-            background: transparent !important;
-            color: #000 !important;
-            -webkit-appearance: none;
-            appearance: none;
-            white-space: pre-wrap !important;
-            overflow: visible !important;
-        }
-        .pdf-mode select { background-image: none !important; }
         
-        /* Restaura las columnas en el PDF aunque se exporte desde celular */
         .pdf-mode .grid-layout { display: grid !important; grid-template-columns: 1fr 1fr !important; }
         .pdf-mode .hallazgo-row.r1 { display: grid !important; grid-template-columns: 1.5fr 1fr 2fr 1.5fr 1fr !important; }
         .pdf-mode .hallazgo-row.r2 { display: grid !important; grid-template-columns: 2fr 1fr 1fr !important; }
+
+        /* Clones de texto generados dinámicamente para el PDF */
+        .pdf-text-clone {
+            border: 1px solid #777;
+            padding: 10px;
+            border-radius: 4px;
+            font-size: 13px;
+            background-color: transparent;
+            word-wrap: break-word;
+            white-space: pre-wrap;
+            min-height: 16px;
+        }
     </style>
 </head>
 <body>
@@ -294,7 +296,7 @@
     <div class="section-header avoid-break">2. Reconocimiento Preventivo</div>
     <div class="form-field avoid-break" style="margin-bottom: 20px;">
         <label>Destacar una buena práctica (Técnica del Sándwich):</label>
-        <textarea placeholder="Ej. Se observa extintor correctamente señalizado y personal comprometido..."></textarea>
+        <textarea placeholder="Ej. Se observa extintor correctamente señalizado..."></textarea>
     </div>
 
     <div class="section-header avoid-break">3. Hallazgos Críticos y PAC</div>
@@ -320,10 +322,11 @@
         `;
 
         for(let i=1; i<=3; i++) {
-            // NOTA: La clase "avoid-break" aquí garantiza que un hallazgo no se parta a la mitad. 
-            // Si no cabe, salta completo a la siguiente hoja.
+            // El Hallazgo 2 tendrá la instrucción exacta de iniciar la Página 2
+            let extraClass = (i === 2) ? "force-page-break" : "";
+
             document.write(`
-            <div class="hallazgo-box avoid-break">
+            <div class="hallazgo-box avoid-break ${extraClass}">
                 <div class="hallazgo-title">HALLAZGO ${i}</div>
                 
                 <div class="hallazgo-row r1">
@@ -402,7 +405,7 @@
 </div>
 
 <script>
-    // 1. Mostrar texto libre "Otra"
+    // Mostrar campo "Otra"
     function toggleInstalacion() {
         const select = document.getElementById('instalacionSelect');
         const input = document.getElementById('instalacionOtra');
@@ -415,7 +418,7 @@
         }
     }
 
-    // 2. Previsualizar Fotos Centradas (Con candado de tamaño aplicado por CSS)
+    // Previsualizar Foto
     function previewImg(event, imgId) {
         const file = event.target.files[0];
         if (file) {
@@ -429,7 +432,7 @@
         }
     }
 
-    // 3. Firmas Táctiles a Escala
+    // Firmas (Escalables y fijas)
     function initSignature(canvasId) {
         const canvas = document.getElementById(canvasId);
         const ctx = canvas.getContext('2d');
@@ -443,10 +446,8 @@
             const rect = canvas.getBoundingClientRect();
             const clientX = e.touches ? e.touches[0].clientX : e.clientX;
             const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-            
             const scaleX = canvas.width / rect.width;
             const scaleY = canvas.height / rect.height;
-            
             return {
                 x: (clientX - rect.left) * scaleX,
                 y: (clientY - rect.top) * scaleY
@@ -483,7 +484,7 @@
         });
     };
 
-    // 4. GENERADOR PDF - ANCHO CONGELADO Y PAGINACIÓN FLUIDA
+    // GENERACIÓN PDF - CONVERSIÓN DE TEXTO A BLOQUES PARA EVITAR CORTES
     function crearPDF() {
         window.scrollTo(0, 0);
 
@@ -495,53 +496,72 @@
 
         const elemento = document.getElementById('informeContenedor');
 
-        // Ocultar elementos irrelevantes
+        // 1. Ocultar botones e inputs irrelevantes para impresión
         document.querySelectorAll('.hide-in-pdf').forEach(el => el.style.display = 'none');
-        
-        // Ajustar Textareas para que revelen todo el texto
-        const textareas = document.querySelectorAll('textarea');
-        textareas.forEach(ta => {
-            ta.style.height = 'auto';
-            ta.style.height = (ta.scrollHeight + 5) + 'px';
-        });
-
         const selectInst = document.getElementById('instalacionSelect');
         if(selectInst.value === 'Otra') selectInst.style.display = 'none';
 
-        // Aplicar modo PDF (Obliga a la app a ensancharse a 800px para el pantallazo)
         elemento.classList.add('pdf-mode');
 
-        // Candado JS de Seguridad para las fotos: Forzarlas a medir máximo 250px de alto.
+        // 2. LA MAGIA: Clonar inputs/textareas a DIVs para que el texto NO se corte si es largo
+        const formElements = document.querySelectorAll('#informeContenedor input:not([type="file"]), #informeContenedor textarea, #informeContenedor select');
+        
+        formElements.forEach(el => {
+            if (el.style.display === 'none' || el.classList.contains('hide-in-pdf')) return;
+            
+            const div = document.createElement('div');
+            div.className = 'pdf-text-clone';
+            div.style.textAlign = window.getComputedStyle(el).textAlign;
+
+            if (el.tagName === 'SELECT') {
+                div.innerText = (el.options[el.selectedIndex]?.text && el.options[el.selectedIndex].text !== 'Seleccione un pilar...' && el.options[el.selectedIndex].text !== 'Seleccionar riesgo...' && el.options[el.selectedIndex].text !== 'Seleccione una instalación...') ? el.options[el.selectedIndex].text : '';
+            } else if (el.type === 'datetime-local') {
+                div.innerText = el.value.replace('T', ' ');
+            } else {
+                div.innerText = el.value;
+            }
+
+            el.parentNode.insertBefore(div, el);
+            el.setAttribute('data-original-display', el.style.display || '');
+            el.style.display = 'none';
+            el.classList.add('pdf-hidden');
+        });
+
+        // Candado visual para fotos
         document.querySelectorAll('.foto-preview').forEach(img => {
             if(img.style.display === 'block') {
                 img.style.width = 'auto';
                 img.style.maxWidth = '100%';
-                img.style.maxHeight = '250px';
+                img.style.maxHeight = '180px'; 
                 img.style.objectFit = 'contain';
             }
         });
 
         setTimeout(() => {
             const opciones = {
-                margin:       [12, 12, 15, 12], // Márgenes: Superior, Derecho, Inferior, Izquierdo (mm)
+                margin:       [12, 12, 15, 12], 
                 filename:     nombreArchivo,
                 image:        { type: 'jpeg', quality: 0.98 },
                 html2canvas:  { 
                     scale: 2, 
                     useCORS: true,
-                    windowWidth: 800, // Anchura del escaneo obligatoria
+                    windowWidth: 800, 
                     width: 800
                 },
                 jsPDF:        { unit: 'mm', format: 'letter', orientation: 'portrait' },
-                // EVITA CORTES EN MEDIO DE LAS PREGUNTAS: Lee la clase ".avoid-break"
-                pagebreak:    { mode: ['css', 'legacy'], avoid: ['.avoid-break'] }
+                pagebreak:    { mode: ['css', 'legacy'], before: '.force-page-break', avoid: ['.avoid-break'] }
             };
 
             html2pdf().set(opciones).from(elemento).save().then(() => {
-                // Restaurar estado web
+                // Restaurar el DOM a la normalidad de formulario interactivo
                 elemento.classList.remove('pdf-mode');
                 
-                textareas.forEach(ta => ta.style.height = '');
+                document.querySelectorAll('.pdf-text-clone').forEach(el => el.remove());
+                document.querySelectorAll('.pdf-hidden').forEach(el => {
+                    el.style.display = el.getAttribute('data-original-display');
+                    el.classList.remove('pdf-hidden');
+                });
+
                 if(selectInst.value === 'Otra') selectInst.style.display = 'block';
                 document.querySelectorAll('.hide-in-pdf').forEach(el => el.style.display = 'block');
             });
