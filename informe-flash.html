@@ -2,12 +2,14 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta id="myViewport" name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Informe Flash de Inspección - DGR</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     
     <style>
-        /* ESTILOS BASE Y RESPONSIVOS */
+        /* =========================================
+           ESTILOS BASE Y RESPONSIVOS (WEB)
+           ========================================= */
         body {
             font-family: Arial, sans-serif;
             background-color: #f0f4f8;
@@ -17,7 +19,7 @@
             overflow-x: hidden;
         }
         .app-container {
-            max-width: 1000px;
+            max-width: 900px;
             margin: 0 auto;
             background: #ffffff;
             padding: 25px;
@@ -30,10 +32,10 @@
             text-align: center;
             color: #0033A0;
             text-transform: uppercase;
-            font-size: 24px;
+            font-size: 22px;
             border-bottom: 2px solid #0099D8;
             padding-bottom: 15px;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
             font-weight: bold;
         }
         .section-header {
@@ -47,10 +49,10 @@
             margin-bottom: 15px;
         }
 
-        /* FORMULARIOS Y CUADRÍCULAS MÓVILES/DESKTOP */
+        /* FORMULARIOS Y CUADRÍCULAS */
         .grid-layout {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 15px;
             width: 100%;
         }
@@ -68,7 +70,7 @@
         }
         input, select, textarea {
             width: 100%;
-            padding: 9px;
+            padding: 10px;
             border: 1px solid #ccc;
             border-radius: 4px;
             font-family: Arial, sans-serif;
@@ -82,14 +84,13 @@
             min-height: 60px;
         }
 
-        /* DISEÑO DE HALLAZGOS (ESTRUCTURA EXCEL) */
+        /* DISEÑO DE HALLAZGOS (TIPO EXCEL) */
         .hallazgo-box {
             background-color: #F8FBFC;
             border: 1px solid #B3E0F5;
             padding: 15px;
             border-radius: 6px;
             margin-bottom: 20px;
-            page-break-inside: avoid;
         }
         .hallazgo-title {
             color: #0033A0;
@@ -101,14 +102,13 @@
             text-align: center;
         }
         
-        /* Grillas responsivas nativas para pantallas y PDF */
         .hallazgo-row {
             display: grid;
             gap: 10px;
             margin-bottom: 15px;
-            /* En celulares se ve en 1 columna, en PC en varias */
-            grid-template-columns: 1fr; 
+            grid-template-columns: 1fr; /* Para celulares */
         }
+        /* Responsividad en pantallas más grandes */
         @media (min-width: 768px) {
             .hallazgo-row.r1 { grid-template-columns: 1.5fr 1fr 2fr 1.5fr 1fr; }
             .hallazgo-row.r2 { grid-template-columns: 2fr 1fr 1fr; }
@@ -124,7 +124,7 @@
             padding: 15px;
             border-radius: 6px;
             background: #fff;
-            margin-top: 15px;
+            margin-top: 10px;
             text-align: center;
         }
         .foto-preview {
@@ -150,7 +150,6 @@
             padding: 15px;
             background: #fff;
             text-align: center;
-            page-break-inside: avoid;
         }
         canvas {
             border: 1px dashed #999;
@@ -166,8 +165,8 @@
             background-color: #e74c3c;
             color: white;
             border: none;
-            padding: 6px 12px;
-            margin-top: 8px;
+            padding: 8px 15px;
+            margin-top: 10px;
             border-radius: 4px;
             font-size: 12px;
             cursor: pointer;
@@ -178,7 +177,7 @@
             background-color: #0033A0;
             color: white;
             border: none;
-            padding: 15px;
+            padding: 16px;
             font-size: 16px;
             font-weight: bold;
             border-radius: 6px;
@@ -189,34 +188,33 @@
         }
 
         /* =========================================
-           MODO EXPORTACIÓN PDF (REPARACIÓN DE CORTES)
+           MODO EXPORTACIÓN PDF (FORZADO AL ANCHO DE HOJA)
            ========================================= */
         .pdf-mode {
-            width: 1000px !important;
-            max-width: 1000px !important;
+            width: 800px !important; /* Congela el ancho al tamaño Carta */
+            max-width: 800px !important;
             padding: 30px !important;
-            margin: 0 auto !important;
+            margin: 0 !important;
+            position: relative !important;
             background: white !important;
             box-shadow: none !important;
             border: none !important;
         }
-        /* Fuerza a los inputs a verse como texto impreso limpio */
+        /* Elimina los estilos de los campos para que se vea como un reporte impreso */
         .pdf-mode input, .pdf-mode select, .pdf-mode textarea {
-            border: 1px solid #888 !important;
+            border: 1px solid #777 !important;
             background: transparent !important;
             color: #000 !important;
             -webkit-appearance: none;
             appearance: none;
             white-space: pre-wrap !important;
-            font-size: 12px !important; /* Letra ajustada para que quepa todo */
         }
         .pdf-mode select { background-image: none !important; }
         
-        /* Forzar la grilla horizontal para el PDF sin importar si es celular */
-        .pdf-mode .grid-layout { grid-template-columns: 1fr 1fr !important; }
+        /* Fuerza a que el diseño muestre múltiples columnas incluso si se generó en celular */
+        .pdf-mode .grid-layout { display: grid !important; grid-template-columns: 1fr 1fr !important; }
         .pdf-mode .hallazgo-row.r1 { display: grid !important; grid-template-columns: 1.5fr 1fr 2fr 1.5fr 1fr !important; }
         .pdf-mode .hallazgo-row.r2 { display: grid !important; grid-template-columns: 2fr 1fr 1fr !important; }
-        .pdf-mode .foto-container { border: 1px solid #ccc !important; }
     </style>
 </head>
 <body>
@@ -224,13 +222,13 @@
 <div class="app-container" id="informeContenedor">
     <div class="header-title">
         Informe Flash de Inspección<br>
-        <span style="font-size: 16px; color: #666; font-weight: normal;">Gestión de Riesgos (DGR)</span>
+        <span style="font-size: 16px; color: #555; font-weight: normal;">Gestión de Riesgos (DGR)</span>
     </div>
 
     <div class="section-header">1. Antecedentes de la Inspección</div>
     <div class="grid-layout">
         <div class="form-field">
-            <label>Nombre del Evaluador DGR:</label>
+            <label>Nombre Evaluador DGR:</label>
             <input type="text" id="evaluador" placeholder="Ej. Nombre Apellido">
         </div>
         <div class="form-field">
@@ -313,7 +311,7 @@
                 
                 <div class="hallazgo-row r1">
                     <div class="form-field">
-                        <label>Pilar asociado al hallazgo:</label>
+                        <label>Pilar asociado:</label>
                         <select>${pilares}</select>
                     </div>
                     <div class="form-field">
@@ -369,7 +367,7 @@
             <label>Nombre del Líder / Jefatura:</label>
             <input type="text" id="nombreFirmaLider" placeholder="Nombre completo" style="margin-bottom: 10px; text-align: center;">
             <label>Firma (Dibuje aquí):</label>
-            <canvas id="canvasLider"></canvas>
+            <canvas id="canvasLider" width="600" height="200"></canvas>
             <button class="btn-limpiar hide-in-pdf" onclick="clearCanvas('canvasLider')">Limpiar Firma</button>
         </div>
         
@@ -377,7 +375,7 @@
             <label>Nombre Evaluador DGR:</label>
             <input type="text" id="nombreFirmaDGR" placeholder="Nombre completo" style="margin-bottom: 10px; text-align: center;">
             <label>Firma (Dibuje aquí):</label>
-            <canvas id="canvasDGR"></canvas>
+            <canvas id="canvasDGR" width="600" height="200"></canvas>
             <button class="btn-limpiar hide-in-pdf" onclick="clearCanvas('canvasDGR')">Limpiar Firma</button>
         </div>
     </div>
@@ -387,7 +385,7 @@
 </div>
 
 <script>
-    // 1. Mostrar/Ocultar "Otra" Instalación
+    // 1. Lógica para mostrar la casilla "Otra instalación"
     function toggleInstalacion() {
         const select = document.getElementById('instalacionSelect');
         const input = document.getElementById('instalacionOtra');
@@ -400,7 +398,7 @@
         }
     }
 
-    // 2. Previsualizar Fotos Centradas
+    // 2. Lógica de previsualización de imágenes al centro
     function previewImg(event, imgId) {
         const file = event.target.files[0];
         if (file) {
@@ -414,33 +412,29 @@
         }
     }
 
-    // 3. Sistema de Firmas Táctiles (Responsivo)
+    // 3. Sistema de firmas mejorado (resolución fija para evitar borrados en móviles)
     function initSignature(canvasId) {
         const canvas = document.getElementById(canvasId);
         const ctx = canvas.getContext('2d');
         let isDrawing = false;
 
-        function resize() {
-            const temp = canvas.toDataURL();
-            canvas.width = canvas.parentElement.clientWidth - 32;
-            canvas.height = 120;
-            ctx.lineWidth = 2;
-            ctx.lineCap = 'round';
-            ctx.strokeStyle = '#000033';
-            const img = new Image();
-            img.onload = () => ctx.drawImage(img, 0, 0);
-            img.src = temp;
-        }
-        window.addEventListener('resize', resize);
-        resize();
+        // Configuración de la "tinta"
+        ctx.lineWidth = 4;
+        ctx.lineCap = 'round';
+        ctx.strokeStyle = '#000033';
 
+        // Escalar la posición táctil/mouse al tamaño interno fijo del canvas (600x200)
         function getPos(e) {
             const rect = canvas.getBoundingClientRect();
             const clientX = e.touches ? e.touches[0].clientX : e.clientX;
             const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            
             return {
-                x: (clientX - rect.left) * (canvas.width / rect.width),
-                y: (clientY - rect.top) * (canvas.height / rect.height)
+                x: (clientX - rect.left) * scaleX,
+                y: (clientY - rect.top) * scaleY
             };
         }
 
@@ -462,12 +456,10 @@
     }
 
     window.onload = () => {
-        setTimeout(() => {
-            initSignature('canvasLider');
-            initSignature('canvasDGR');
-        }, 300);
+        initSignature('canvasLider');
+        initSignature('canvasDGR');
         
-        // Autocompletar los nombres de arriba en las firmas de abajo
+        // Autocompleta los nombres de arriba directamente en las firmas
         document.getElementById('lider').addEventListener('input', (e) => {
             document.getElementById('nombreFirmaLider').value = e.target.value;
         });
@@ -476,12 +468,11 @@
         });
     };
 
-    // 4. EL MOTOR PDF (Corrige recortes en Celulares y adapta al Formato Carta)
+    // 4. GENERACIÓN DE PDF: EL AJUSTE EXACTO DE ANCHO
     function crearPDF() {
-        // Obliga a subir al inicio para capturar la cabecera
+        // Obliga a subir la pantalla (Evita que el navegador corte la parte superior)
         window.scrollTo(0, 0);
 
-        // Nombrado automático del archivo
         let instalacion = document.getElementById('instalacionSelect').value;
         if(instalacion === 'Otra') instalacion = document.getElementById('instalacionOtra').value || 'Instalacion';
         let serv = document.getElementById('servicio').value || 'Servicio';
@@ -489,55 +480,52 @@
         let nombreArchivo = `Informe_Flash_${instalacion}_${serv}_${fecha}.pdf`.replace(/\s+/g, '_');
 
         const elemento = document.getElementById('informeContenedor');
-        const originalWidth = document.body.style.width;
 
-        // Ocultar elementos de UI
+        // Ocultar botones e inputs de archivo
         document.querySelectorAll('.hide-in-pdf').forEach(el => el.style.display = 'none');
         
-        // Ajustar Textareas para mostrar todo el texto
+        // Asegurar que todo el texto de los textareas sea visible
         const textareas = document.querySelectorAll('textarea');
         textareas.forEach(ta => {
             ta.style.height = 'auto';
             ta.style.height = (ta.scrollHeight + 5) + 'px';
         });
 
-        // Ocultar Select de instalación si se usó "Otra"
+        // Ocultar la lista desplegable original si se usó "Otra"
         const selectInst = document.getElementById('instalacionSelect');
         if(selectInst.value === 'Otra') selectInst.style.display = 'none';
 
-        // **TRUCO MAESTRO**: Transformar la app a dimensiones de PC (1000px) 
-        // Esto obliga a la cámara del PDF a tomar todos los márgenes y cuadros completos
-        document.body.style.width = '1000px';
+        // -------------------------------------------------------------
+        // LA SOLUCIÓN DEL ANCHO: Se inyecta la clase que congela a 800px
+        // -------------------------------------------------------------
         elemento.classList.add('pdf-mode');
 
-        // Retraso de 800ms para permitir que el celular procese la expansión de pantalla
+        // Retraso para que el navegador del celular asimile el cambio de tamaño
         setTimeout(() => {
             const opciones = {
-                margin:       [10, 10, 10, 10], // mm de márgenes
+                margin:       [10, 10, 10, 10], // Margen de la hoja en milímetros
                 filename:     nombreArchivo,
                 image:        { type: 'jpeg', quality: 0.98 },
                 html2canvas:  { 
                     scale: 2, 
-                    scrollY: 0, 
-                    scrollX: 0,
                     useCORS: true,
-                    windowWidth: 1000 // Le decimos al renderizador que lea el ancho forzado
+                    windowWidth: 800, // Fuerza al capturador a leer los 800px asignados en el CSS
+                    width: 800
                 },
                 jsPDF:        { unit: 'mm', format: 'letter', orientation: 'portrait' },
-                // Protege los bloques para no dividirse entre dos hojas
-                pagebreak:    { mode: ['css', 'legacy'], avoid: ['.hallazgo-box', '.firma-container'] }
+                // Evita que los hallazgos y firmas se partan a la mitad al cambiar de hoja
+                pagebreak:    { mode: ['css', 'legacy'], avoid: ['.hallazgo-box', '.firma-container', '.foto-container'] }
             };
 
             html2pdf().set(opciones).from(elemento).save().then(() => {
-                // Devolver todo al modo móvil / tablet normal
-                document.body.style.width = originalWidth;
+                // Terminado el proceso, devolver el HTML a la normalidad responsiva (Celular)
                 elemento.classList.remove('pdf-mode');
                 
                 textareas.forEach(ta => ta.style.height = '');
                 if(selectInst.value === 'Otra') selectInst.style.display = 'block';
                 document.querySelectorAll('.hide-in-pdf').forEach(el => el.style.display = 'block');
             });
-        }, 800);
+        }, 500); 
     }
 </script>
 
