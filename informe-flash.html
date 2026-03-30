@@ -14,7 +14,6 @@
             padding: 20px;
             margin: 0;
         }
-        /* Contenedor principal */
         .container {
             max-width: 900px;
             margin: 0 auto;
@@ -25,14 +24,24 @@
             border-top: 8px solid #0033A0;
         }
         
-        /* Estilos específicos cuando se genera el PDF */
+        /* ESTILOS DE IMPRESIÓN (Se activan solo al crear el PDF) */
         .pdf-mode {
-            padding: 0 !important;
+            padding: 10px !important;
             box-shadow: none !important;
             border-top: none !important;
-            width: 800px !important; /* Fuerza el ancho ideal para A4 */
-            max-width: 100% !important;
+            width: 100% !important;
+            max-width: 800px !important;
             margin: 0 auto !important;
+            background-color: white !important;
+        }
+        .pdf-mode input, .pdf-mode select, .pdf-mode textarea {
+            border: 1px solid #999 !important; /* Borde más nítido para PDF */
+            background-color: transparent !important;
+            color: black !important;
+            /* Quitar la flecha del selector en el PDF para que se vea como texto */
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
         }
 
         h1 {
@@ -51,7 +60,6 @@
             font-weight: bold;
             margin-top: 20px;
             border-radius: 4px;
-            page-break-after: avoid; /* Evita que el título quede solo al final de la hoja */
         }
         .form-group {
             margin-bottom: 15px;
@@ -74,9 +82,9 @@
             background-color: #fff;
         }
         textarea {
-            resize: vertical;
+            resize: none;
             min-height: 80px;
-            overflow: hidden; /* Oculta el scroll para el PDF */
+            overflow: hidden;
         }
         .grid-2 {
             display: grid;
@@ -89,8 +97,6 @@
             padding: 15px;
             border-radius: 6px;
             margin-top: 15px;
-            /* Instrucción clave para el PDF: No cortar este elemento a la mitad */
-            page-break-inside: avoid; 
         }
         .hallazgo-title {
             color: #0033A0;
@@ -106,7 +112,6 @@
             padding: 10px;
             background: #fdfdfd;
             text-align: center;
-            page-break-inside: avoid;
         }
         canvas {
             border: 1px dashed #999;
@@ -137,15 +142,14 @@
             cursor: pointer;
             width: 100%;
             margin-top: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
         }
         .btn-submit:hover {
             background-color: #002266;
         }
         
         @media (max-width: 600px) {
-            .grid-2 {
-                grid-template-columns: 1fr;
-            }
+            .grid-2 { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -159,31 +163,31 @@
         <div class="section-title">1. ANTECEDENTES DE LA INSPECCIÓN</div>
         <div class="grid-2" style="margin-top: 15px;">
             <div class="form-group">
-                <label for="instalacion">Nombre de la Instalación:</label>
-                <input type="text" id="instalacion" name="instalacion" placeholder="Ej. Clínica Alemana Vitacura" required>
+                <label>Nombre de la Instalación:</label>
+                <input type="text" id="instalacion" placeholder="Ej. Clínica Alemana Vitacura" required>
             </div>
             <div class="form-group">
-                <label for="servicio">Servicio / Unidad Clínica:</label>
-                <input type="text" id="servicio" name="servicio" placeholder="Ej. UPC Adulto" required>
+                <label>Servicio / Unidad Clínica:</label>
+                <input type="text" id="servicio" placeholder="Ej. UPC Adulto" required>
             </div>
             <div class="form-group">
-                <label for="fechaHora">Fecha y Hora:</label>
-                <input type="datetime-local" id="fechaHora" name="fechaHora" required>
+                <label>Fecha y Hora:</label>
+                <input type="datetime-local" id="fechaHora" required>
             </div>
             <div class="form-group">
-                <label for="evaluador">Evaluador DGR:</label>
-                <input type="text" id="evaluador" name="evaluador" placeholder="Ej. Nani Rico">
+                <label>Evaluador DGR:</label>
+                <input type="text" id="evaluador" placeholder="Ej. Nani Rico">
             </div>
             <div class="form-group" style="grid-column: 1 / -1;">
-                <label for="lider">Líder del Servicio (Acompañante):</label>
-                <input type="text" id="lider" name="lider" placeholder="Nombre y Cargo">
+                <label>Líder del Servicio (Acompañante):</label>
+                <input type="text" id="lider" placeholder="Nombre y Cargo">
             </div>
         </div>
 
         <div class="section-title">2. RECONOCIMIENTO PREVENTIVO</div>
         <div class="form-group" style="margin-top: 15px;">
-            <label for="reconocimiento">Destacar buena práctica (Técnica Sándwich):</label>
-            <textarea id="reconocimiento" name="reconocimiento" placeholder="Ej. Se observa excelente adherencia al uso de EPP..."></textarea>
+            <label>Destacar buena práctica (Técnica Sándwich):</label>
+            <textarea placeholder="Ej. Se observa excelente adherencia al uso de EPP..."></textarea>
         </div>
 
         <div class="section-title">3. HALLAZGOS CRÍTICOS Y PAC</div>
@@ -193,15 +197,15 @@
             <div class="grid-2">
                 <div class="form-group">
                     <label>Pilar asociado al hallazgo:</label>
-                    <select required>
+                    <select>
                         <option value="">Seleccione un pilar...</option>
-                        <option value="Seguridad Industrial">Seguridad Industrial e Infraestructura</option>
-                        <option value="Gestión Preventiva">Gestión Preventiva (Administrativa)</option>
-                        <option value="Medio Ambiente">Medio Ambiente (Gestión REAS)</option>
-                        <option value="Control y Aseguramiento">Control y Aseguramiento (Equipos vitales)</option>
+                        <option value="Seguridad Industrial e Infraestructura">Seguridad Industrial e Infraestructura</option>
+                        <option value="Gestión Preventiva (Administrativa)">Gestión Preventiva (Administrativa)</option>
+                        <option value="Medio Ambiente (Gestión REAS)">Medio Ambiente (Gestión REAS)</option>
+                        <option value="Control y Aseguramiento (Equipos vitales)">Control y Aseguramiento (Equipos vitales)</option>
                         <option value="Empresas Contratistas">Empresas Contratistas</option>
                         <option value="Radioprotección">Radioprotección</option>
-                        <option value="Sustancias Peligrosas">Sustancias Peligrosas y Químicos</option>
+                        <option value="Sustancias Peligrosas y Químicos">Sustancias Peligrosas y Químicos</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -218,10 +222,10 @@
                     <label>Nivel de Riesgo:</label>
                     <select>
                         <option value="">Seleccione el nivel...</option>
-                        <option value="P1">P1 - CRÍTICO (Riesgo vital/clausura. Res. < 24 hrs)</option>
-                        <option value="P1B">P1B - URGENTE (Afecta soporte/acreditación)</option>
-                        <option value="P2">P2 - MODERADO (Desviación menor/mantención)</option>
-                        <option value="P3">P3 - MENOR (Falta de orden, mejora estética)</option>
+                        <option value="P1 - CRÍTICO">P1 - CRÍTICO (Riesgo vital/clausura. Res. < 24 hrs)</option>
+                        <option value="P1B - URGENTE">P1B - URGENTE (Afecta soporte/acreditación)</option>
+                        <option value="P2 - MODERADO">P2 - MODERADO (Desviación menor/mantención)</option>
+                        <option value="P3 - MENOR">P3 - MENOR (Falta de orden, mejora estética)</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -254,13 +258,13 @@
                     <label>Pilar asociado al hallazgo:</label>
                     <select>
                         <option value="">Seleccione un pilar...</option>
-                        <option value="Seguridad Industrial">Seguridad Industrial e Infraestructura</option>
-                        <option value="Gestión Preventiva">Gestión Preventiva (Administrativa)</option>
-                        <option value="Medio Ambiente">Medio Ambiente (Gestión REAS)</option>
-                        <option value="Control y Aseguramiento">Control y Aseguramiento (Equipos vitales)</option>
+                        <option value="Seguridad Industrial e Infraestructura">Seguridad Industrial e Infraestructura</option>
+                        <option value="Gestión Preventiva (Administrativa)">Gestión Preventiva (Administrativa)</option>
+                        <option value="Medio Ambiente (Gestión REAS)">Medio Ambiente (Gestión REAS)</option>
+                        <option value="Control y Aseguramiento (Equipos vitales)">Control y Aseguramiento (Equipos vitales)</option>
                         <option value="Empresas Contratistas">Empresas Contratistas</option>
                         <option value="Radioprotección">Radioprotección</option>
-                        <option value="Sustancias Peligrosas">Sustancias Peligrosas y Químicos</option>
+                        <option value="Sustancias Peligrosas y Químicos">Sustancias Peligrosas y Químicos</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -277,10 +281,10 @@
                     <label>Nivel de Riesgo:</label>
                     <select>
                         <option value="">Seleccione el nivel...</option>
-                        <option value="P1">P1 - CRÍTICO (Riesgo vital/clausura. Res. < 24 hrs)</option>
-                        <option value="P1B">P1B - URGENTE (Afecta soporte/acreditación)</option>
-                        <option value="P2">P2 - MODERADO (Desviación menor/mantención)</option>
-                        <option value="P3">P3 - MENOR (Falta de orden, mejora estética)</option>
+                        <option value="P1 - CRÍTICO">P1 - CRÍTICO (Riesgo vital/clausura. Res. < 24 hrs)</option>
+                        <option value="P1B - URGENTE">P1B - URGENTE (Afecta soporte/acreditación)</option>
+                        <option value="P2 - MODERADO">P2 - MODERADO (Desviación menor/mantención)</option>
+                        <option value="P3 - MENOR">P3 - MENOR (Falta de orden, mejora estética)</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -313,13 +317,13 @@
                     <label>Pilar asociado al hallazgo:</label>
                     <select>
                         <option value="">Seleccione un pilar...</option>
-                        <option value="Seguridad Industrial">Seguridad Industrial e Infraestructura</option>
-                        <option value="Gestión Preventiva">Gestión Preventiva (Administrativa)</option>
-                        <option value="Medio Ambiente">Medio Ambiente (Gestión REAS)</option>
-                        <option value="Control y Aseguramiento">Control y Aseguramiento (Equipos vitales)</option>
+                        <option value="Seguridad Industrial e Infraestructura">Seguridad Industrial e Infraestructura</option>
+                        <option value="Gestión Preventiva (Administrativa)">Gestión Preventiva (Administrativa)</option>
+                        <option value="Medio Ambiente (Gestión REAS)">Medio Ambiente (Gestión REAS)</option>
+                        <option value="Control y Aseguramiento (Equipos vitales)">Control y Aseguramiento (Equipos vitales)</option>
                         <option value="Empresas Contratistas">Empresas Contratistas</option>
                         <option value="Radioprotección">Radioprotección</option>
-                        <option value="Sustancias Peligrosas">Sustancias Peligrosas y Químicos</option>
+                        <option value="Sustancias Peligrosas y Químicos">Sustancias Peligrosas y Químicos</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -336,10 +340,10 @@
                     <label>Nivel de Riesgo:</label>
                     <select>
                         <option value="">Seleccione el nivel...</option>
-                        <option value="P1">P1 - CRÍTICO (Riesgo vital/clausura. Res. < 24 hrs)</option>
-                        <option value="P1B">P1B - URGENTE (Afecta soporte/acreditación)</option>
-                        <option value="P2">P2 - MODERADO (Desviación menor/mantención)</option>
-                        <option value="P3">P3 - MENOR (Falta de orden, mejora estética)</option>
+                        <option value="P1 - CRÍTICO">P1 - CRÍTICO (Riesgo vital/clausura. Res. < 24 hrs)</option>
+                        <option value="P1B - URGENTE">P1B - URGENTE (Afecta soporte/acreditación)</option>
+                        <option value="P2 - MODERADO">P2 - MODERADO (Desviación menor/mantención)</option>
+                        <option value="P3 - MENOR">P3 - MENOR (Falta de orden, mejora estética)</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -396,24 +400,40 @@
 </div>
 
 <script>
-    // 1. CONFIGURACIÓN DE FIRMAS (Canvas)
+    // 1. CONFIGURACIÓN DE FIRMAS
     function setupCanvas(canvasId) {
         const canvas = document.getElementById(canvasId);
         const ctx = canvas.getContext('2d');
         let isDrawing = false;
 
-        canvas.width = canvas.offsetWidth;
-        canvas.height = canvas.offsetHeight;
+        function resizeCanvas() {
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
+            ctx.lineWidth = 2;
+            ctx.lineCap = 'round';
+            ctx.strokeStyle = '#000033';
+        }
         
-        ctx.lineWidth = 2;
-        ctx.lineCap = 'round';
-        ctx.strokeStyle = '#000033';
+        // Ajustar tamaño inicial y al rotar la pantalla
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
 
         function getMousePos(canvas, evt) {
             const rect = canvas.getBoundingClientRect();
+            // Corrección crucial para móviles y scroll
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            let clientX = evt.clientX;
+            let clientY = evt.clientY;
+
+            if (evt.touches && evt.touches.length > 0) {
+                clientX = evt.touches[0].clientX;
+                clientY = evt.touches[0].clientY;
+            }
+
             return {
-                x: (evt.clientX || evt.touches[0].clientX) - rect.left,
-                y: (evt.clientY || evt.touches[0].clientY) - rect.top
+                x: (clientX - rect.left) * scaleX,
+                y: (clientY - rect.top) * scaleY
             };
         }
 
@@ -433,9 +453,7 @@
             e.preventDefault();
         }
 
-        function stopDrawing() {
-            isDrawing = false;
-        }
+        function stopDrawing() { isDrawing = false; }
 
         canvas.addEventListener('mousedown', startDrawing);
         canvas.addEventListener('mousemove', draw);
@@ -457,9 +475,11 @@
         setupCanvas('firmaEvaluador');
     };
 
-    // 2. GENERACIÓN DEL PDF CENTRADO Y SIN CORTES
+    // 2. GENERACIÓN DE PDF REPARADA
     function generarPDF() {
-        // Preparar nombres
+        // SOLUCIÓN AL CORTE DE PANTALLA: Obligar a la app a subir al inicio antes de la "foto"
+        window.scrollTo(0, 0);
+
         let instalacion = document.getElementById('instalacion').value.trim() || 'Instalacion';
         let servicio = document.getElementById('servicio').value.trim() || 'Servicio';
         let fechaHora = document.getElementById('fechaHora').value || 'Fecha';
@@ -471,51 +491,43 @@
 
         const elemento = document.getElementById('informeContenedor');
         
-        // --- INICIO DE PREPARACIÓN VISUAL PARA EL PDF ---
-        // 1. Ocultar botones e inputs de archivo
+        // Ocultar elementos no deseados
         const elementosOcultar = document.querySelectorAll('.hide-on-pdf');
         elementosOcultar.forEach(el => el.style.display = 'none');
         
-        // 2. Expandir los <textarea> para que no se oculte texto con barras de scroll
+        // Ajustar textareas para que no se oculte texto
         const textareas = document.querySelectorAll('textarea');
         textareas.forEach(ta => {
             ta.style.height = 'auto';
             ta.style.height = (ta.scrollHeight) + 'px';
         });
 
-        // 3. Forzar el contenedor al modo PDF (ancho fijo y centrado)
+        // Activar modo impresión
         elemento.classList.add('pdf-mode');
-        // --- FIN DE PREPARACIÓN VISUAL ---
 
-        // Opciones del PDF (Márgenes perfectos para A4 y escala forzada a 800px)
+        // Configuración estricta para html2pdf
         const opciones = {
-            margin:       [15, 15, 15, 15], // Márgenes: Arriba, Derecha, Abajo, Izquierda (en mm)
+            margin:       [10, 10, 10, 10], // Margen en mm
             filename:     nombreArchivo,
             image:        { type: 'jpeg', quality: 0.98 },
             html2canvas:  { 
-                scale: 2, 
-                useCORS: true,
-                windowWidth: 800 // Engaña al sistema forzando un ancho de escritorio
+                scale: 2,           // Mayor calidad
+                scrollY: 0,         // <-- CLAVE: Iniciar captura desde arriba
+                useCORS: true 
             },
             jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
-            pagebreak:    { mode: ['css', 'legacy'] }
+            // Regla estricta para que no corte cajas de hallazgos ni firmas
+            pagebreak:    { mode: ['css', 'legacy'], avoid: ['.hallazgo-card', '.section-title', '.firma-box'] }
         };
 
-        // Generar y descargar
+        // Procesar y restaurar
         html2pdf().set(opciones).from(elemento).save().then(() => {
-            // --- RESTAURAR LA VISTA NORMAL DESPUÉS DE DESCARGAR ---
             elemento.classList.remove('pdf-mode');
             
-            textareas.forEach(ta => {
-                ta.style.height = ''; // Vuelve al tamaño normal
-            });
+            textareas.forEach(ta => ta.style.height = ''); // Vuelve al tamaño normal
 
             elementosOcultar.forEach(el => {
-                if(el.id === 'btnGenerarPDF') {
-                    el.style.display = 'block';
-                } else {
-                    el.style.display = 'inline-block';
-                }
+                el.style.display = (el.id === 'btnGenerarPDF') ? 'block' : 'inline-block';
             });
         });
     }
