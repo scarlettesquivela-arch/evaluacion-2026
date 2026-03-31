@@ -20,7 +20,7 @@
             overflow-x: hidden;
         }
         .app-container {
-            max-width: 900px;
+            max-width: 800px;
             margin: 0 auto;
             background: #ffffff;
             padding: 30px;
@@ -139,14 +139,14 @@
         .foto-preview {
             display: none;
             width: auto !important;
-            max-width: 100% !important; 
+            max-width: 80% !important; 
             max-height: 180px !important; 
             margin-top: 10px;
             border-radius: 4px;
             border: 1px solid #ddd;
             object-fit: contain !important; 
         }
-        input[type="file"] { margin: 0 auto; width: 100%; max-width: 300px; cursor: pointer; }
+        input[type="file"] { margin: 0 auto; width: 80%; max-width: 300px; cursor: pointer; }
 
         /* FIRMAS */
         .firma-container {
@@ -160,7 +160,7 @@
         canvas {
             border: 1px dashed #999;
             background-color: #f9f9f9;
-            width: 100%;
+            width: 80%;
             height: 100px;
             cursor: crosshair;
             touch-action: none;
@@ -193,16 +193,16 @@
            ========================================= */
         body.exporting-pdf {
             /* Al aumentar a 1400px, el PDF encoge todo para que quepa en el A4, reduciendo el tamaño general */
-            width: 1400px !important;
-            min-width: 1400px !important;
+            width: 1000px !important;
+            min-width: 1000px !important;
             margin: 0 !important;
             padding: 0 !important;
             overflow: visible !important;
             background: white !important;
         }
         .pdf-mode {
-            width: 1400px !important; 
-            max-width: 1400px !important;
+            width: 1000px !important; 
+            max-width: 1000px !important;
             padding: 0 !important; 
             margin: 0 !important;
             background: white !important;
@@ -560,7 +560,7 @@
 
         document.querySelectorAll('.foto-preview').forEach(img => {
             if(img.style.display === 'block') {
-                img.style.width = 'auto'; img.style.maxWidth = '100%'; img.style.maxHeight = '180px'; img.style.objectFit = 'contain';
+                img.style.width = 'auto'; img.style.maxWidth = '80%'; img.style.maxHeight = '180px'; img.style.objectFit = 'contain';
             }
         });
 
