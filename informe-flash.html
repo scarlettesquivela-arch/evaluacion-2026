@@ -496,4 +496,123 @@
         canvas.addEventListener('mouseup', stop); canvas.addEventListener('mouseout', stop);
         canvas.addEventListener('touchstart', start, {passive: false});
         canvas.addEventListener('touchmove', draw, {passive: false});
-        canvas.addEventListener('touchend', s
+        canvas.addEventListener('touchend', start, {passive: false});
+        canvas.addEventListener('touchmove', draw, {passive: false});
+        canvas.addEventListener('touchend', stop);
+    }function clearCanvas(canvasId) {
+        const canvas = document.getElementById(canvasId);
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+
+    window.onload = () => {
+        initSignature('canvasLider');
+        initSignature('canvasDGR');
+        
+        document.getElementById('lider').addEventListener('input', (e) => { document.getElementById('nombreFirmaLider').value = e.target.value; });
+        document.getElementById('evaluador').addEventListener('input', (e) => { document.getElementById('nombreFirmaDGR').value = e.target.value; });
+    };
+
+    // ==========================================
+    // EXPORTACIÓN A PDF Y ENVÍO
+    // ==========================================
+    function procesarPDF(accion) {
+        window.scrollTo(0, 0);
+
+        let instalacion = document.getElementById('instalacionSelect').value;
+        if(instalacion === 'Otra') instalacion = document.getElementById('instalacionOtra').value || 'Instalacion';
+        let serv = document.getElementById('servicio').value || 'Servicio';
+        let fecha = document.getElementById('fechaHora').value.replace('T', '_').replace(/:/g, '-') || 'Fecha';
+        let nombreArchivo = `Informe_Flash_${instalacion}_${serv}_${fecha}.pdf`.replace(/\s+/g, '_');
+
+        const elemento = document.getElementById('informeContenedor');
+
+        document.querySelectorAll('.hide-in-pdf').forEach(el => el.style.display = 'none');
+        const selectInst = document.getElementById('instalacionSelect');
+        if(selectInst.value === 'Otra') selectInst.style.display = 'none';
+
+        document.body.classList.add('exporting-pdf');
+        elemento.classList.add('pdf-mode');
+        const formElements = document.querySelectorAll('#informeContenedor input:not([type="file"]), #informeContenedor textarea, #informeContenedor select');
+        
+        formElements.forEach(el => {
+            if (el.style.display === 'none' || el.classList.contains('hide-in-pdf')) return;
+            
+            const div = document.createElement('div');
+            div.className = 'pdf-text-clone avoid-break';
+            div.style.textAlign = window.getComputedStyle(el).textAlign || 'left';
+
+            if (el.tagName === 'SELECT') {
+                div.innerText = (el.options[el.selectedIndex]?.text && !el.options[el.selectedIndex].text.includes('Seleccion')) ? el.options[el.selectedIndex].text : '';
+            } else if (el.type === 'datetime-local') {
+                div.innerText = el.value.replace('T', ' ');
+            } else {
+                div.innerText = el.value;
+            }
+
+            el.parentNode.insertBefore(div, el);
+            el.setAttribute('data-original-display', el.style.display || '');
+            el.style.display = 'none';
+            el.classList.add('pdf-hidden');
+        });
+
+        document.querySelectorAll('.foto-preview').forEach(img => {
+            if(img.style.display === 'block') {
+                img.style.width = 'auto';
+                img.style.maxWidth = '100%';
+                img.style.maxHeight = '160px'; 
+                img.style.objectFit = 'contain';
+            }
+        });
+
+        setTimeout(() => {
+            const opciones = {
+                // Margen de 10mm (1cm) exactos en todos los lados
+                margin:       [10, 10, 10, 10], 
+                filename:     nombreArchivo,
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true, windowWidth: 800, width: 800, x: 0, y: 0, scrollX: 0, scrollY: 0 },
+                jsPDF:        { unit: 'mm', format: 'letter', orientation: 'portrait' },
+                // La magia de la paginación condicional
+                pagebreak:    { mode: ['css', 'legacy'], before: '.force-page-break', avoid: ['.avoid-break', '.form-field'] }
+            };
+
+            if (accion === 'descargar') {
+                html2pdf().set(opciones).from(elemento).save().then(restaurarVista);
+            } else if (accion === 'compartir') {
+                html2pdf().set(opciones).from(elemento).output('blob').then(function(pdfBlob) {
+                    restaurarVista();
+                    const file = new File([pdfBlob], nombreArchivo, { type: 'application/pdf' });
+                    
+                    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                        navigator.share({
+                            title: 'Informe Flash DGR',
+                            text: 'Se adjunta Informe Flash de Inspección DGR.',
+                            files: [file]
+                        }).catch(err => console.log('Envío cancelado', err));
+                    } else {
+                        alert("El navegador no soporta el envío directo. El archivo se descargará para envío manual.");
+                        html2pdf().set(opciones).from(elemento).save();
+                    }
+                });
+            }
+        }, 500); 
+        function restaurarVista() {
+            document.body.classList.remove('exporting-pdf');
+            elemento.classList.remove('pdf-mode');
+            
+            document.querySelectorAll('.pdf-text-clone').forEach(el => el.remove());
+            document.querySelectorAll('.pdf-hidden').forEach(el => {
+                el.style.display = el.getAttribute('data-original-display');
+                el.classList.remove('pdf-hidden');
+            });
+
+            if(selectInst.value === 'Otra') selectInst.style.display = 'block';
+            document.querySelectorAll('.hide-in-pdf').forEach(el => el.style.display = 'flex');
+        }
+    }
+</script>
+
+</body>
+</html>
+    
