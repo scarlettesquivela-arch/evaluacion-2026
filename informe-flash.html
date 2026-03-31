@@ -98,7 +98,7 @@
             break-before: page !important;
         }
 
-        /* DISEÑO DE HALLAZGOS VERTICALES */
+        /* DISEÑO DE HALLAZGOS (Cuadrícula para ahorrar espacio y que quepan 2 por hoja) */
         .hallazgo-box {
             background-color: #F8FBFC;
             border: 1px solid #B3E0F5;
@@ -117,8 +117,18 @@
             padding-bottom: 5px;
             text-align: center;
         }
+        .hallazgo-row {
+            display: grid;
+            gap: 10px;
+            margin-bottom: 15px;
+            grid-template-columns: 1fr; /* En celular se ve 1 columna (vertical) */
+        }
+        @media (min-width: 768px) {
+            .hallazgo-row.r1 { grid-template-columns: 1.5fr 1fr 2fr 1fr 1fr; }
+            .hallazgo-row.r2 { grid-template-columns: 2fr 1fr 1fr; }
+        }
 
-        /* FOTOGRAFÍA (CANDADO DE TAMAÑO) */
+        /* FOTOGRAFÍA (CANDADO DE TAMAÑO REDUCIDO PARA QUE QUEPAN 2 HALLAZGOS) */
         .foto-container {
             display: flex;
             flex-direction: column;
@@ -128,7 +138,7 @@
             padding: 10px;
             border-radius: 6px;
             background: #fff;
-            margin-top: 10px;
+            margin-top: 5px;
             text-align: center;
             width: 100%;
             box-sizing: border-box;
@@ -138,7 +148,7 @@
             display: none;
             width: auto !important;
             max-width: 100% !important; 
-            max-height: 180px !important; 
+            max-height: 140px !important; /* Altura ajustada para permitir 2 fotos en la Hoja 2 */
             margin-top: 10px;
             border-radius: 4px;
             border: 1px solid #ddd;
@@ -207,7 +217,7 @@
         }
 
         /* =========================================
-           MODO EXPORTACIÓN PDF
+           MODO EXPORTACIÓN PDF (TABLAS COMPACTAS)
            ========================================= */
         body.exporting-pdf {
             width: 800px !important;
@@ -227,17 +237,23 @@
             border: none !important;
             transform: none !important; 
         }
+        /* Al exportar, fuerza las tablas horizontales para ahorrar espacio vertical */
         .pdf-mode .grid-layout { display: grid !important; grid-template-columns: 1fr 1fr !important; }
+        .pdf-mode .hallazgo-row.r1 { display: grid !important; grid-template-columns: 1.5fr 1fr 2fr 1fr 1fr !important; }
+        .pdf-mode .hallazgo-row.r2 { display: grid !important; grid-template-columns: 2fr 1fr 1fr !important; }
+        
+        /* Ajustar los campos al interior de la fila */
+        .pdf-mode .hallazgo-row .form-field { margin-bottom: 0 !important; }
 
         .pdf-text-clone {
             border: 1px solid #777;
-            padding: 10px;
+            padding: 8px;
             border-radius: 4px;
-            font-size: 13px;
+            font-size: 12px;
             background-color: transparent;
             word-wrap: break-word;
             white-space: pre-wrap;
-            min-height: 16px;
+            min-height: 14px;
             display: block;
         }
     </style>
@@ -311,7 +327,7 @@
     
     <script>
         const pilares = `
-            <option value="">Seleccionar pilar...</option>
+            <option value="">Seleccionar...</option>
             <option value="Seguridad Industrial e Infraestructura">Seguridad Industrial e Infraestructura</option>
             <option value="Gestión Preventiva (Administrativa)">Gestión Preventiva (Administrativa)</option>
             <option value="Medio Ambiente (Gestión REAS)">Medio Ambiente (Gestión REAS)</option>
@@ -322,87 +338,75 @@
         `;
 
         const riesgos = `
-            <option value="">Seleccionar riesgo...</option>
-            <option value="P1 - CRITICO">P1 - CRÍTICO (Riesgo vital o de clausura)</option>
-            <option value="P1B - URGENTE">P1B - URGENTE (Afecta soporte/acreditación)</option>
-            <option value="P2 - MODERADO">P2 - MODERADO (Desviación menor)</option>
-            <option value="P3 - MENOR">P3 - MENOR (Falta de orden o mejora estética)</option>
+            <option value="">Seleccionar...</option>
+            <option value="P1 - CRITICO">P1 - CRÍTICO (Vital/Clausura)</option>
+            <option value="P1B - URGENTE">P1B - URGENTE (Acreditación)</option>
+            <option value="P2 - MODERADO">P2 - MODERADO (Desviación)</option>
+            <option value="P3 - MENOR">P3 - MENOR (Mejora estética)</option>
         `;
 
         for(let i=1; i<=3; i++) {
-            // LÓGICA DE QUIEBRES: Define en qué punto exacto se genera la hoja nueva según el número de hallazgo.
-            let claseSaltoAccion = (i === 1) ? "force-page-break" : "avoid-break"; // Página 2
-            let claseSaltoResponsable = (i === 2) ? "force-page-break" : "avoid-break"; // Página 3
-            let claseSaltoPlazo = (i === 3) ? "force-page-break" : "avoid-break"; // Página 4
+            // El Hallazgo 2 fuerza el inicio de la HOJA 2
+            let claseSalto = (i === 2) ? "force-page-break" : "avoid-break";
 
             document.write(`
-            <div class="hallazgo-box">
-                <div class="avoid-break">
-                    <div class="hallazgo-title">Hallazgo ${i}</div>
-                    
-                    <div class="form-field">
-                        <label>Pilar asociado al hallazgo:</label>
-                        <select id="pilar_${i}">${pilares}</select>
-                    </div>
-                    
-                    <div class="form-field">
-                        <label>Ubicación exacta:</label>
-                        <input type="text" id="ubicacion_${i}" placeholder="Ej. Pasillo Box 4">
-                    </div>
-                    
-                    <div class="form-field">
-                        <label>Descripción del hallazgo:</label>
-                        <textarea id="descripcion_${i}" rows="2" placeholder="Detalle lo observado..."></textarea>
-                    </div>
-                    
-                    <div class="form-field">
-                        <label>Nivel de riesgo:</label>
-                        <select id="riesgo_${i}">${riesgos}</select>
-                    </div>
-                    
-                    <div class="form-field">
-                        <label>Normativa Infringida:</label>
-                        <input type="text" id="normativa_${i}" placeholder="Ej. DS 594">
-                    </div>
-                </div>
+            <div class="hallazgo-box ${claseSalto}">
+                <div class="hallazgo-title">Hallazgo ${i}</div>
                 
-                <div class="${claseSaltoAccion}">
+                <div class="hallazgo-row r1">
                     <div class="form-field">
-                        <label>Acción correctiva (PAC):</label>
-                        <textarea id="accion_${i}" rows="2" placeholder="Qué se debe hacer..."></textarea>
+                        <label style="text-align: center;">Pilar asociado:</label>
+                        <select id="pilar_${i}" style="text-align: center;">${pilares}</select>
                     </div>
-                </div>
-                
-                <div class="${claseSaltoResponsable}">
                     <div class="form-field">
-                        <label>Responsable:</label>
-                        <input type="text" id="responsable_${i}" placeholder="Área o persona">
+                        <label style="text-align: center;">Ubicación exacta:</label>
+                        <input type="text" id="ubicacion_${i}" placeholder="Ej. Pasillo Box 4" style="text-align: center;">
+                    </div>
+                    <div class="form-field">
+                        <label style="text-align: center;">Descripción del hallazgo:</label>
+                        <textarea id="descripcion_${i}" rows="1" placeholder="Detalle lo observado..."></textarea>
+                    </div>
+                    <div class="form-field">
+                        <label style="text-align: center;">Nivel de riesgo:</label>
+                        <select id="riesgo_${i}" style="text-align: center;">${riesgos}</select>
+                    </div>
+                    <div class="form-field">
+                        <label style="text-align: center;">Normativa:</label>
+                        <input type="text" id="normativa_${i}" placeholder="Ej. DS 594" style="text-align: center;">
                     </div>
                 </div>
 
-                <div class="${claseSaltoPlazo}">
+                <div class="hallazgo-row r2">
                     <div class="form-field">
-                        <label>Plazo:</label>
-                        <input type="text" id="plazo_${i}" placeholder="Ej. 24 hrs">
+                        <label style="text-align: center;">Acción correctiva (PAC):</label>
+                        <textarea id="accion_${i}" rows="1" placeholder="Qué se debe hacer..."></textarea>
                     </div>
+                    <div class="form-field">
+                        <label style="text-align: center;">Responsable:</label>
+                        <input type="text" id="responsable_${i}" placeholder="Área o persona" style="text-align: center;">
+                    </div>
+                    <div class="form-field">
+                        <label style="text-align: center;">Plazo:</label>
+                        <input type="text" id="plazo_${i}" placeholder="Ej. 24 hrs" style="text-align: center;">
+                    </div>
+                </div>
 
-                    <div class="foto-container avoid-break">
-                        <label style="color:#0033A0; text-transform: uppercase;">Fotografía adjunta</label>
-                        <input type="file" accept="image/*" class="hide-in-pdf" onchange="previewImg(event, 'imgH${i}')">
-                        <img id="imgH${i}" class="foto-preview">
-                    </div>
+                <div class="foto-container avoid-break">
+                    <label style="color:#0033A0; text-transform: uppercase;">Fotografía adjunta</label>
+                    <input type="file" accept="image/*" class="hide-in-pdf" onchange="previewImg(event, 'imgH${i}')">
+                    <img id="imgH${i}" class="foto-preview">
                 </div>
             </div>
             `);
         }
     </script>
 
-    <div class="section-header avoid-break" style="margin-bottom: 5px;">4. Acuerdos y Cierre en Terreno</div>
-    <p class="avoid-break" style="font-size: 13px; color: #555; text-align: justify; margin-bottom: 5px; margin-top: 0;">
+    <div class="section-header force-page-break" style="margin-bottom: 5px;">4. Acuerdos y Cierre en Terreno</div>
+    <p class="avoid-break" style="font-size: 13px; color: #555; text-align: justify; margin-bottom: 15px; margin-top: 10px;">
         El Líder del servicio toma conocimiento de los hallazgos descritos y se compromete a gestionar los recursos o facilitar los accesos para la resolución en los plazos estipulados. El DGR brindará el soporte técnico normativo necesario para el cierre exitoso del ciclo.
     </p>
 
-    <div class="grid-layout avoid-break" style="margin-top: 5px;">
+    <div class="grid-layout avoid-break">
         <div class="firma-container avoid-break">
             <label>Nombre del Líder / Jefatura:</label>
             <input type="text" id="nombreFirmaLider" placeholder="Nombre completo" style="margin-bottom: 5px; text-align: center;">
@@ -527,7 +531,7 @@
             div.style.textAlign = window.getComputedStyle(el).textAlign || 'left';
 
             if (el.tagName === 'SELECT') {
-                div.innerText = (el.options[el.selectedIndex]?.text && !el.options[el.selectedIndex].text.includes('Seleccion')) ? el.options[el.selectedIndex].text : '';
+                div.innerText = (el.options[el.selectedIndex]?.text && !el.options[el.selectedIndex].text.includes('Seleccionar')) ? el.options[el.selectedIndex].text : '';
             } else if (el.type === 'datetime-local') {
                 div.innerText = el.value.replace('T', ' ');
             } else {
@@ -544,26 +548,28 @@
             if(img.style.display === 'block') {
                 img.style.width = 'auto';
                 img.style.maxWidth = '100%';
-                img.style.maxHeight = '180px'; 
+                img.style.maxHeight = '140px'; 
                 img.style.objectFit = 'contain';
             }
         });
 
         setTimeout(() => {
             const opciones = {
-                margin:       [10, 10, 15, 10], 
+                margin:       [10, 10, 10, 10], 
                 filename:     nombreArchivo,
                 image:        { type: 'jpeg', quality: 0.98 },
                 html2canvas:  { scale: 2, useCORS: true, windowWidth: 800, width: 800, x: 0, y: 0, scrollX: 0, scrollY: 0 },
                 jsPDF:        { unit: 'mm', format: 'letter', orientation: 'portrait' },
-                // Las clases "force-page-break" dinámicas marcan los inicios exactos de página
+                // Las clases "force-page-break" dinámicas garantizan la paginación:
+                // Pag 1: Inicio -> Hallazgo 1
+                // Pag 2: Hallazgo 2 -> Hallazgo 3
+                // Pag 3: Acuerdos y Firmas
                 pagebreak:    { mode: ['css', 'legacy'], before: '.force-page-break', avoid: ['.avoid-break'] }
             };
 
             if (accion === 'descargar') {
                 html2pdf().set(opciones).from(elemento).save().then(restaurarVista);
             } else if (accion === 'compartir') {
-                // Función nativa para enviar el PDF por Email, WhatsApp, etc. (Especial para celulares)
                 html2pdf().set(opciones).from(elemento).output('blob').then(function(pdfBlob) {
                     restaurarVista();
                     const file = new File([pdfBlob], nombreArchivo, { type: 'application/pdf' });
@@ -575,7 +581,7 @@
                             files: [file]
                         }).catch(err => console.log('Envío cancelado', err));
                     } else {
-                        alert("El navegador no soporta el envío directo. El archivo se descargará.");
+                        alert("El navegador de tu dispositivo no soporta compartir directamente. El PDF se descargará.");
                         html2pdf().set(opciones).from(elemento).save();
                     }
                 });
