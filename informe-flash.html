@@ -20,7 +20,7 @@
             overflow-x: hidden;
         }
         .app-container {
-            max-width: 850px;
+            max-width: 900px;
             margin: 0 auto;
             background: #ffffff;
             padding: 30px;
@@ -190,20 +190,20 @@
         @media (max-width: 600px) { .btn-container { flex-direction: column; } }
 
         /* =========================================
-           MODO PDF (TAMAÑO A4 Y MÁRGENES ESTRICTOS)
+           MODO PDF (TAMAÑO A4 HORIZONTAL Y MÁRGENES ESTRICTOS)
            ========================================= */
         body.exporting-pdf {
-            /* Ancho estandar para A4 asegurando que encaje con html2pdf */
-            width: 794px !important;
-            min-width: 794px !important;
+            /* 1123px es el ancho exacto para A4 Horizontal (Landscape) */
+            width: 1123px !important;
+            min-width: 1123px !important;
             margin: 0 !important;
             padding: 0 !important;
             overflow: visible !important;
             background: white !important;
         }
         .pdf-mode {
-            width: 794px !important; 
-            max-width: 794px !important;
+            width: 1123px !important; 
+            max-width: 1123px !important;
             /* Se elimina el padding interno para que html2pdf aplique exacto el margen de 1cm */
             padding: 0 !important; 
             margin: 0 !important;
@@ -552,7 +552,7 @@
                 filename:     nombreArchivo,
                 image:        { type: 'jpeg', quality: 0.98 },
                 html2canvas:  { scale: 2, useCORS: true },
-                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }, // Formato estricto A4
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'landscape' }, // <-- CAMBIO A HORIZONTAL (LANDSCAPE)
                 pagebreak:    { mode: 'css', before: '.force-page-break' } // Lee las Cajas Físicas
             };
 
