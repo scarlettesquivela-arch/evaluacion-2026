@@ -56,7 +56,7 @@
         .grid-layout {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 6px; /* Reducido al mínimo */
+            gap: 6px;
             width: 100%;
         }
         .form-field {
@@ -64,7 +64,7 @@
             display: flex;
             flex-direction: column;
             box-sizing: border-box;
-            margin-bottom: 4px; /* Eliminación de espacios muertos */
+            margin-bottom: 4px;
         }
         label {
             font-weight: bold;
@@ -74,7 +74,7 @@
         }
         input, select, textarea {
             width: 100%;
-            padding: 6px 8px; /* Más compacto */
+            padding: 6px 8px;
             border: 1px solid #ccc;
             border-radius: 4px;
             font-family: Arial, sans-serif;
@@ -118,13 +118,6 @@
             border-bottom: 1px solid #B3E0F5;
             padding-bottom: 3px;
             text-align: center;
-        }
-        
-        /* BLOQUES INTERNOS PARA PAGINACIÓN */
-        .bloque-seccion {
-            width: 100%;
-            margin: 0;
-            padding: 0;
         }
 
         /* FOTOGRAFÍA (CANDADO DE TAMAÑO) */
@@ -342,79 +335,56 @@
         `;
 
         for(let i=1; i<=3; i++) {
-            // Lógica de separación de páginas requerida:
-            let q1 = "", q2 = "", q3 = "", q4 = "";
-
-            if (i === 1) {
-                // Hallazgo 1: Corta en Acción Correctiva (Manda Acción a Página 2)
-                q2 = "force-page-break"; 
-            } else if (i === 2) {
-                // Hallazgo 2: Corta en Responsable (Manda Responsable a Página 3)
-                q3 = "force-page-break";
-            } else if (i === 3) {
-                // Hallazgo 3: Corta en Plazo (Manda Plazo y correlativo a Página 4)
-                q4 = "force-page-break";
-            }
+            // Lógica exacta de paginación: Solo el Hallazgo 2 fuerza una página nueva para quedar junto al Hallazgo 3.
+            let claseSalto = (i === 2) ? "force-page-break" : "";
 
             document.write(`
-            <div class="hallazgo-box">
+            <div class="hallazgo-box avoid-break ${claseSalto}">
                 <div class="hallazgo-title">Hallazgo ${i}</div>
                 
-                <div class="bloque-seccion ${q1}">
-                    <div class="form-field avoid-break">
-                        <label>Pilar asociado al hallazgo:</label>
-                        <select id="pilar_${i}">${pilares}</select>
-                    </div>
-                    <div class="form-field avoid-break">
-                        <label>Ubicación exacta:</label>
-                        <input type="text" id="ubicacion_${i}" placeholder="Ej. Pasillo Box 4">
-                    </div>
-                    <div class="form-field avoid-break">
-                        <label>Descripción del hallazgo:</label>
-                        <textarea id="descripcion_${i}" rows="2" placeholder="Detalle lo observado..."></textarea>
-                    </div>
-                    <div class="form-field avoid-break">
-                        <label>Nivel de riesgo:</label>
-                        <select id="riesgo_${i}">${riesgos}</select>
-                    </div>
-                    <div class="form-field avoid-break">
-                        <label>Normativa Infringida:</label>
-                        <input type="text" id="normativa_${i}" placeholder="Ej. DS 594">
-                    </div>
+                <div class="form-field">
+                    <label>Pilar asociado al hallazgo:</label>
+                    <select id="pilar_${i}">${pilares}</select>
                 </div>
-                
-                <div class="bloque-seccion ${q2}">
-                    <div class="form-field avoid-break">
-                        <label>Acción correctiva (PAC):</label>
-                        <textarea id="accion_${i}" rows="2" placeholder="Qué se debe hacer..."></textarea>
-                    </div>
+                <div class="form-field">
+                    <label>Ubicación exacta:</label>
+                    <input type="text" id="ubicacion_${i}" placeholder="Ej. Pasillo Box 4">
                 </div>
-                
-                <div class="bloque-seccion ${q3}">
-                    <div class="form-field avoid-break">
-                        <label>Responsable:</label>
-                        <input type="text" id="responsable_${i}" placeholder="Área o persona">
-                    </div>
+                <div class="form-field">
+                    <label>Descripción del hallazgo:</label>
+                    <textarea id="descripcion_${i}" rows="2" placeholder="Detalle lo observado..."></textarea>
+                </div>
+                <div class="form-field">
+                    <label>Nivel de riesgo:</label>
+                    <select id="riesgo_${i}">${riesgos}</select>
+                </div>
+                <div class="form-field">
+                    <label>Normativa Infringida:</label>
+                    <input type="text" id="normativa_${i}" placeholder="Ej. DS 594">
+                </div>
+                <div class="form-field">
+                    <label>Acción correctiva (PAC):</label>
+                    <textarea id="accion_${i}" rows="2" placeholder="Qué se debe hacer..."></textarea>
+                </div>
+                <div class="form-field">
+                    <label>Responsable:</label>
+                    <input type="text" id="responsable_${i}" placeholder="Área o persona">
+                </div>
+                <div class="form-field">
+                    <label>Plazo:</label>
+                    <input type="text" id="plazo_${i}" placeholder="Ej. 24 hrs">
                 </div>
 
-                <div class="bloque-seccion ${q4}">
-                    <div class="form-field avoid-break">
-                        <label>Plazo:</label>
-                        <input type="text" id="plazo_${i}" placeholder="Ej. 24 hrs">
-                    </div>
-
-                    <div class="foto-container avoid-break">
-                        <label style="color:#0033A0; text-transform: uppercase; font-size: 11px;">Fotografía adjunta</label>
-                        <input type="file" accept="image/*" class="hide-in-pdf" onchange="previewImg(event, 'imgH${i}')">
-                        <img id="imgH${i}" class="foto-preview">
-                    </div>
+                <div class="foto-container avoid-break">
+                    <label style="color:#0033A0; text-transform: uppercase; font-size: 11px;">Fotografía adjunta</label>
+                    <input type="file" accept="image/*" class="hide-in-pdf" onchange="previewImg(event, 'imgH${i}')">
+                    <img id="imgH${i}" class="foto-preview">
                 </div>
             </div>
             `);
         }
     </script>
-
-    <div class="section-header avoid-break" style="margin-top: 5px; margin-bottom: 5px;">4. Acuerdos y Cierre en Terreno</div>
+    <div class="section-header avoid-break force-page-break" style="margin-top: 5px; margin-bottom: 5px;">4. Acuerdos y Cierre en Terreno</div>
     <p class="avoid-break" style="font-size: 12px; color: #555; text-align: justify; margin: 0 0 5px 0;">
         El Líder del servicio toma conocimiento de los hallazgos descritos y se compromete a gestionar los recursos o facilitar los accesos para la resolución en los plazos estipulados. El DGR brindará el soporte técnico normativo necesario para el cierre exitoso del ciclo.
     </p>
@@ -443,8 +413,7 @@
     </div>
 
 </div>
-
-<script>
+    <script>
     function toggleInstalacion() {
         const select = document.getElementById('instalacionSelect');
         const input = document.getElementById('instalacionOtra');
@@ -496,10 +465,10 @@
         canvas.addEventListener('mouseup', stop); canvas.addEventListener('mouseout', stop);
         canvas.addEventListener('touchstart', start, {passive: false});
         canvas.addEventListener('touchmove', draw, {passive: false});
-        canvas.addEventListener('touchend', start, {passive: false});
-        canvas.addEventListener('touchmove', draw, {passive: false});
         canvas.addEventListener('touchend', stop);
-    }function clearCanvas(canvasId) {
+    }
+
+    function clearCanvas(canvasId) {
         const canvas = document.getElementById(canvasId);
         const ctx = canvas.getContext('2d');
         ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -508,7 +477,6 @@
     window.onload = () => {
         initSignature('canvasLider');
         initSignature('canvasDGR');
-        
         document.getElementById('lider').addEventListener('input', (e) => { document.getElementById('nombreFirmaLider').value = e.target.value; });
         document.getElementById('evaluador').addEventListener('input', (e) => { document.getElementById('nombreFirmaDGR').value = e.target.value; });
     };
@@ -533,6 +501,7 @@
 
         document.body.classList.add('exporting-pdf');
         elemento.classList.add('pdf-mode');
+
         const formElements = document.querySelectorAll('#informeContenedor input:not([type="file"]), #informeContenedor textarea, #informeContenedor select');
         
         formElements.forEach(el => {
@@ -567,14 +536,14 @@
 
         setTimeout(() => {
             const opciones = {
-                // Margen de 10mm (1cm) exactos en todos los lados
+                // Margen de 10mm exactos
                 margin:       [10, 10, 10, 10], 
                 filename:     nombreArchivo,
                 image:        { type: 'jpeg', quality: 0.98 },
                 html2canvas:  { scale: 2, useCORS: true, windowWidth: 800, width: 800, x: 0, y: 0, scrollX: 0, scrollY: 0 },
                 jsPDF:        { unit: 'mm', format: 'letter', orientation: 'portrait' },
-                // La magia de la paginación condicional
-                pagebreak:    { mode: ['css', 'legacy'], before: '.force-page-break', avoid: ['.avoid-break', '.form-field'] }
+                // Aplica los saltos forzados de página configurados
+                pagebreak:    { mode: ['css', 'legacy'], before: '.force-page-break', avoid: ['.avoid-break'] }
             };
 
             if (accion === 'descargar') {
@@ -615,4 +584,4 @@
 
 </body>
 </html>
-    
+        
