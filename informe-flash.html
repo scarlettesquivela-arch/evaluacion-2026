@@ -35,19 +35,19 @@
             text-transform: uppercase;
             font-size: 22px;
             border-bottom: 2px solid #0099D8;
-            padding-bottom: 15px;
-            margin-bottom: 20px;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
             font-weight: bold;
         }
         .section-header {
             background-color: #0099D8;
             color: white;
-            padding: 10px 15px;
+            padding: 8px 15px;
             font-weight: bold;
-            font-size: 16px;
+            font-size: 15px;
             border-radius: 4px;
-            margin-top: 25px;
-            margin-bottom: 15px;
+            margin-top: 15px;
+            margin-bottom: 10px;
             page-break-after: avoid; 
             break-after: avoid;
         }
@@ -59,22 +59,39 @@
             gap: 15px;
             width: 100%;
         }
+        
+        /* VERSIÓN COMPACTA PARA ANTECEDENTES (PUNTO 1) */
+        .compact-grid {
+            gap: 8px !important;
+            margin-bottom: 10px;
+        }
+        .compact-grid .form-field {
+            margin-bottom: 5px !important;
+        }
+        .compact-grid input, .compact-grid select {
+            padding: 6px 10px !important; /* Relleno más ajustado */
+        }
+        .compact-grid label {
+            font-size: 12px !important;
+            margin-bottom: 2px !important;
+        }
+
         .form-field {
             width: 100%;
             display: flex;
             flex-direction: column;
             box-sizing: border-box;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
         }
         label {
             font-weight: bold;
             font-size: 13px;
-            margin-bottom: 5px;
+            margin-bottom: 4px;
             color: #444;
         }
         input, select, textarea {
             width: 100%;
-            padding: 10px;
+            padding: 9px;
             border: 1px solid #ccc;
             border-radius: 4px;
             font-family: Arial, sans-serif;
@@ -85,7 +102,7 @@
         textarea {
             resize: none;
             overflow: hidden;
-            min-height: 50px;
+            min-height: 45px;
         }
 
         /* REGLAS DE PAGINACIÓN PDF */
@@ -98,37 +115,37 @@
             break-before: page !important;
         }
 
-        /* DISEÑO DE HALLAZGOS (Cuadrícula para ahorrar espacio y que quepan 2 por hoja) */
+        /* DISEÑO DE HALLAZGOS (Cuadrícula Responsiva) */
         .hallazgo-box {
             background-color: #F8FBFC;
             border: 1px solid #B3E0F5;
-            padding: 15px;
+            padding: 12px;
             border-radius: 6px;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             width: 100%;
             box-sizing: border-box;
         }
         .hallazgo-title {
             color: #0033A0;
             font-weight: bold;
-            font-size: 16px;
-            margin-bottom: 15px;
+            font-size: 15px;
+            margin-bottom: 10px;
             border-bottom: 1px solid #B3E0F5;
             padding-bottom: 5px;
             text-align: center;
         }
         .hallazgo-row {
             display: grid;
-            gap: 10px;
-            margin-bottom: 15px;
-            grid-template-columns: 1fr; /* En celular se ve 1 columna (vertical) */
+            gap: 8px;
+            margin-bottom: 10px;
+            grid-template-columns: 1fr; /* Móvil */
         }
         @media (min-width: 768px) {
-            .hallazgo-row.r1 { grid-template-columns: 1.5fr 1fr 2fr 1fr 1fr; }
+            .hallazgo-row.r1 { grid-template-columns: 1.5fr 1fr 2fr 1.2fr 1fr; }
             .hallazgo-row.r2 { grid-template-columns: 2fr 1fr 1fr; }
         }
 
-        /* FOTOGRAFÍA (CANDADO DE TAMAÑO REDUCIDO PARA QUE QUEPAN 2 HALLAZGOS) */
+        /* FOTOGRAFÍA (TAMAÑO ADAPTADO PARA CABER CÓMODAMENTE) */
         .foto-container {
             display: flex;
             flex-direction: column;
@@ -148,7 +165,7 @@
             display: none;
             width: auto !important;
             max-width: 100% !important; 
-            max-height: 140px !important; /* Altura ajustada para permitir 2 fotos en la Hoja 2 */
+            max-height: 180px !important; /* Altura segura */
             margin-top: 10px;
             border-radius: 4px;
             border: 1px solid #ddd;
@@ -173,7 +190,7 @@
             border: 1px dashed #999;
             background-color: #f9f9f9;
             width: 100%;
-            height: 120px;
+            height: 100px; /* Reducido levemente para ahorrar espacio en Pag 3 */
             cursor: crosshair;
             touch-action: none;
             border-radius: 4px;
@@ -183,10 +200,10 @@
             background-color: #e74c3c;
             color: white;
             border: none;
-            padding: 8px 15px;
-            margin-top: 10px;
+            padding: 6px 12px;
+            margin-top: 8px;
             border-radius: 4px;
-            font-size: 12px;
+            font-size: 11px;
             cursor: pointer;
         }
 
@@ -237,17 +254,16 @@
             border: none !important;
             transform: none !important; 
         }
-        /* Al exportar, fuerza las tablas horizontales para ahorrar espacio vertical */
+        /* Al exportar, se forzan las tablas horizontales para los hallazgos */
         .pdf-mode .grid-layout { display: grid !important; grid-template-columns: 1fr 1fr !important; }
-        .pdf-mode .hallazgo-row.r1 { display: grid !important; grid-template-columns: 1.5fr 1fr 2fr 1fr 1fr !important; }
+        .pdf-mode .hallazgo-row.r1 { display: grid !important; grid-template-columns: 1.5fr 1fr 2fr 1.2fr 1fr !important; }
         .pdf-mode .hallazgo-row.r2 { display: grid !important; grid-template-columns: 2fr 1fr 1fr !important; }
         
-        /* Ajustar los campos al interior de la fila */
         .pdf-mode .hallazgo-row .form-field { margin-bottom: 0 !important; }
 
         .pdf-text-clone {
             border: 1px solid #777;
-            padding: 8px;
+            padding: 6px 8px;
             border-radius: 4px;
             font-size: 12px;
             background-color: transparent;
@@ -263,11 +279,11 @@
 <div class="app-container" id="informeContenedor">
     <div class="header-title">
         INFORME FLASH DE INSPECCIÓN<br>
-        <span style="font-size: 16px; color: #555; font-weight: normal;">GESTIÓN DE RIESGOS (DGR)</span>
+        <span style="font-size: 15px; color: #555; font-weight: normal;">GESTIÓN DE RIESGOS (DGR)</span>
     </div>
 
     <div class="section-header avoid-break">1. Antecedentes de la Inspección</div>
-    <div class="grid-layout avoid-break">
+    <div class="grid-layout compact-grid avoid-break">
         <div class="form-field">
             <label>Nombre del evaluador:</label>
             <input type="text" id="evaluador" placeholder="Ej. Nombre Apellido">
@@ -318,7 +334,7 @@
     </div>
 
     <div class="section-header avoid-break">2. Reconocimiento Preventivo</div>
-    <div class="form-field avoid-break" style="margin-bottom: 20px;">
+    <div class="form-field avoid-break" style="margin-bottom: 15px;">
         <label>Destacar una buena práctica (Técnica del Sandwich):</label>
         <textarea id="buenaPractica" placeholder="Ej. Se observa extintor correctamente señalizado..."></textarea>
     </div>
@@ -346,8 +362,11 @@
         `;
 
         for(let i=1; i<=3; i++) {
-            // El Hallazgo 2 fuerza el inicio de la HOJA 2
-            let claseSalto = (i === 2) ? "force-page-break" : "avoid-break";
+            // LÓGICA DE PAGINACIÓN:
+            // Hallazgo 1: avoid-break (Hoja 1)
+            // Hallazgo 2: force-page-break (Inicia Hoja 2)
+            // Hallazgo 3: force-page-break (Inicia Hoja 3)
+            let claseSalto = (i === 2 || i === 3) ? "force-page-break" : "avoid-break";
 
             document.write(`
             <div class="hallazgo-box ${claseSalto}">
@@ -401,8 +420,8 @@
         }
     </script>
 
-    <div class="section-header force-page-break" style="margin-bottom: 5px;">4. Acuerdos y Cierre en Terreno</div>
-    <p class="avoid-break" style="font-size: 13px; color: #555; text-align: justify; margin-bottom: 15px; margin-top: 10px;">
+    <div class="section-header avoid-break" style="margin-bottom: 5px;">4. Acuerdos y Cierre en Terreno</div>
+    <p class="avoid-break" style="font-size: 13px; color: #555; text-align: justify; margin-bottom: 10px; margin-top: 5px;">
         El Líder del servicio toma conocimiento de los hallazgos descritos y se compromete a gestionar los recursos o facilitar los accesos para la resolución en los plazos estipulados. El DGR brindará el soporte técnico normativo necesario para el cierre exitoso del ciclo.
     </p>
 
@@ -548,7 +567,7 @@
             if(img.style.display === 'block') {
                 img.style.width = 'auto';
                 img.style.maxWidth = '100%';
-                img.style.maxHeight = '140px'; 
+                img.style.maxHeight = '180px'; 
                 img.style.objectFit = 'contain';
             }
         });
@@ -562,8 +581,8 @@
                 jsPDF:        { unit: 'mm', format: 'letter', orientation: 'portrait' },
                 // Las clases "force-page-break" dinámicas garantizan la paginación:
                 // Pag 1: Inicio -> Hallazgo 1
-                // Pag 2: Hallazgo 2 -> Hallazgo 3
-                // Pag 3: Acuerdos y Firmas
+                // Pag 2: Hallazgo 2 completo
+                // Pag 3: Hallazgo 3 -> Acuerdos y Firmas
                 pagebreak:    { mode: ['css', 'legacy'], before: '.force-page-break', avoid: ['.avoid-break'] }
             };
 
