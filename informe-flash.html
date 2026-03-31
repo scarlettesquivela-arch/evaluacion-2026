@@ -188,23 +188,21 @@
         .btn-descargar { background-color: #0033A0; }
         .btn-enviar { background-color: #107C41; }
         @media (max-width: 600px) { .btn-container { flex-direction: column; } }
-
-        /* =========================================
-           MODO PDF (TAMAÑO A4 HORIZONTAL Y MÁRGENES ESTRICTOS)
+/* =========================================
+           MODO PDF (TAMAÑO A4 HORIZONTAL COMPACTO)
            ========================================= */
         body.exporting-pdf {
-            /* 1123px es el ancho exacto para A4 Horizontal (Landscape) */
-            width: 1123px !important;
-            min-width: 1123px !important;
+            /* Al aumentar a 1400px, el PDF encoge todo para que quepa en el A4, reduciendo el tamaño general */
+            width: 1400px !important;
+            min-width: 1400px !important;
             margin: 0 !important;
             padding: 0 !important;
             overflow: visible !important;
             background: white !important;
         }
         .pdf-mode {
-            width: 1123px !important; 
-            max-width: 1123px !important;
-            /* Se elimina el padding interno para que html2pdf aplique exacto el margen de 1cm */
+            width: 1400px !important; 
+            max-width: 1400px !important;
             padding: 0 !important; 
             margin: 0 !important;
             background: white !important;
@@ -213,16 +211,26 @@
             transform: none !important; 
         }
 
-        /* Ajustes de espacio al exportar PDF */
-        .pdf-mode .form-field { margin-bottom: 6px !important; }
-        .pdf-mode .hallazgo-box { padding: 10px !important; margin-bottom: 10px !important; }
-
-        /* Clones de texto con altura automática para evitar cortes */
+        /* ---------------------------------------------------
+           REGLAS DE COMPRESIÓN (Achica fuentes y espacios en el PDF)
+           --------------------------------------------------- */
+        /* Reduce los espacios entre campos */
+        .pdf-mode .form-field { margin-bottom: 4px !important; }
+        .pdf-mode .hallazgo-box { padding: 8px !important; margin-bottom: 8px !important; }
+        
+        /* Achica la letra de las etiquetas y textos */
+        .pdf-mode label { font-size: 11px !important; margin-bottom: 2px !important; }
+        .pdf-mode input, .pdf-mode select, .pdf-mode textarea { 
+            font-size: 11px !important; 
+            padding: 6px !important; 
+        }
+        
+        /* Ajusta los clones de texto para que ocupen menos espacio */
         .pdf-text-clone {
             border: 1px solid #777;
-            padding: 8px;
+            padding: 6px;
             border-radius: 4px;
-            font-size: 13px;
+            font-size: 11px; /* Letra más pequeña en el PDF */
             background-color: transparent;
             word-wrap: break-word;
             white-space: pre-wrap;
@@ -230,6 +238,16 @@
             display: block;
             width: 100%;
             box-sizing: border-box;
+            line-height: 1.2; /* Interlineado más junto */
+        }
+        
+        /* Limita el tamaño de las fotos en el PDF para que no roben espacio */
+        .pdf-mode .foto-preview {
+            max-height: 140px !important; 
+            margin-top: 5px !important;
+        }
+        .pdf-mode canvas {
+            height: 80px !important; /* Firmas más pequeñas */
         }
     </style>
 </head>
