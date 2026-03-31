@@ -9,7 +9,7 @@
     
     <style>
         /* =========================================
-           ESTILOS BASE
+           ESTILOS BASE Y RESPONSIVOS
            ========================================= */
         body {
             font-family: Arial, sans-serif;
@@ -17,6 +17,7 @@
             color: #333;
             margin: 0;
             padding: 15px;
+            overflow-x: hidden;
         }
         .app-container {
             max-width: 850px;
@@ -47,18 +48,32 @@
             border-radius: 4px;
             margin-top: 20px;
             margin-bottom: 10px;
+            page-break-after: avoid; 
+            break-after: avoid;
         }
 
-        /* DISEÑO DE FORMULARIO */
+        /* DISEÑO DE FORMULARIO GENERAL */
         .grid-layout {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 15px;
             width: 100%;
         }
+        
+        /* DISEÑO COMPACTO EXCLUSIVO PARA ANTECEDENTES (HOJA 1) */
+        .compact-grid {
+            gap: 8px !important;
+            margin-bottom: 10px;
+        }
+        .compact-grid .form-field { margin-bottom: 5px !important; }
+        .compact-grid input, .compact-grid select { padding: 6px 10px !important; }
+        .compact-grid label { font-size: 12px !important; margin-bottom: 2px !important; }
+
         .form-field {
+            width: 100%;
             display: flex;
             flex-direction: column;
+            box-sizing: border-box;
             margin-bottom: 10px;
         }
         label {
@@ -69,77 +84,137 @@
         }
         input, select, textarea {
             width: 100%;
-            padding: 10px;
+            padding: 9px;
             border: 1px solid #ccc;
             border-radius: 4px;
+            font-family: Arial, sans-serif;
             font-size: 13px;
             box-sizing: border-box;
+            background-color: #fdfdfd;
+        }
+        textarea {
+            resize: none;
+            overflow: hidden;
+            min-height: 45px;
         }
 
-        /* HALLAZGOS */
+        /* PAGINACIÓN PDF */
+        .avoid-break { break-inside: avoid !important; page-break-inside: avoid !important; }
+        .force-page-break { break-before: page !important; page-break-before: always !important; }
+
+        /* DISEÑO DE HALLAZGOS */
         .hallazgo-box {
             background-color: #F8FBFC;
             border: 1px solid #B3E0F5;
-            padding: 15px;
+            padding: 12px;
             border-radius: 6px;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
+            width: 100%;
+            box-sizing: border-box;
         }
         .hallazgo-title {
             color: #0033A0;
             font-weight: bold;
-            font-size: 16px;
-            margin-bottom: 12px;
+            font-size: 15px;
+            margin-bottom: 10px;
             border-bottom: 1px solid #B3E0F5;
+            padding-bottom: 5px;
             text-align: center;
         }
 
-        /* FOTOS Y FIRMAS */
+        /* FOTOGRAFÍAS (BLOQUEADAS A 180PX PARA NO DESARMAR LA HOJA) */
         .foto-container {
             border: 2px dashed #b3e0f5;
             padding: 10px;
             text-align: center;
             margin-top: 10px;
+            background: #fff;
+            border-radius: 6px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden !important; 
         }
         .foto-preview {
             display: none;
-            max-width: 100%;
-            max-height: 250px;
-            margin: 10px auto;
+            width: auto !important;
+            max-width: 100% !important; 
+            max-height: 180px !important; 
+            margin-top: 10px;
             border-radius: 4px;
+            border: 1px solid #ddd;
+            object-fit: contain !important; 
+        }
+        input[type="file"] { margin: 0 auto; width: 100%; max-width: 300px; cursor: pointer; }
+
+        /* FIRMAS */
+        .firma-container {
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            padding: 10px;
+            background: #fff;
+            text-align: center;
         }
         canvas {
             border: 1px dashed #999;
             background-color: #f9f9f9;
             width: 100%;
-            height: 150px;
+            height: 120px;
+            cursor: crosshair;
             touch-action: none;
+            border-radius: 4px;
+            margin-top: 5px;
         }
-
-        /* BOTONES */
-        .btn-container {
-            display: flex;
-            gap: 15px;
-            margin-top: 30px;
-        }
-        .btn-generar {
-            flex: 1;
+        .btn-limpiar {
+            background-color: #e74c3c;
             color: white;
             border: none;
-            padding: 15px;
-            font-weight: bold;
-            border-radius: 6px;
+            padding: 6px 12px;
+            margin-top: 8px;
+            border-radius: 4px;
+            font-size: 11px;
             cursor: pointer;
         }
-        .btn-descargar { background-color: #0033A0; }
-        .btn-limpiar { background-color: #e74c3c; font-size: 11px; padding: 5px; margin-top: 5px; }
 
-        /* REGLAS DE IMPRESIÓN PDF */
-        @media print {
-            .hide-in-pdf { display: none !important; }
-            .avoid-break { break-inside: avoid !important; page-break-inside: avoid !important; }
-            .force-page-break { break-before: page !important; page-break-before: always !important; }
-            body { background: white; padding: 0; }
-            .app-container { box-shadow: none; border: none; width: 100%; max-width: 100%; }
+        /* BOTONES DE EXPORTACIÓN */
+        .btn-container { display: flex; gap: 15px; margin-top: 30px; }
+        .btn-generar {
+            flex: 1; color: white; border: none; padding: 16px; font-size: 15px;
+            font-weight: bold; border-radius: 6px; cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2); text-align: center;
+        }
+        .btn-descargar { background-color: #0033A0; }
+        .btn-enviar { background-color: #107C41; }
+        @media (max-width: 600px) { .btn-container { flex-direction: column; } }
+
+        /* =========================================
+           MODO PDF (PREVIENE RECORTES EN CELULARES)
+           ========================================= */
+        body.exporting-pdf {
+            width: 800px !important;
+            min-width: 800px !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            overflow: visible !important;
+            background: white !important;
+        }
+        .pdf-mode {
+            width: 800px !important; 
+            max-width: 800px !important;
+            padding: 20px 40px !important; 
+            margin: 0 !important;
+            background: white !important;
+            box-shadow: none !important;
+            border: none !important;
+            transform: none !important; 
+        }
+        /* Clones para que el texto largo se vea completo */
+        .pdf-text-clone {
+            border: 1px solid #777; padding: 6px 8px; border-radius: 4px;
+            font-size: 12px; background-color: transparent;
+            word-wrap: break-word; white-space: pre-wrap;
+            min-height: 14px; display: block;
         }
     </style>
 </head>
@@ -152,9 +227,292 @@
     </div>
 
     <div class="section-header avoid-break">1. Antecedentes de la Inspección</div>
-    <div class="grid-layout avoid-break">
+    <div class="grid-layout compact-grid avoid-break">
         <div class="form-field">
             <label>Nombre del evaluador:</label>
-            <input type="text" id="evaluador">
+            <input type="text" id="evaluador" placeholder="Ej. Nombre Apellido">
         </div>
-        <div class="form-field
+        <div class="form-field">
+            <label>Instalación:</label>
+            <select id="instalacionSelect" onchange="toggleInstalacion()">
+                <option value="">Seleccione instalación...</option>
+                <option value="CAS Vitacura">CAS Vitacura</option>
+                <option value="CAS La Dehesa">CAS La Dehesa</option>
+                <option value="CM Chicureo">CM Chicureo</option>
+                <option value="CM Plaza Egaña">CM Plaza Egaña</option>
+                <option value="TM Los Dominicos">TM Los Dominicos</option>
+                <option value="Otra">Otra (Escribir manualmente)</option>
+            </select>
+            <input type="text" id="instalacionOtra" placeholder="Especifique..." style="display: none; margin-top: 5px;">
+        </div>
+        <div class="form-field">
+            <label>Unidad o Servicio:</label>
+            <input type="text" id="servicio" placeholder="Ej. Urgencia">
+        </div>
+        <div class="form-field">
+            <label>Fecha de Evaluación:</label>
+            <input type="datetime-local" id="fechaHora">
+        </div>
+        <div class="form-field">
+            <label>Piso donde se ubica:</label>
+            <input type="text" id="piso" placeholder="Ej. Piso 2">
+        </div>
+        <div class="form-field">
+            <label>Líder Servicio/Unidad:</label>
+            <input type="text" id="lider" placeholder="Nombre y Cargo">
+        </div>
+    </div>
+
+    <div class="section-header avoid-break">2. Reconocimiento Preventivo</div>
+    <div class="form-field avoid-break" style="margin-bottom: 15px;">
+        <label>Destacar una buena práctica (Técnica del Sandwich):</label>
+        <textarea id="buenaPractica" placeholder="Ej. Se observa extintor correctamente señalizado..."></textarea>
+    </div>
+
+    <div class="section-header avoid-break">3. Hallazgos Críticos y PAC</div>
+    
+    <script>
+        const pilares = `
+            <option value="">Seleccionar pilar...</option>
+            <option value="Seguridad Industrial e Infraestructura">Seguridad Industrial e Infraestructura</option>
+            <option value="Gestión Preventiva (Administrativa)">Gestión Preventiva (Administrativa)</option>
+            <option value="Medio Ambiente (Gestión REAS)">Medio Ambiente (Gestión REAS)</option>
+            <option value="Control y Aseguramiento (Equipos vitales)">Control y Aseguramiento (Equipos vitales)</option>
+            <option value="Empresas Contratistas">Empresas Contratistas</option>
+            <option value="Sustancias Peligrosas y Químicos">Sustancias Peligrosas y Químicos</option>
+        `;
+
+        const riesgos = `
+            <option value="">Seleccionar riesgo...</option>
+            <option value="P1 - CRITICO">P1 - CRÍTICO (Vital/Clausura)</option>
+            <option value="P1B - URGENTE">P1B - URGENTE (Acreditación)</option>
+            <option value="P2 - MODERADO">P2 - MODERADO (Desviación menor)</option>
+            <option value="P3 - MENOR">P3 - MENOR (Mejora estética)</option>
+        `;
+
+        for(let i=1; i<=3; i++) {
+            // Lógica Paginación: H1 (Hoja 1), H2 (Hoja 2), H3 (Hoja 3)
+            let claseSalto = (i === 2 || i === 3) ? "force-page-break" : "avoid-break";
+
+            document.write(`
+            <div class="hallazgo-box ${claseSalto}">
+                <div class="hallazgo-title">Hallazgo ${i}</div>
+                
+                <div class="form-field">
+                    <label>Pilar asociado:</label>
+                    <select id="pilar_${i}">${pilares}</select>
+                </div>
+                <div class="form-field">
+                    <label>Ubicación exacta:</label>
+                    <input type="text" id="ubicacion_${i}" placeholder="Ej. Pasillo Box 4">
+                </div>
+                <div class="form-field">
+                    <label>Descripción del hallazgo:</label>
+                    <textarea id="descripcion_${i}" rows="2" placeholder="Detalle lo observado..."></textarea>
+                </div>
+                <div class="form-field">
+                    <label>Nivel de riesgo:</label>
+                    <select id="riesgo_${i}">${riesgos}</select>
+                </div>
+                <div class="form-field">
+                    <label>Normativa Infringida:</label>
+                    <input type="text" id="normativa_${i}" placeholder="Ej. DS 594">
+                </div>
+                <div class="form-field">
+                    <label>Acción correctiva (PAC):</label>
+                    <textarea id="accion_${i}" rows="2" placeholder="Qué se debe hacer..."></textarea>
+                </div>
+                <div class="grid-layout" style="margin-bottom: 0;">
+                    <div class="form-field">
+                        <label>Responsable:</label>
+                        <input type="text" id="responsable_${i}" placeholder="Área o persona">
+                    </div>
+                    <div class="form-field">
+                        <label>Plazo:</label>
+                        <input type="text" id="plazo_${i}" placeholder="Ej. 24 hrs">
+                    </div>
+                </div>
+
+                <div class="foto-container avoid-break">
+                    <label style="color:#0033A0; text-transform: uppercase;">Fotografía adjunta</label>
+                    <input type="file" accept="image/*" class="hide-in-pdf" onchange="previewImg(event, 'imgH${i}')">
+                    <img id="imgH${i}" class="foto-preview">
+                </div>
+            </div>
+            `);
+        }
+    </script>
+
+    <div class="section-header avoid-break" style="margin-bottom: 5px;">4. Acuerdos y Cierre en Terreno</div>
+    <p class="avoid-break" style="font-size: 13px; color: #555; text-align: justify; margin-bottom: 15px; margin-top: 10px;">
+        El Líder del servicio toma conocimiento de los hallazgos descritos y se compromete a gestionar los recursos o facilitar los accesos para la resolución en los plazos estipulados. El DGR brindará el soporte técnico normativo necesario para el cierre exitoso del ciclo.
+    </p>
+
+    <div class="grid-layout avoid-break">
+        <div class="firma-container avoid-break">
+            <label>Nombre del Líder / Jefatura:</label>
+            <input type="text" id="nombreFirmaLider" placeholder="Nombre completo" style="margin-bottom: 5px; text-align: center;">
+            <label>Firma (Dibuje aquí):</label>
+            <canvas id="canvasLider" width="600" height="200"></canvas>
+            <button class="btn-limpiar hide-in-pdf" onclick="clearCanvas('canvasLider')">Limpiar Firma</button>
+        </div>
+        
+        <div class="firma-container avoid-break">
+            <label>Nombre Evaluador DGR:</label>
+            <input type="text" id="nombreFirmaDGR" placeholder="Nombre completo" style="margin-bottom: 5px; text-align: center;">
+            <label>Firma (Dibuje aquí):</label>
+            <canvas id="canvasDGR" width="600" height="200"></canvas>
+            <button class="btn-limpiar hide-in-pdf" onclick="clearCanvas('canvasDGR')">Limpiar Firma</button>
+        </div>
+    </div>
+
+    <div class="btn-container hide-in-pdf">
+        <button class="btn-generar btn-descargar" onclick="procesarPDF('descargar')">DESCARGAR PDF</button>
+        <button class="btn-generar btn-enviar" onclick="procesarPDF('compartir')">ENVIAR / COMPARTIR</button>
+    </div>
+
+</div>
+
+<script>
+    function toggleInstalacion() {
+        const select = document.getElementById('instalacionSelect');
+        const input = document.getElementById('instalacionOtra');
+        if(select.value === 'Otra') {
+            input.style.display = 'block'; input.focus();
+        } else {
+            input.style.display = 'none'; input.value = '';
+        }
+    }
+
+    function previewImg(event, imgId) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = document.getElementById(imgId);
+                img.src = e.target.result;
+                img.style.display = 'block';
+            }
+            reader.readAsDataURL(file);
+        }
+    }
+
+    function initSignature(canvasId) {
+        const canvas = document.getElementById(canvasId);
+        const ctx = canvas.getContext('2d');
+        let isDrawing = false;
+        ctx.lineWidth = 4; ctx.lineCap = 'round'; ctx.strokeStyle = '#000033';
+
+        function getPos(e) {
+            const rect = canvas.getBoundingClientRect();
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            return { x: (clientX - rect.left) * (canvas.width / rect.width), y: (clientY - rect.top) * (canvas.height / rect.height) };
+        }
+
+        const start = (e) => { isDrawing = true; ctx.beginPath(); ctx.moveTo(getPos(e).x, getPos(e).y); e.preventDefault(); };
+        const draw = (e) => { if(!isDrawing) return; ctx.lineTo(getPos(e).x, getPos(e).y); ctx.stroke(); e.preventDefault(); };
+        const stop = () => { isDrawing = false; };
+
+        canvas.addEventListener('mousedown', start); canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('mouseup', stop); canvas.addEventListener('mouseout', stop);
+        canvas.addEventListener('touchstart', start, {passive: false});
+        canvas.addEventListener('touchmove', draw, {passive: false});
+        canvas.addEventListener('touchend', stop);
+    }
+
+    function clearCanvas(canvasId) {
+        const canvas = document.getElementById(canvasId);
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+
+    window.onload = () => {
+        initSignature('canvasLider'); initSignature('canvasDGR');
+        document.getElementById('lider').addEventListener('input', (e) => { document.getElementById('nombreFirmaLider').value = e.target.value; });
+        document.getElementById('evaluador').addEventListener('input', (e) => { document.getElementById('nombreFirmaDGR').value = e.target.value; });
+    };
+
+    function procesarPDF(accion) {
+        window.scrollTo(0, 0);
+
+        let instalacion = document.getElementById('instalacionSelect').value;
+        if(instalacion === 'Otra') instalacion = document.getElementById('instalacionOtra').value || 'Instalacion';
+        let fecha = document.getElementById('fechaHora').value.replace('T', '_').replace(/:/g, '-') || 'Fecha';
+        let nombreArchivo = `Informe_Flash_${instalacion}_${fecha}.pdf`.replace(/\s+/g, '_');
+
+        const elemento = document.getElementById('informeContenedor');
+        document.querySelectorAll('.hide-in-pdf').forEach(el => el.style.display = 'none');
+        
+        // Transformación temporal para evitar cortes en móvil
+        document.body.classList.add('exporting-pdf');
+        elemento.classList.add('pdf-mode');
+
+        const formElements = document.querySelectorAll('#informeContenedor input:not([type="file"]), #informeContenedor textarea, #informeContenedor select');
+        formElements.forEach(el => {
+            if (el.style.display === 'none' || el.classList.contains('hide-in-pdf')) return;
+            const div = document.createElement('div');
+            div.className = 'pdf-text-clone';
+            div.style.textAlign = window.getComputedStyle(el).textAlign || 'left';
+
+            if (el.tagName === 'SELECT') {
+                div.innerText = (el.options[el.selectedIndex]?.text && !el.options[el.selectedIndex].text.includes('Seleccionar')) ? el.options[el.selectedIndex].text : '';
+            } else if (el.type === 'datetime-local') {
+                div.innerText = el.value.replace('T', ' ');
+            } else { div.innerText = el.value; }
+
+            el.parentNode.insertBefore(div, el);
+            el.setAttribute('data-original-display', el.style.display || '');
+            el.style.display = 'none';
+            el.classList.add('pdf-hidden');
+        });
+
+        document.querySelectorAll('.foto-preview').forEach(img => {
+            if(img.style.display === 'block') {
+                img.style.width = 'auto'; img.style.maxWidth = '100%'; img.style.maxHeight = '180px'; img.style.objectFit = 'contain';
+            }
+        });
+
+        setTimeout(() => {
+            const opciones = {
+                margin:       [10, 10, 10, 10], 
+                filename:     nombreArchivo,
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true, windowWidth: 800, width: 800, x: 0, y: 0, scrollX: 0, scrollY: 0 },
+                jsPDF:        { unit: 'mm', format: 'letter', orientation: 'portrait' },
+                // Configuración que lee las clases de saltos exactos:
+                pagebreak:    { mode: ['css', 'legacy'], before: '.force-page-break', avoid: ['.avoid-break'] }
+            };
+
+            if (accion === 'descargar') {
+                html2pdf().set(opciones).from(elemento).save().then(restaurarVista);
+            } else {
+                html2pdf().set(opciones).from(elemento).output('blob').then(function(pdfBlob) {
+                    restaurarVista();
+                    const file = new File([pdfBlob], nombreArchivo, { type: 'application/pdf' });
+                    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                        navigator.share({ title: 'Informe DGR', text: 'Informe Flash Adjunto.', files: [file] })
+                        .catch(err => console.log('Envío cancelado', err));
+                    } else {
+                        alert("Tu navegador no soporta enviar directamente. El archivo se descargará.");
+                        html2pdf().set(opciones).from(elemento).save();
+                    }
+                });
+            }
+        }, 500); 
+
+        function restaurarVista() {
+            document.body.classList.remove('exporting-pdf');
+            elemento.classList.remove('pdf-mode');
+            document.querySelectorAll('.pdf-text-clone').forEach(el => el.remove());
+            document.querySelectorAll('.pdf-hidden').forEach(el => {
+                el.style.display = el.getAttribute('data-original-display');
+                el.classList.remove('pdf-hidden');
+            });
+            document.querySelectorAll('.hide-in-pdf').forEach(el => el.style.display = 'block');
+        }
+    }
+</script>
+
+</body>
+</html>
