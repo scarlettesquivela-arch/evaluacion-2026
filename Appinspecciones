@@ -10,7 +10,7 @@
 
     <aside id="sidebar" class="bg-gray-800 text-white w-64 flex-shrink-0 transition-all duration-300">
         <div class="p-4 flex justify-between items-center bg-gray-900">
-            <h1 class="text-xl font-bold">SSO Salud</h1>
+            <h1 class="text-xl font-bold cursor-pointer" id="btn-logo">SSO Salud</h1>
             <button id="btn-toggle-sidebar" class="text-gray-400 hover:text-white">☰</button>
         </div>
         
@@ -25,7 +25,7 @@
             </div>
             
             <div id="menu-inspeccion" class="hidden">
-                <a href="#" class="block px-4 py-2 hover:bg-gray-700">🔍 Nueva Inspección</a>
+                <a href="#" id="link-nueva-inspeccion" class="block px-4 py-2 hover:bg-gray-700">🔍 Nueva Inspección</a>
             </div>
         </nav>
     </aside>
@@ -44,25 +44,126 @@
         </header>
         
         <div class="p-6 overflow-y-auto h-full" id="contenido-principal">
-            <div class="bg-white p-6 rounded shadow border-l-4 border-blue-500">
-                <h3 class="text-xl font-bold mb-2">¡Layout Base Listo!</h3>
-                <p class="text-gray-600">Hemos omitido el inicio de sesión. Utiliza el menú superior derecho para simular cómo cambia el menú lateral según el perfil.</p>
+            
+            <div id="vista-inicio" class="bg-white p-6 rounded shadow border-l-4 border-blue-500 block">
+                <h3 class="text-xl font-bold mb-2">¡Bienvenido al sistema!</h3>
+                <p class="text-gray-600">Selecciona una opción del menú lateral para comenzar.</p>
             </div>
+
+            <div id="vista-formulario-inspeccion" class="hidden bg-white p-6 rounded shadow max-w-2xl mx-auto">
+                <h3 class="text-xl font-bold mb-6 text-gray-800 border-b pb-2">Registrar Nueva Inspección</h3>
+                
+                <form id="form-inspeccion" class="space-y-4">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-semibold mb-1">Fecha de Inspección</label>
+                            <input type="date" class="w-full border p-2 rounded focus:outline-none focus:border-blue-500" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold mb-1">Área / Departamento</label>
+                            <select class="w-full border p-2 rounded focus:outline-none focus:border-blue-500" required>
+                                <option value="">Seleccione un área...</option>
+                                <option value="urgencias">Urgencias</option>
+                                <option value="quirofano">Quirófano</option>
+                                <option value="laboratorio">Laboratorio</option>
+                                <option value="hospitalizacion">Hospitalización</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mt-6">
+                        <h4 class="font-semibold text-gray-700 mb-2">Lista de Verificación (Checklist)</h4>
+                        <div class="bg-gray-50 p-4 rounded border space-y-2">
+                            <label class="flex items-center space-x-2 cursor-pointer">
+                                <input type="checkbox" class="w-4 h-4 text-blue-600">
+                                <span>Los extintores están vigentes y accesibles.</span>
+                            </label>
+                            <label class="flex items-center space-x-2 cursor-pointer">
+                                <input type="checkbox" class="w-4 h-4 text-blue-600">
+                                <span>Las salidas de emergencia están libres de obstáculos.</span>
+                            </label>
+                            <label class="flex items-center space-x-2 cursor-pointer">
+                                <input type="checkbox" class="w-4 h-4 text-blue-600">
+                                <span>El personal utiliza su Equipo de Protección Personal (EPP).</span>
+                            </label>
+                            <label class="flex items-center space-x-2 cursor-pointer">
+                                <input type="checkbox" class="w-4 h-4 text-blue-600">
+                                <span>Señalética de riesgo biológico visible y en buen estado.</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold mb-1">Observaciones / Hallazgos</label>
+                        <textarea class="w-full border p-2 rounded focus:outline-none focus:border-blue-500" rows="3" placeholder="Detalle aquí cualquier riesgo encontrado..."></textarea>
+                    </div>
+
+                    <div class="pt-4 flex justify-end gap-2 border-t mt-4">
+                        <button type="button" id="btn-cancelar" class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 transition">Cancelar</button>
+                        <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition font-bold">Guardar Inspección</button>
+                    </div>
+                </form>
+            </div>
+
         </div>
     </main>
 
     <script>
-        // Referencias a los elementos del menú
+        // Referencias de Menú y Roles
         const menuDashboard = document.getElementById('menu-dashboard');
         const menuCarga = document.getElementById('menu-carga');
         const menuInspeccion = document.getElementById('menu-inspeccion');
+        
+        // Referencias de Vistas y Títulos
+        const vistaInicio = document.getElementById('vista-inicio');
+        const vistaFormulario = document.getElementById('vista-formulario-inspeccion');
+        const tituloVistaActual = document.getElementById('vista-actual-titulo');
 
-        // Función para cambiar la vista según el rol seleccionado
+        // --- SISTEMA DE NAVEGACIÓN (CAMBIO DE VISTAS) ---
+        
+        // Función para ocultar todas las vistas y mostrar solo la que necesitamos
+        function mostrarVista(vistaAMostrar, titulo) {
+            vistaInicio.classList.add('hidden');
+            vistaFormulario.classList.add('hidden');
+            
+            vistaAMostrar.classList.remove('hidden');
+            tituloVistaActual.textContent = titulo;
+        }
+
+        // Evento al hacer clic en "Nueva Inspección"
+        document.getElementById('link-nueva-inspeccion').addEventListener('click', (e) => {
+            e.preventDefault(); // Evita que la página intente recargarse
+            mostrarVista(vistaFormulario, 'Nueva Inspección');
+        });
+
+        // Evento al hacer clic en el logo para volver al inicio
+        document.getElementById('btn-logo').addEventListener('click', () => {
+            mostrarVista(vistaInicio, 'Inicio');
+        });
+
+        // Evento al hacer clic en cancelar dentro del formulario
+        document.getElementById('btn-cancelar').addEventListener('click', () => {
+            if(confirm("¿Estás seguro de cancelar? Se perderán los datos ingresados.")){
+                mostrarVista(vistaInicio, 'Inicio');
+                document.getElementById('form-inspeccion').reset(); // Limpia el formulario
+            }
+        });
+
+        // Simular el guardado del formulario
+        document.getElementById('form-inspeccion').addEventListener('submit', (e) => {
+            e.preventDefault(); // Evita que la página se recargue al enviar
+            alert("¡Inspección guardada exitosamente! (Simulación)");
+            document.getElementById('form-inspeccion').reset();
+            mostrarVista(vistaInicio, 'Inicio');
+        });
+
+        // --- SIMULADOR DE ROLES ---
         function actualizarMenuPorRol(rol) {
             if (rol === 'Administrador') {
                 menuDashboard.classList.remove('hidden');
                 menuCarga.classList.remove('hidden');
                 menuInspeccion.classList.add('hidden'); 
+                mostrarVista(vistaInicio, 'Inicio'); // Si cambia de rol, vuelve al inicio
             } else if (rol === 'Evaluador') {
                 menuDashboard.classList.add('hidden');
                 menuCarga.classList.add('hidden');
@@ -70,12 +171,11 @@
             }
         }
 
-        // Escuchar el cambio en el selector de roles
         document.getElementById('simulador-rol').addEventListener('change', (evento) => {
             actualizarMenuPorRol(evento.target.value);
         });
 
-        // Utilidad: Colapsar/Expandir Panel Lateral
+        // --- SIDEBAR TOGGLE ---
         document.getElementById('btn-toggle-sidebar').addEventListener('click', () => {
             const sidebar = document.getElementById('sidebar');
             if (sidebar.classList.contains('w-64')) {
