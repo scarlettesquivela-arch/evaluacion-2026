@@ -6,206 +6,82 @@
     <title>Gestión de Inspecciones SSO</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100 font-sans text-gray-800 h-screen overflow-hidden">
+<body class="bg-gray-100 font-sans text-gray-800 h-screen overflow-hidden flex">
 
-    <div id="login-view" class="flex h-screen justify-center items-center bg-gray-200">
-        <div class="bg-white p-8 rounded-lg shadow-md w-96">
-            <h2 class="text-2xl font-bold mb-6 text-center text-blue-600">SSO Salud - Ingreso</h2>
-            
-            <div class="mb-4">
-                <label class="block text-sm font-semibold mb-2">Correo Electrónico</label>
-                <input type="email" id="email" class="w-full border p-2 rounded focus:outline-none focus:border-blue-500" placeholder="usuario@clinica.com">
-            </div>
-            
-            <div class="mb-6">
-                <label class="block text-sm font-semibold mb-2">Contraseña</label>
-                <input type="password" id="password" class="w-full border p-2 rounded focus:outline-none focus:border-blue-500" placeholder="********">
-            </div>
-            
-            <button id="btn-login" class="w-full bg-blue-600 text-white font-bold py-2 px-4 rounded hover:bg-blue-700 transition">Iniciar Sesión</button>
-            
-            <hr class="my-4">
-            <button id="btn-crear-admin" class="w-full bg-green-500 text-white font-bold py-2 px-4 rounded hover:bg-green-600 transition text-sm">
-                Crear Admin de Prueba (Solo desarrollo)
-            </button>
-            <p id="login-msg" class="text-red-500 text-sm mt-3 text-center"></p>
+    <aside id="sidebar" class="bg-gray-800 text-white w-64 flex-shrink-0 transition-all duration-300">
+        <div class="p-4 flex justify-between items-center bg-gray-900">
+            <h1 class="text-xl font-bold">SSO Salud</h1>
+            <button id="btn-toggle-sidebar" class="text-gray-400 hover:text-white">☰</button>
         </div>
-    </div>
-
-    <div id="app-view" class="hidden h-screen flex">
         
-        <aside id="sidebar" class="bg-gray-800 text-white w-64 flex-shrink-0 transition-all duration-300">
-            <div class="p-4 flex justify-between items-center bg-gray-900">
-                <h1 class="text-xl font-bold">SSO Salud</h1>
-                <button id="btn-toggle-sidebar" class="text-gray-400 hover:text-white">☰</button>
+        <nav class="mt-5">
+            <p class="px-4 text-xs text-gray-400 uppercase tracking-wider mb-2">Menú Principal</p>
+            
+            <div id="menu-dashboard">
+                <a href="#" class="block px-4 py-2 hover:bg-gray-700">📊 Dashboard General</a>
+            </div>
+            <div id="menu-carga">
+                <a href="#" class="block px-4 py-2 hover:bg-gray-700">📋 Carga de Listas</a>
             </div>
             
-            <nav class="mt-5">
-                <p class="px-4 text-xs text-gray-400 uppercase tracking-wider mb-2">Menú Principal</p>
-                
-                <div id="menu-dashboard" class="hidden">
-                    <a href="#" class="block px-4 py-2 hover:bg-gray-700">📊 Dashboard General</a>
-                </div>
-                <div id="menu-carga" class="hidden">
-                    <a href="#" class="block px-4 py-2 hover:bg-gray-700">📋 Carga de Listas</a>
-                </div>
-                
-                <div id="menu-inspeccion" class="hidden">
-                    <a href="#" class="block px-4 py-2 hover:bg-gray-700">🔍 Nueva Inspección</a>
-                </div>
-            </nav>
-        </aside>
-
-        <main class="flex-1 flex flex-col bg-gray-100">
-            <header class="bg-white shadow p-4 flex justify-between items-center">
-                <h2 class="text-lg font-semibold" id="vista-actual-titulo">Bienvenido</h2>
-                <div class="flex items-center gap-4">
-                    <span id="user-info" class="text-sm font-medium text-gray-600">Cargando usuario...</span>
-                    <button id="btn-logout" class="bg-red-500 text-white text-sm px-3 py-1 rounded hover:bg-red-600">Salir</button>
-                </div>
-            </header>
-            
-            <div class="p-6 overflow-y-auto h-full" id="contenido-principal">
-                <div class="bg-white p-6 rounded shadow border-l-4 border-blue-500">
-                    <h3 class="text-xl font-bold mb-2">¡Sistema inicializado correctamente!</h3>
-                    <p class="text-gray-600">El layout base está listo. En el próximo sprint inyectaremos los módulos aquí.</p>
-                </div>
+            <div id="menu-inspeccion" class="hidden">
+                <a href="#" class="block px-4 py-2 hover:bg-gray-700">🔍 Nueva Inspección</a>
             </div>
-        </main>
-    </div>
+        </nav>
+    </aside>
 
-    <script type="module">
-        // 1. Importar los módulos de Firebase (Versión 10+ Modular)
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+    <main class="flex-1 flex flex-col bg-gray-100">
+        <header class="bg-white shadow p-4 flex justify-between items-center">
+            <h2 class="text-lg font-semibold" id="vista-actual-titulo">Inicio</h2>
+            
+            <div class="flex items-center gap-4 border p-2 rounded bg-gray-50">
+                <label for="simulador-rol" class="text-sm font-bold text-gray-600">Simular vista como:</label>
+                <select id="simulador-rol" class="bg-white border text-sm rounded px-2 py-1 outline-none focus:border-blue-500">
+                    <option value="Administrador">Administrador</option>
+                    <option value="Evaluador">Evaluador</option>
+                </select>
+            </div>
+        </header>
+        
+        <div class="p-6 overflow-y-auto h-full" id="contenido-principal">
+            <div class="bg-white p-6 rounded shadow border-l-4 border-blue-500">
+                <h3 class="text-xl font-bold mb-2">¡Layout Base Listo!</h3>
+                <p class="text-gray-600">Hemos omitido el inicio de sesión. Utiliza el menú superior derecho para simular cómo cambia el menú lateral según el perfil.</p>
+            </div>
+        </div>
+    </main>
 
-        // 2. Configuración de tu proyecto Firebase 
-        // IMPORTANTE: Reemplaza esto con los datos de TU consola de Firebase
-        const firebaseConfig = {
-            apiKey: "TU_API_KEY",
-            authDomain: "tu-proyecto.firebaseapp.com",
-            projectId: "tu-proyecto",
-            storageBucket: "tu-proyecto.appspot.com",
-            messagingSenderId: "123456789",
-            appId: "1:12345:web:abcd"
-        };
-
-        // 3. Inicializar Firebase
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-
-        // 4. Referencias a la interfaz de usuario (DOM)
-        const loginView = document.getElementById('login-view');
-        const appView = document.getElementById('app-view');
-        const loginMsg = document.getElementById('login-msg');
-        const userInfo = document.getElementById('user-info');
-
-        // Referencias del Menú
+    <script>
+        // Referencias a los elementos del menú
         const menuDashboard = document.getElementById('menu-dashboard');
         const menuCarga = document.getElementById('menu-carga');
         const menuInspeccion = document.getElementById('menu-inspeccion');
 
-        // 5. Lógica de Inicio de Sesión
-        document.getElementById('btn-login').addEventListener('click', async () => {
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            
-            try {
-                loginMsg.textContent = "Verificando...";
-                await signInWithEmailAndPassword(auth, email, password);
-                // El cambio de pantalla se maneja en onAuthStateChanged
-            } catch (error) {
-                loginMsg.textContent = "Error: " + error.message;
-            }
-        });
-
-        // 6. Observador del estado de autenticación (Detecta si entras o sales)
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                // Usuario logueado: Mostramos la App y ocultamos el Login
-                loginView.classList.add('hidden');
-                appView.classList.remove('hidden');
-
-                // Consultar el Rol en Firestore
-                const docRef = doc(db, "Usuarios", user.uid);
-                const docSnap = await getDoc(docRef);
-
-                if (docSnap.exists()) {
-                    const datosUsuario = docSnap.data();
-                    const rol = datosUsuario.rol;
-                    
-                    userInfo.textContent = `${datosUsuario.nombre} (${rol})`;
-
-                    // Lógica de Rutas/Menú Protegidas
-                    if (rol === 'Administrador') {
-                        menuDashboard.classList.remove('hidden');
-                        menuCarga.classList.remove('hidden');
-                        menuInspeccion.classList.add('hidden'); // Opcional: El admin podría ver esto también si lo decides luego
-                    } else if (rol === 'Evaluador') {
-                        menuDashboard.classList.add('hidden');
-                        menuCarga.classList.add('hidden');
-                        menuInspeccion.classList.remove('hidden');
-                    }
-                } else {
-                    userInfo.textContent = "Usuario sin rol asignado";
-                }
-            } else {
-                // Usuario no logueado: Mostramos Login
-                loginView.classList.remove('hidden');
-                appView.classList.add('hidden');
-                
-                // Ocultar menús por seguridad
+        // Función para cambiar la vista según el rol seleccionado
+        function actualizarMenuPorRol(rol) {
+            if (rol === 'Administrador') {
+                menuDashboard.classList.remove('hidden');
+                menuCarga.classList.remove('hidden');
+                menuInspeccion.classList.add('hidden'); 
+            } else if (rol === 'Evaluador') {
                 menuDashboard.classList.add('hidden');
                 menuCarga.classList.add('hidden');
-                menuInspeccion.classList.add('hidden');
-                loginMsg.textContent = "";
+                menuInspeccion.classList.remove('hidden');
             }
+        }
+
+        // Escuchar el cambio en el selector de roles
+        document.getElementById('simulador-rol').addEventListener('change', (evento) => {
+            actualizarMenuPorRol(evento.target.value);
         });
 
-        // 7. Lógica para Cerrar Sesión
-        document.getElementById('btn-logout').addEventListener('click', () => {
-            signOut(auth);
-        });
-
-        // 8. Utilidad: Colapsar/Expandir Panel Lateral
+        // Utilidad: Colapsar/Expandir Panel Lateral
         document.getElementById('btn-toggle-sidebar').addEventListener('click', () => {
             const sidebar = document.getElementById('sidebar');
             if (sidebar.classList.contains('w-64')) {
-                sidebar.classList.replace('w-64', 'w-16'); // Colapsa
-                // Oculta el texto de los enlaces para que solo se vean iconos (si los hubiéramos puesto solos)
+                sidebar.classList.replace('w-64', 'w-16');
             } else {
-                sidebar.classList.replace('w-16', 'w-64'); // Expande
-            }
-        });
-
-        // 9. FUNCIÓN DE AYUDA: Crear un Administrador por defecto para pruebas iniciales
-        document.getElementById('btn-crear-admin').addEventListener('click', async () => {
-            const email = prompt("Ingresa el correo para tu nuevo Admin:");
-            const password = prompt("Ingresa una contraseña (mínimo 6 caracteres):");
-            
-            if (email && password) {
-                try {
-                    loginMsg.textContent = "Creando usuario...";
-                    // Crea el usuario en Firebase Auth
-                    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-                    const user = userCredential.user;
-                    
-                    // Crea el registro en Firestore en la tabla "Usuarios"
-                    await setDoc(doc(db, "Usuarios", user.uid), {
-                        id: user.uid,
-                        nombre: "Administrador de Prueba",
-                        email: email,
-                        rol: "Administrador"
-                    });
-                    
-                    alert("¡Administrador creado con éxito! Ya puedes iniciar sesión.");
-                    signOut(auth); // Cerramos sesión para que ingreses formalmente
-                } catch (error) {
-                    alert("Error al crear: " + error.message);
-                    loginMsg.textContent = "";
-                }
+                sidebar.classList.replace('w-16', 'w-64');
             }
         });
     </script>
